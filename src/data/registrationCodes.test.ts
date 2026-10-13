@@ -73,3 +73,12 @@ it('allows a retry once the lockout window has elapsed', async () => {
   await issue('NEW-VALID-CODE')
   expect((await redeem('NEW-VALID-CODE')).status).toBe('accepted')
 })
+
+it('accepts a nonexpiring code long after issuance, only once', async () => {
+  await db.query(
+    `insert into private.device_registration_codes(code_hash,profile_id,created_at,expires_at) select $1,id,now()-interval '10 years','infinity'::timestamptz from public.profiles where auth_user_id=$2`,
+    [digest('neo:PERMANENT-CODE'), testUser],
+  )
+  expect((await redeem('PERMANENT-CODE')).status).toBe('accepted')
+  expect((await redeem('PERMANENT-CODE')).status).toBe('invalid')
+})

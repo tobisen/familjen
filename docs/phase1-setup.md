@@ -7,7 +7,7 @@ Phase 1:s offentliga kalender är ersatt av en privat kalender. Kör aldrig tidi
 - Separat Supabase-projekt **familjen**, ref `mulsuwdmpixzukzwpocf`, region Stockholm `eu-north-1`.
 - Skapat i befintlig organisation efter verifiering av gratisplanen och ledig projektplats. Vinskåpets databas, nycklar och sessioner används inte.
 - Kontoinloggningen återanvändes via Supabase CLI:s namngivna profil `supabase` i OS credential store. Administrativa nycklar har hanterats endast i processminnet, inte lagrats i repo/frontend.
-- De fyra migrationerna är tillämpade i ordning och journalförda i `supabase_migrations.schema_migrations`.
+- De fem migrationerna är tillämpade i ordning och journalförda i `supabase_migrations.schema_migrations`.
 - `config/public-supabase.json` innehåller endast projekt-URL och offentlig **anon**-nyckel. Den får vara publik; RLS och RPC-behörigheter skyddar all familjedata. Vite validerar att nyckeln är publishable/anon och avvisar administrativa nycklar. Miljövariabler kan ersätta dessa publika värden; `VITE_SUPABASE_DISABLED=true` stänger backend i det isolerade shell-testet.
 
 ## Registrera en enhet

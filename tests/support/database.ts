@@ -12,6 +12,7 @@ export async function calendarDatabase(enabled = true) {
     '202610130002_open_calendar.sql',
     '202610130003_private_calendar.sql',
     '202610130004_registration_codes.sql',
+    '202610130005_nonexpiring_codes.sql',
   ])
     await db.exec(readFileSync(`supabase/migrations/${f}`, 'utf8'))
   if (enabled) {
