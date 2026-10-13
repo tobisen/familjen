@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
 import {
   House,
@@ -14,8 +14,20 @@ import {
 } from 'lucide-vue-next'
 import { useRegisterSW } from 'virtual:pwa-register/vue'
 import { selectedProfile, profiles, storageError } from './domain/profiles'
+import {
+  startCalendar,
+  editor,
+  detail,
+  openCreate,
+  canWrite,
+  calendarStatus,
+} from './stores/calendar'
+import { today } from './domain/calendar'
+import EventEditor from './components/EventEditor.vue'
+import EventDetails from './components/EventDetails.vue'
 import ProfilePicker from './components/ProfilePicker.vue'
 import { backendConfigured } from './services/supabase'
+onMounted(() => startCalendar())
 const nav = [
   { to: '/', label: 'Hem', icon: House },
   { to: '/kalender', label: 'Kalender', icon: CalendarDays },
@@ -109,13 +121,15 @@ const { needRefresh, updateServiceWorker } = useRegisterSW()
           <div>
             <strong>{{
               backendConfigured
-                ? 'Säker åtkomst återstår'
+                ? calendarStatus === 'ready'
+                  ? 'Offentlig familjekalender'
+                  : 'Kalenderanslutning återstår'
                 : 'En bra början. Snart fyller vi den med er vardag.'
             }}</strong>
             <p>
               {{
                 backendConfigured
-                  ? 'Supabase är konfigurerat. Privat data kräver autentisering och medlemskap.'
+                  ? 'Kalendern är offentlig för läsning och redigering. Chatt, GPS och push är fortsatt skyddade och inaktiva.'
                   : 'Supabase är inte konfigurerat. Familjedata och synkning aktiveras efter säker installation.'
               }}
             </p>
@@ -124,14 +138,14 @@ const { needRefresh, updateServiceWorker } = useRegisterSW()
             ><ArrowUpRight :size="22"
           /></RouterLink>
         </div>
-        <footer>FAMILJEN <span>Byggd för vår vardag · Phase 0</span></footer>
+        <footer>FAMILJEN <span>Byggd för vår vardag · Phase 1</span></footer>
       </main>
     </div>
     <button
       ref="plus"
       class="quick-add"
       aria-label="Lägg till"
-      @click="quick = true"
+      @click="canWrite ? openCreate(today()) : (quick = true)"
     >
       <Plus :size="24" /><span>Lägg till</span>
     </button>
@@ -157,7 +171,8 @@ const { needRefresh, updateServiceWorker } = useRegisterSW()
         <button aria-label="Stäng" @click="quick = false"><X /></button>
       </div>
       <p>
-        Snabbregistrering aktiveras i kommande faser efter säker inloggning.
+        Aktiviteter kan sparas när Supabase är konfigurerat och den offentliga
+        kalendern är aktiverad. Uppgifter och inköp kommer i Phase 2.
       </p>
       <div class="quick-options">
         <div v-for="label in ['Aktivitet', 'Uppgift', 'Inköp']" :key="label">
@@ -166,6 +181,14 @@ const { needRefresh, updateServiceWorker } = useRegisterSW()
         </div>
       </div>
       <p class="small">Ingenting sparas ännu.</p>
+      <RouterLink to="/kalender" class="text-link" @click="quick = false"
+        >Visa kalendern</RouterLink
+      >
     </dialog>
+    <EventEditor
+      v-if="editor"
+      :key="`${editor.id}:${editor.date}:${editor.time}`"
+    />
+    <EventDetails v-if="detail" :key="detail.key" />
   </div>
 </template>

@@ -10,8 +10,14 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run preview -- --port 4173',
+    command:
+      'vite build --outDir dist-shell && vite preview --outDir dist-shell --port 4173 --host 127.0.0.1',
     url: 'http://127.0.0.1:4173/familjen/',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
+    env: {
+      VITE_SUPABASE_URL: '',
+      VITE_SUPABASE_PUBLISHABLE_KEY: '',
+      VITE_BASE_PATH: '/familjen/',
+    },
   },
 })

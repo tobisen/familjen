@@ -29,6 +29,7 @@ jobs:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
       - run: npm run test:e2e
+      - run: npm run test:e2e:calendar
       - uses: actions/upload-pages-artifact@v3
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         with:

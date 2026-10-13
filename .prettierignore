@@ -3,3 +3,8 @@ node_modules
 package-lock.json
 playwright-report
 test-results
+
+dist-e2e
+private-imports
+
+dist-shell

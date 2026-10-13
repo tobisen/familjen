@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { calendarStatus, syncStatus } from '../stores/calendar'
 import ProfilePicker from '../components/ProfilePicker.vue'
-import { backendConfigured } from '../services/supabase'
+import { backendConfigured, configurationError } from '../services/supabase'
 import { deviceCapabilities } from '../services/capabilities'
 const capabilities = deviceCapabilities()
 </script>
@@ -13,6 +14,9 @@ const capabilities = deviceCapabilities()
     </div>
   </div>
   <div class="panel settings-panel"><ProfilePicker /></div>
+  <p v-if="configurationError" role="alert" class="notice">
+    {{ configurationError }}
+  </p>
   <section class="panel settings-panel">
     <h2>Appens status</h2>
     <dl>
@@ -20,15 +24,19 @@ const capabilities = deviceCapabilities()
         <dt>Datakoppling</dt>
         <dd>
           {{
-            backendConfigured
-              ? 'Konfigurerad · säker inloggning återstår'
-              : 'Supabase saknar konfiguration'
+            backendConfigured ? 'Konfigurerad' : 'Supabase saknar konfiguration'
           }}
         </dd>
       </div>
       <div>
-        <dt>Inloggning & synkning</dt>
-        <dd>Förbereds i nästa fas</dd>
+        <dt>Kalender & synkning</dt>
+        <dd>
+          {{
+            calendarStatus === 'ready'
+              ? syncStatus
+              : 'Kalendern är inte ansluten'
+          }}
+        </dd>
       </div>
       <div>
         <dt>Pushnotiser</dt>
@@ -53,6 +61,18 @@ const capabilities = deviceCapabilities()
     </dl>
   </section>
   <section class="panel settings-panel">
+    <h2>Offentlig kalender</h2>
+    <p>
+      Alla som hittar webbadressen kan läsa, ändra och radera
+      kalenderaktiviteter och importerade lektioner. Profilvalet ger en
+      personlig vy och förvald deltagare, inte en verifierad identitet.
+    </p>
+    <p class="small">
+      Chatt, GPS och push delar inte kalenderns öppna datalager och är ännu inte
+      aktiverade.
+    </p>
+  </section>
+  <section class="panel settings-panel">
     <h2>Installera Familjen</h2>
     <p>
       iPhone: öppna appen i Safari, välj Dela och Lägg till på hemskärmen.
@@ -65,7 +85,7 @@ const capabilities = deviceCapabilities()
     </p>
     <p class="small">
       Appens statiska resurser sparas för offlinebruk efter första laddningen.
-      Privat data cachelagras inte i Phase 0.
+      Kalenderdata lagras inte i offline-cache.
     </p>
   </section>
 </template>

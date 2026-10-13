@@ -1,3 +1,5 @@
+> Phase 1-tillägg: användaren har senare valt offentlig kalender för både läsning och redigering. Det genomförs i separata `open_*`-tabeller; nedanstående privata Phase 0-modell är fortsatt stängd. Se [Phase 1 setup och aktuellt säkerhetsbeslut](phase1-setup.md). Ingen gemensam kod eller lokal profil används som autentisering.
+
 # Säkerhetsmodell och Supabase-setup
 
 ## Gränser

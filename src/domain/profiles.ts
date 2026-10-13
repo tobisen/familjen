@@ -1,8 +1,8 @@
 import { ref } from 'vue'
 export const profiles = [
-  { id: 'tobias', name: 'Tobias', color: 'sage' },
-  { id: 'neo', name: 'Neo', color: 'blue' },
-  { id: 'sally', name: 'Sally', color: 'peach' },
+  { id: 'tobias', name: 'Tobias', color: 'blue' },
+  { id: 'neo', name: 'Neo', color: 'green' },
+  { id: 'sally', name: 'Sally', color: 'orange' },
 ] as const
 export type ProfileId = (typeof profiles)[number]['id']
 export function readProfile(): ProfileId | null {

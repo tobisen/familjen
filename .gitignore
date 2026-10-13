@@ -7,3 +7,7 @@ playwright-report/
 test-results/
 *.tsbuildinfo
 .DS_Store
+# Private schedule drafts, never included in public repository or dist
+private-imports/
+dist-e2e/
+dist-shell/

@@ -1,5 +1,7 @@
 # Scheman, påminnelser, push och positioner
 
+> Skolimport och kalender i Phase 1 beskrivs i [school-import.md](school-import.md) och [phase1-setup.md](phase1-setup.md). Nedanstående skolformat gäller den äldre privata Phase 0-modellen; push/GPS är fortsatt förberedelser.
+
 ## Skolimport
 
 `parseSchoolImport(unknown)` validerar JSON före framtida import. `docs/school-schedule.empty.json` är en tom mall, inga gissade lektioner. Varje lektionsrad ska innehålla:

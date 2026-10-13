@@ -10,11 +10,25 @@ import {
   Sun,
 } from 'lucide-vue-next'
 import { profiles, selectedProfile } from '../domain/profiles'
+import CalendarEvent from '../components/CalendarEvent.vue'
+import { occurrences, today, addDays } from '../domain/calendar'
+import { activities, schoolLessons, calendarStatus } from '../stores/calendar'
 import EmptyState from '../components/EmptyState.vue'
+const upcoming = computed(() =>
+  occurrences(
+    activities.value,
+    schoolLessons.value,
+    today(),
+    addDays(today(), 31),
+  )
+    .filter((o) => Date.parse(o.ends_at) > Date.now())
+    .slice(0, 5),
+)
 const name = computed(
   () => profiles.find((p) => p.id === selectedProfile.value)?.name,
 )
 const date = new Intl.DateTimeFormat('sv-SE', {
+  timeZone: 'Europe/Stockholm',
   weekday: 'long',
   day: 'numeric',
   month: 'long',
@@ -91,7 +105,10 @@ const date = new Intl.DateTimeFormat('sv-SE', {
       <h3>{{ item.title }}</h3>
       <p>{{ item.text }}</p>
       <span class="card-link"
-        >Inte aktiverat ännu <ArrowRight :size="16" /></span
+        >{{
+          item.title === 'Kalender' ? 'Öppna kalendern' : 'Kommer i Phase 2'
+        }}
+        <ArrowRight :size="16" /></span
     ></RouterLink>
   </section>
   <section class="home-grid">
@@ -102,9 +119,20 @@ const date = new Intl.DateTimeFormat('sv-SE', {
           >Kalender <ArrowRight :size="16"
         /></RouterLink>
       </div>
+      <div v-if="upcoming.length" class="upcoming-events">
+        <div v-for="o in upcoming" :key="o.key">
+          <span class="small">{{ o.date }}</span
+          ><CalendarEvent :occurrence="o" />
+        </div>
+      </div>
       <EmptyState
+        v-else
         title="Plats för era planer"
-        description="När kalendern är aktiverad visas familjens kommande aktiviteter här."
+        :description="
+          calendarStatus === 'ready'
+            ? 'Inga kommande aktiviteter de närmaste 30 dagarna.'
+            : 'Kommande aktiviteter visas när Supabase har konfigurerats och kalendern aktiverats.'
+        "
       />
     </div>
     <div class="panel chat-panel">
