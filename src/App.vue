@@ -60,10 +60,30 @@ watch(quick, async (open) => {
 const online = ref(navigator.onLine)
 window.addEventListener('online', () => (online.value = true))
 window.addEventListener('offline', () => (online.value = false))
-const { needRefresh, updateServiceWorker } = useRegisterSW()
+let updateCheck = 0
+const { needRefresh, updateServiceWorker } = useRegisterSW({
+  onRegisteredSW(_url, registration) {
+    const check = () => {
+      if (navigator.onLine && Date.now() - updateCheck > 60000) {
+        updateCheck = Date.now()
+        void registration?.update().catch(() => {})
+      }
+    }
+    window.addEventListener('focus', check)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') check()
+    })
+    check()
+  },
+})
 </script>
 <template>
   <a class="skip" href="#main">Till innehållet</a>
+  <div v-if="needRefresh" class="notice pwa-update" role="status">
+    En ny version finns.
+    <button @click="updateServiceWorker()">Uppdatera appen</button> Din
+    inloggning behålls.
+  </div>
   <AuthGate
     v-if="backendConfigured && (authStatus !== 'ready' || registration)"
   />
@@ -122,10 +142,6 @@ const { needRefresh, updateServiceWorker } = useRegisterSW()
           Profilen kunde inte sparas. Tillåt lokal lagring för att behålla
           valet.
         </p>
-        <div v-if="needRefresh" class="notice">
-          En ny version finns.
-          <button @click="updateServiceWorker()">Uppdatera appen</button>
-        </div>
         <RouterView />
         <div class="setup-notice">
           <span class="status-dot"></span>

@@ -1,6 +1,10 @@
 import { ref } from 'vue'
 import type { Session } from '@supabase/supabase-js'
-import { supabase } from '../services/supabase'
+import {
+  supabase,
+  registrationEndpoint,
+  publicSupabaseKey,
+} from '../services/supabase'
 import { stopCalendar, startCalendar } from './calendar'
 import { selectProfile, type ProfileId } from '../domain/profiles'
 export interface FamilyIdentity {
@@ -38,6 +42,23 @@ function captureRegistration() {
   return { token_hash: token, type: type as 'magiclink' | 'invite' }
 }
 export const registration = ref(captureRegistration())
+function timeout<T>(promise: PromiseLike<T>): Promise<T> {
+  let timer: ReturnType<typeof setTimeout>
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) => {
+      timer = setTimeout(
+        () =>
+          reject(
+            new Error(
+              'Anslutningen tog för lång tid. Din sparade session finns kvar. Kontrollera nätverket och försök igen.',
+            ),
+          ),
+        15000,
+      )
+    }),
+  ]).finally(() => clearTimeout(timer))
+}
 let generation = 0
 let initialized = false
 let unsubscribe: (() => void) | null = null
@@ -54,7 +75,7 @@ export async function restoreIdentity(session?: Session | null) {
   try {
     const current =
       session === undefined
-        ? (await supabase.auth.getSession()).data.session
+        ? (await timeout(supabase.auth.getSession())).data.session
         : session
     if (!current) {
       if (attempt === generation) {
@@ -63,13 +84,17 @@ export async function restoreIdentity(session?: Session | null) {
       }
       return
     }
-    const { data: userData, error: userError } = await supabase.auth.getUser()
+    const { data: userData, error: userError } = await timeout(
+      supabase.auth.getUser(),
+    )
     if (attempt !== generation) return
     if (userError || !userData.user)
       throw new Error(
         'Sessionen kunde inte verifieras. Återanslut eller registrera enheten igen.',
       )
-    const { data, error } = await supabase.rpc('calendar_identity')
+    const { data, error } = await timeout(
+      supabase.rpc('calendar_identity').then((r) => r),
+    )
     if (attempt !== generation) return
     if (error)
       throw new Error(
@@ -92,6 +117,8 @@ export async function restoreIdentity(session?: Session | null) {
     await supabase.realtime.setAuth(current.access_token)
     if (attempt !== generation) return
     authStatus.value = 'ready'
+    if (location.pathname === import.meta.env.BASE_URL + 'register/')
+      history.replaceState(null, '', import.meta.env.BASE_URL + '#/')
     startCalendar()
   } catch (e) {
     if (attempt !== generation) return
@@ -186,4 +213,44 @@ export function disposeAuth() {
   unsubscribe = null
   initialized = false
   clearIdentity()
+}
+
+export async function registerWithCode(profile: ProfileId, code: string) {
+  if (!supabase || !registrationEndpoint) {
+    authError.value = 'Registrering är inte konfigurerad.'
+    return
+  }
+  authBusy.value = true
+  authError.value = ''
+  try {
+    const response = await fetch(registrationEndpoint, {
+      method: 'POST',
+      headers: {
+        apikey: publicSupabaseKey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ profile, code }),
+      signal: AbortSignal.timeout(20000),
+      cache: 'no-store',
+    })
+    const result = await response.json()
+    if (!response.ok)
+      throw new Error(result.error || 'Registreringen misslyckades.')
+    const { data, error } = await supabase.auth.setSession({
+      access_token: result.access_token,
+      refresh_token: result.refresh_token,
+    })
+    if (error || !data.session)
+      throw new Error('Sessionen kunde inte sparas. Be om en ny kod.')
+    await restoreIdentity(data.session)
+    if (identity.value && identity.value.profile_key !== profile) {
+      await signOut()
+      throw new Error('Identiteten stämde inte med vald profil.')
+    }
+  } catch (e) {
+    authError.value =
+      e instanceof Error ? e.message : 'Registreringen kunde inte slutföras.'
+  } finally {
+    authBusy.value = false
+  }
 }

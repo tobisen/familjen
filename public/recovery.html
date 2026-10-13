@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="app-base" content="__APP_BASE__" />
+    <title>Återställ Familjen</title>
+    <style>
+      body {
+        font: 16px system-ui;
+        color: #253e37;
+        background: #f7f6f2;
+        max-width: 520px;
+        margin: 10vh auto;
+        padding: 24px;
+        line-height: 1.7;
+      }
+      button,
+      a {
+        display: inline-block;
+        font: inherit;
+        padding: 14px 20px;
+        border: 0;
+        border-radius: 10px;
+        background: #204f46;
+        color: white;
+        margin: 12px 0;
+      }
+      p {
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Starta Familjen igen</h1>
+    <p id="boot-message">
+      Återställ bara Familjens service worker och statiska cache. Din
+      registrerade session och serverlagrade aktiviteter raderas inte.
+    </p>
+    <button id="boot-repair" data-reset-app>Återställ appens cache</button>
+    <p>
+      Om Android fortfarande visar en trasig installation: avinstallera just
+      Familjen via Inställningar → Appar, öppna sedan webbplatsen i Chrome och
+      installera på nytt. Serverdata finns kvar. En ny personlig kod kan behövas
+      om Android tar bort installationens lokala session.
+    </p>
+    <script src="__APP_BASE__boot.js"></script>
+  </body>
+</html>

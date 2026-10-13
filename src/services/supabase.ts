@@ -22,3 +22,8 @@ export const supabase = valid
     })
   : null
 export const backendConfigured = Boolean(supabase)
+
+export const registrationEndpoint = valid
+  ? url + '/functions/v1/register-device'
+  : ''
+export const publicSupabaseKey = valid ? key : ''

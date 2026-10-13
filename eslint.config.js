@@ -7,6 +7,8 @@ export default ts.config(
   {
     ignores: [
       'dist/**',
+      'private-registration/**',
+      'private-imports/**',
       'dist-e2e/**',
       'dist-shell/**',
       'node_modules/**',

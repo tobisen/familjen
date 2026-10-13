@@ -2,6 +2,8 @@
 <html lang="sv">
   <head>
     <meta charset="UTF-8" />
+    <meta name="app-base" content="%BASE_URL%" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
@@ -15,7 +17,26 @@
     <title>Familjen – vår vardag tillsammans</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <section
+        id="boot-fallback"
+        style="
+          font: 16px system-ui;
+          max-width: 480px;
+          margin: 12vh auto;
+          padding: 24px;
+          color: #253e37;
+        "
+      >
+        <h1>Familjen</h1>
+        <p id="boot-message" role="status">Startar appen…</p>
+        <button hidden id="boot-repair" data-reset-app>
+          Återställ appens cache
+        </button>
+        <p><a href="%BASE_URL%recover/">Hjälp att starta appen</a></p>
+      </section>
+    </div>
+    <script src="%BASE_URL%boot.js"></script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

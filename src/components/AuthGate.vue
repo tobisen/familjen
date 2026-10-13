@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import CodeRegistration from './CodeRegistration.vue'
+import PwaTools from './PwaTools.vue'
 import { ref } from 'vue'
 import {
   authStatus,
@@ -36,8 +38,8 @@ async function send() {
     </p>
     <template v-else
       ><p>
-        Registrera enheten en gång med din personliga länk. Sedan öppnas appen
-        med din egen profil, utan återkommande lösenord.
+        Välj ditt namn och registrera enheten en gång med din personliga kod.
+        Sedan öppnas appen med din egen profil, utan återkommande lösenord.
       </p>
       <p v-if="authError" role="alert" class="notice">{{ authError }}</p>
       <template v-if="registration"
@@ -63,9 +65,9 @@ async function send() {
         </button></template
       ><template v-else
         ><p class="notice">
-          Öppna din personliga registreringslänk från familjens administratör på
-          den här enheten.
+          Ange engångskoden som utfärdats för just din profil.
         </p>
+        <CodeRegistration />
         <details>
           <summary>Har du redan ett konto med e-post?</summary>
           <form class="auth-email-form" @submit.prevent="send">
@@ -90,5 +92,9 @@ async function send() {
         </button></template
       ></template
     >
+    <details class="startup-help">
+      <summary>Problem att öppna eller installera appen?</summary>
+      <PwaTools />
+    </details>
   </section>
 </template>

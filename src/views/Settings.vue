@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { calendarStatus, syncStatus } from '../stores/calendar'
 import { identity, signOut } from '../stores/auth'
+import PwaTools from '../components/PwaTools.vue'
 import ProfilePicker from '../components/ProfilePicker.vue'
 import { backendConfigured, configurationError } from '../services/supabase'
 import { deviceCapabilities } from '../services/capabilities'
@@ -72,6 +73,7 @@ const capabilities = deviceCapabilities()
       Logga ut den här enheten
     </button>
   </section>
+  <PwaTools />
   <section class="panel settings-panel">
     <h2>Installera Familjen</h2>
     <p>

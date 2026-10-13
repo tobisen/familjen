@@ -7,10 +7,12 @@ Phase 1:s offentliga kalender är ersatt av en privat kalender. Kör aldrig tidi
 - Separat Supabase-projekt **familjen**, ref `mulsuwdmpixzukzwpocf`, region Stockholm `eu-north-1`.
 - Skapat i befintlig organisation efter verifiering av gratisplanen och ledig projektplats. Vinskåpets databas, nycklar och sessioner används inte.
 - Kontoinloggningen återanvändes via Supabase CLI:s namngivna profil `supabase` i OS credential store. Administrativa nycklar har hanterats endast i processminnet, inte lagrats i repo/frontend.
-- De tre migrationerna är tillämpade i ordning och journalförda i `supabase_migrations.schema_migrations`.
+- De fyra migrationerna är tillämpade i ordning och journalförda i `supabase_migrations.schema_migrations`.
 - `config/public-supabase.json` innehåller endast projekt-URL och offentlig **anon**-nyckel. Den får vara publik; RLS och RPC-behörigheter skyddar all familjedata. Vite validerar att nyckeln är publishable/anon och avvisar administrativa nycklar. Miljövariabler kan ersätta dessa publika värden; `VITE_SUPABASE_DISABLED=true` stänger backend i det isolerade shell-testet.
 
 ## Registrera en enhet
+
+**Aktuellt flöde:** välj namn och personlig engångskod på `/familjen/register/`. Se [installation och kodutfärdande](installation.md). Migration 004 och Edge Function `register-device` är driftsatta. Äldre engångslänkar stöds fortsatt, liksom alla redan registrerade sessioner. Nedanstående beskriver det kompatibla äldre länkflödet.
 
 1. En administratör provisionerar identiteten i Supabase Auth och binder `auth.users.id` till rätt rad i `profiles.auth_user_id`. Profilens `profile_key` är `tobias`, `neo` eller `sally` och är administrativt styrd. Slutanvändare får inte skapa/ändra detta medlemskap.
 2. Administratören genererar en kortlivad engångslänk med Supabase Auth Admin `generateLink(type: magiclink)`. `hashed_token` läggs i URL-fragmentet `#/registrera?token_hash=…&type=magiclink`. Fragmentet skickas inte till GitHub Pages. Appen tar bort det från adressfältet innan navigation.

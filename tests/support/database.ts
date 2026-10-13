@@ -3,7 +3,7 @@ import { PGlite } from '@electric-sql/pglite'
 import { readFileSync } from 'node:fs'
 export async function calendarDatabase(enabled = true) {
   const db = new PGlite()
-  await db.exec(`create role anon;create role authenticated;create schema auth;
+  await db.exec(`create role anon;create role authenticated;create role service_role;create schema auth;
  create table auth.users(id uuid primary key);
  create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('test.uid',true),'')::uuid $$;
  grant usage on schema auth to anon,authenticated;grant execute on function auth.uid() to anon,authenticated;`)
@@ -11,6 +11,7 @@ export async function calendarDatabase(enabled = true) {
     '202610130001_phase0.sql',
     '202610130002_open_calendar.sql',
     '202610130003_private_calendar.sql',
+    '202610130004_registration_codes.sql',
   ])
     await db.exec(readFileSync(`supabase/migrations/${f}`, 'utf8'))
   if (enabled) {

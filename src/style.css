@@ -1640,3 +1640,60 @@ th {
   border-radius: 9px;
   width: 100%;
 }
+.code-registration {
+  display: grid;
+  gap: 16px;
+  margin: 20px 0;
+}
+.code-registration fieldset {
+  border: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.code-registration legend {
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+.code-registration > label {
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+}
+.code-registration input:not([type='radio']) {
+  font:
+    600 18px ui-monospace,
+    monospace;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  min-width: 0;
+  width: 100%;
+  padding: 15px;
+  border: 1px solid #cdd9c6;
+  border-radius: 9px;
+  background: #fffefa;
+}
+.code-registration input[type='radio'] {
+  accent-color: #204f46;
+  width: 16px;
+  height: 16px;
+}
+.startup-help {
+  margin-top: 28px;
+  font-size: 12px;
+}
+.startup-help > .panel {
+  margin-top: 15px;
+  padding: 18px;
+}
+.pwa-update {
+  position: relative;
+  z-index: 10;
+  margin: 0;
+  border-radius: 0;
+  text-align: center;
+}
+.settings-panel > .secondary-button {
+  margin-top: 15px;
+}

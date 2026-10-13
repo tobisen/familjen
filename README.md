@@ -2,7 +2,9 @@
 
 Mobilanpassad PWA för Tobias, Neo och Sally. Phase 1/1.5 implementerar gemensam kalender med dag-, vecko- och månadsvy, CRUD, deltagare, heldag, återkommande serier, undantag, schemaimport och Supabase Realtime.
 
-**Phase 1.5:** kalendern är åter privat. En personlig engångslänk registrerar enheten; därefter sparas sessionen utan återkommande lösenord. Lokal profil är en preferens, inte autentisering. Anonym åtkomst och de gamla publika RPC:erna är borttagna. [Aktuell setup](docs/phase1-setup.md).
+**Phase 1.5:** kalendern är åter privat. En personlig engångskod registrerar enheten; därefter sparas sessionen utan återkommande lösenord. Lokal profil är en preferens, inte autentisering. Anonym åtkomst och de gamla publika RPC:erna är borttagna. [Aktuell setup](docs/phase1-setup.md).
+
+[Installation, engångskoder och starthjälp](docs/installation.md). Registreringssida: https://tobisen.github.io/familjen/register/.
 
 ## Lokal utveckling
 
@@ -30,7 +32,7 @@ npm run test:e2e:calendar
 
 ## Supabase-installation
 
-Följ [Phase 1 setup](docs/phase1-setup.md). De tre migrationerna är körda i det separata projektet; vid ny miljö körs alla i ordning. Den gamla offentliga kalendern är avvecklad av migration 003. Den publika konfigurationsfilen används redan av Pages; `.env` och repository variables är valfria overrides. Ingen `service_role`, `sb_secret_*`, databaslösenord eller administrativ nyckel får finnas i frontend eller `VITE_*`.
+Följ [Phase 1 setup](docs/phase1-setup.md). De fyra migrationerna är körda i det separata projektet; vid ny miljö körs alla i ordning. Den gamla offentliga kalendern är avvecklad av migration 003. Den publika konfigurationsfilen används redan av Pages; `.env` och repository variables är valfria overrides. Ingen `service_role`, `sb_secret_*`, databaslösenord eller administrativ nyckel får finnas i frontend eller `VITE_*`.
 
 ## Kalendern
 
@@ -70,7 +72,7 @@ Vinskåpets arbetsmetod återanvänds: rena testbara domänfunktioner, separat r
 
 ## Verifiering av riktig synk
 
-Riktig registrering, två separata sessioner, Realtime, återanslutning och hosted RLS har verifierats. Se [Phase 1.5 verifieringsrapport](docs/phase1.5-verification.md). Lokala registreringslänkar utfärdas med `python3 scripts/create-registration.py` efter publicering; filer under `private-registration/` får aldrig delas publikt.
+Riktig registrering, två separata sessioner, Realtime, återanslutning och hosted RLS har verifierats. Se [Phase 1.5 verifieringsrapport](docs/phase1.5-verification.md). Personliga engångskoder utfärdas med `python3 scripts/create-device-codes.py` efter publicering; filer under `private-registration/` får aldrig delas publikt.
 
 ## Fortsättning
 
