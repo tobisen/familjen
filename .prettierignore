@@ -8,3 +8,5 @@ dist-e2e
 private-imports
 
 dist-shell
+
+private-registration

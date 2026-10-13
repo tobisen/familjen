@@ -1609,3 +1609,34 @@ th {
     padding: 10px 12px;
   }
 }
+.auth-gate > h1 {
+  margin: 16px 0;
+}
+.auth-gate > p {
+  margin: 15px 0;
+}
+.auth-gate > .primary-button {
+  margin: 14px 0;
+}
+.auth-gate summary {
+  cursor: pointer;
+  font-size: 13px;
+  margin: 20px 0;
+}
+.auth-email-form {
+  display: grid;
+  gap: 12px;
+}
+.auth-email-form label {
+  font-size: 12px;
+  display: grid;
+  gap: 6px;
+}
+.auth-email-form input {
+  font: inherit;
+  font-size: 16px;
+  padding: 12px;
+  border: 1px solid #d8e0d1;
+  border-radius: 9px;
+  width: 100%;
+}

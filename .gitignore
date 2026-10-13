@@ -11,3 +11,5 @@ test-results/
 private-imports/
 dist-e2e/
 dist-shell/
+private-registration/
+supabase/.temp/

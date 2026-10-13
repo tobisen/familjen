@@ -14,15 +14,15 @@ beforeEach(() => {
   fake.channel.mockReturnValue(fake)
   fake.rpc.mockResolvedValue({ data: [], error: null })
 })
-it('subscribes to open tables only and refreshes after connection and mutation', () => {
+it('subscribes to private tables only and refreshes after connection and mutation', () => {
   const change = vi.fn()
   const status = vi.fn()
   const dispose = createCalendarRepository()!.subscribe(change, status)
   expect(fake.on.mock.calls.map((call) => call[1].table)).toEqual([
-    'open_calendar_events',
-    'open_school_lessons',
-    'open_calendar_people',
-    'open_calendar_settings',
+    'private_calendar_events',
+    'private_school_lessons',
+    'private_calendar_people',
+    'private_calendar_settings',
   ])
   const connected = fake.subscribe.mock.calls[0]![0]
   connected('SUBSCRIBED')
@@ -41,16 +41,16 @@ it('propagates server errors without claiming data was saved', async () => {
   await expect(createCalendarRepository()!.remove('id', 2)).rejects.toThrow(
     'Version conflict',
   )
-  expect(fake.rpc).toHaveBeenCalledWith('public_calendar_delete', {
+  expect(fake.rpc).toHaveBeenCalledWith('calendar_delete', {
     event_id: 'id',
     expected_version: 2,
   })
 })
 it('uses server snapshot and transactional import RPC', async () => {
   await createCalendarRepository()!.load()
-  expect(fake.rpc).toHaveBeenCalledWith('public_calendar_snapshot', undefined)
+  expect(fake.rpc).toHaveBeenCalledWith('calendar_snapshot', undefined)
   await createCalendarRepository()!.importLessons([])
-  expect(fake.rpc).toHaveBeenCalledWith('public_calendar_import', {
+  expect(fake.rpc).toHaveBeenCalledWith('calendar_import', {
     lessons: [],
   })
 })

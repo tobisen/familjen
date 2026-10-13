@@ -76,10 +76,10 @@ export function prepareSchoolImport(
   confirmed: boolean,
 ): SchoolImportRow[] {
   if (!confirmed)
-    throw new Error('Bekräfta källuppgifter och offentlig publicering först.')
+    throw new Error('Bekräfta källuppgifter och terminsperiod först.')
   if (
     !isDate(start) ||
-    !(end === null || isDate(end)) ||
+    !isDate(end) ||
     (end && end < start) ||
     !exceptions.every(isDate)
   )

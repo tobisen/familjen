@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { identity } from '../stores/auth'
 import { profiles, selectProfile, selectedProfile } from '../domain/profiles'
 defineProps<{ initial?: boolean }>()
 </script>
@@ -14,6 +15,7 @@ defineProps<{ initial?: boolean }>()
         v-for="p in profiles"
         :key="p.id"
         :aria-pressed="selectedProfile === p.id"
+        :disabled="Boolean(identity) && identity?.profile_key !== p.id"
         @click="selectProfile(p.id)"
       >
         <span class="avatar" :class="p.color">{{ p.name[0] }}</span
@@ -21,8 +23,9 @@ defineProps<{ initial?: boolean }>()
       </button>
     </div>
     <p class="small">
-      Profilvalet sparas på den här enheten. Det ger inte tillgång till privat
-      familjedata. Säker inloggning kommer i nästa fas.
+      Din registrerade identitet bestäms säkert av servern. En annan persons
+      profil kräver den personens registrering; lokal profilväxling ger ingen
+      annan behörighet.
     </p>
   </section>
 </template>

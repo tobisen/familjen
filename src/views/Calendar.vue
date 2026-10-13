@@ -140,8 +140,7 @@ window.addEventListener('online', () => (off.value = false))
     </button>
   </div>
   <p class="public-warning">
-    Offentlig kalender · alla med webbadressen kan läsa, ändra och radera.
-    Profilval är inte autentisering.
+    Privat kalender · delas endast med registrerade familjemedlemmar.
   </p>
   <div class="calendar-controls">
     <div class="tabs" aria-label="Kalendervy">

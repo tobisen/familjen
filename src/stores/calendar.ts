@@ -44,6 +44,20 @@ export async function reloadCalendar() {
       e instanceof Error ? e.message : 'Kalendern kunde inte hämtas.'
   }
 }
+export function stopCalendar() {
+  request++
+  unsubscribe?.()
+  unsubscribe = null
+  repository = null
+  people.value = []
+  activities.value = []
+  schoolLessons.value = []
+  editor.value = null
+  detail.value = null
+  calendarStatus.value = 'unconfigured'
+  calendarError.value = ''
+  syncStatus.value = 'Ej ansluten'
+}
 export function startCalendar(injected?: CalendarRepository) {
   unsubscribe?.()
   repository = injected ?? createCalendarRepository()

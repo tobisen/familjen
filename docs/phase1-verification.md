@@ -1,3 +1,5 @@
+> Historisk Phase 1-rapport. Projektet är nu anslutet och kalendern privat; aktuell verifiering finns i [phase1.5-verification.md](phase1.5-verification.md).
+
 # Phase 1 verifiering – 2026-10-13
 
 ## Lokalt verifierat

@@ -1,3 +1,5 @@
+> Historik från Phase 1. Phase 1.5 återinför privat kalender och personlig registrering; se phase1-setup.md.
+
 # Phase 1 arbetsplan
 
 1. Återanvänd Vinskåpets separata domänfunktioner, repository-lager, reaktiv store och enda Supabase-klient. Återanvänd inga nycklar, projekt eller data. Familjen använder OTP i stället för lösenord.

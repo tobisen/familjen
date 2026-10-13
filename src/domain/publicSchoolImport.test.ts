@@ -8,7 +8,7 @@ const draft: SchoolDraft = {
   student_id: 'neo',
   source: 'Fixture',
   term_start: null,
-  term_end: null,
+  term_end: '2026-12-20',
   exception_dates: [],
   lessons: [
     {
@@ -23,14 +23,20 @@ const draft: SchoolDraft = {
 }
 it('requires explicit confirmation before publication', () =>
   expect(() =>
-    prepareSchoolImport(draft, '2026-10-13', null, [], false),
+    prepareSchoolImport(draft, '2026-10-13', '2026-12-20', [], false),
   ).toThrow(/Bekräfta/))
-it('allows indefinite weekly validity only with explicit start and confirmation', () =>
+it('requires confirmed start, end and publication confirmation', () =>
   expect(
-    prepareSchoolImport(parseDraft(draft), '2026-10-13', null, [], true)[0],
+    prepareSchoolImport(
+      parseDraft(draft),
+      '2026-10-13',
+      '2026-12-20',
+      [],
+      true,
+    )[0],
   ).toMatchObject({
     term_start: '2026-10-13',
-    term_end: null,
+    term_end: '2026-12-20',
     external_id: 'fixture-d1-slot1',
   }))
 it('rejects incomplete known or unknown times rather than guessing', () => {
@@ -38,7 +44,7 @@ it('rejects incomplete known or unknown times rather than guessing', () => {
     prepareSchoolImport(
       { ...draft, lessons: [{ ...draft.lessons[0]!, ends_at: null }] },
       '2026-10-13',
-      null,
+      '2026-12-20',
       [],
       true,
     ),
@@ -47,7 +53,7 @@ it('rejects incomplete known or unknown times rather than guessing', () => {
     prepareSchoolImport(
       { ...draft, lessons: [] },
       '2026-10-13',
-      null,
+      '2026-12-20',
       [],
       true,
     ),
@@ -59,7 +65,7 @@ it('rejects duplicates', () =>
   ).toThrow(/dubblerat/))
 it('rejects malformed, invalid dates and times', () => {
   for (const input of [
-    null,
+    '2026-12-20',
     {},
     { ...draft, exception_dates: ['2026-02-30'] },
     { ...draft, lessons: [{ ...draft.lessons[0], starts_at: '25:00' }] },
@@ -70,10 +76,17 @@ it('does not mutate source on preparation', () => {
   const rows = prepareSchoolImport(
     draft,
     '2026-10-13',
-    null,
+    '2026-12-20',
     ['2026-10-19', '2026-10-19'],
     true,
   )
   expect(rows[0]!.exception_dates).toHaveLength(1)
   expect(draft.term_start).toBeNull()
+})
+
+it('rejects import before both term dates are confirmed', () => {
+  expect(() =>
+    prepareSchoolImport(draft, '2026-10-13', null, [], true),
+  ).toThrow()
+  expect(() => prepareSchoolImport(draft, '', '2026-12-20', [], true)).toThrow()
 })

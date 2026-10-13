@@ -148,7 +148,7 @@ async function skip() {
       </button>
     </div>
     <p class="small">
-      Kalendern är offentlig och kan redigeras av alla besökare.
+      Kalendern delas endast med registrerade familjemedlemmar.
     </p>
   </dialog>
 </template>

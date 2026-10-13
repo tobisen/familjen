@@ -1,61 +1,49 @@
-# Phase 1: separat Supabase-projekt
+# Supabase – aktuell setup i Phase 1.5
 
-## Beslut och aktuell gräns
+Phase 1:s offentliga kalender är ersatt av en privat kalender. Kör aldrig tidigare instruktioner för att aktivera offentlig åtkomst. Migration `202610130003_private_calendar.sql` tar bort de publika RPC:erna och anonym åtkomst; lokal profil är inte autentisering.
 
-Ursprungsuppdraget föreskrev privat kalender och lösenordsfri autentisering. Under implementationen ändrade användaren uttryckligen detta till **offentlig kalender, även för redigering av vem som helst med adressen**. Därför finns inga Auth-koder eller registreringar i kalenderflödet. Lokal profil väljer förvald deltagare; den är aldrig en verifierad identitet. Det går inte att tillskriva en ändring säkert till Tobias/Neo/Sally. Detta är ett medvetet nytt krav, inte en autentiseringslösning.
+## Projekt
 
-Separata `open_*`-tabeller och `public_calendar_*`-RPC:er gör detta utan att öppna Phase 0:s privata profiler, familjer, chatt, GPS, push eller listor. Schemaimport är offentlig efter aktiv publiceringsbekräftelse.
+- Separat Supabase-projekt **familjen**, ref `mulsuwdmpixzukzwpocf`, region Stockholm `eu-north-1`.
+- Skapat i befintlig organisation efter verifiering av gratisplanen och ledig projektplats. Vinskåpets databas, nycklar och sessioner används inte.
+- Kontoinloggningen återanvändes via Supabase CLI:s namngivna profil `supabase` i OS credential store. Administrativa nycklar har hanterats endast i processminnet, inte lagrats i repo/frontend.
+- De tre migrationerna är tillämpade i ordning och journalförda i `supabase_migrations.schema_migrations`.
+- `config/public-supabase.json` innehåller endast projekt-URL och offentlig **anon**-nyckel. Den får vara publik; RLS och RPC-behörigheter skyddar all familjedata. Vite validerar att nyckeln är publishable/anon och avvisar administrativa nycklar. Miljövariabler kan ersätta dessa publika värden; `VITE_SUPABASE_DISABLED=true` stänger backend i det isolerade shell-testet.
 
-## Exakta steg när projektåtkomst saknas
+## Registrera en enhet
 
-1. Anslut Supabase-integrationen här, eller skapa själv ett **nytt** projekt `familjen` i Supabase Dashboard. Använd inte Vinskåpets projekt/ref/nycklar. Välj kostnadsfri plan om tillgänglig och lämplig region. Inget projekt har skapats automatiskt utan bekräftad kontoåtkomst.
-2. I det nya projektets SQL Editor: kör `supabase/migrations/202610130001_phase0.sql`, därefter `202610130002_open_calendar.sql`, en gång vardera och i den ordningen. Alternativt använd Supabase CLI med rätt nytt projekt/ref. Vid befintlig Phase 0-databas: kör bara saknade migrationer, kör inte om tabellskapandet.
-3. Bekräfta att kalendern ska vara offentlig och kör administrativt:
+1. En administratör provisionerar identiteten i Supabase Auth och binder `auth.users.id` till rätt rad i `profiles.auth_user_id`. Profilens `profile_key` är `tobias`, `neo` eller `sally` och är administrativt styrd. Slutanvändare får inte skapa/ändra detta medlemskap.
+2. Administratören genererar en kortlivad engångslänk med Supabase Auth Admin `generateLink(type: magiclink)`. `hashed_token` läggs i URL-fragmentet `#/registrera?token_hash=…&type=magiclink`. Fragmentet skickas inte till GitHub Pages. Appen tar bort det från adressfältet innan navigation.
+3. Användaren öppnar sin personliga länk på avsedd enhet och väljer **Registrera den här enheten**. Supabase verifierar token med `verifyOtp`; först därefter hämtas serveridentitet och privat kalender. Token är personlig, engångsbruk och tidsbegränsad. En använd länk kan inte återanvändas för att registrera en annan enhet.
+4. Auth-sessionen sparas av Supabase SDK och förnyas automatiskt. Appen återställer rätt serverprofil efter omladdning. Lagring kan rensas av användaren/webbläsaren eller administratören återkalla sessionen; då behövs ny registrering. Det är inte en garanti om permanent inloggning.
+5. För ett annat konto på samma enhet: logga ut, öppna den personens nya registreringslänk. Den lokala profilväljaren kan inte ändra inloggad identitet. Andra personer kan fortfarande filtreras/anges som deltagare i kalendern.
 
-```sql
-update public.open_calendar_settings set enabled = true where id = true;
-```
+De tre identiteterna använder interna, icke levererbara Auth-adresser under `devices.familjen.invalid`. Dessa är kontoidentifierare, inte verifierade personliga e-postadresser. Administratören ansvarar för att ge rätt länk till rätt person/enhet. Ingen registreringsmejl skickas till dessa adresser. Öppen sign-up och anonymous Auth sign-ins är avstängda.
 
-4. Kopiera **projekt-URL** och **publishable key** från projektets API-inställningar till `.env`:
+Om verkliga e-postadresser senare används kan befintliga användare begära en personlig länk. Auths magic-link-mall är konfigurerad med `{{ .TokenHash }}` i fragmentet; ersätt inte den med ett implicit access-token-fragment som krockar med hash-routing. Site URL är GitHub Pages-adressen; lokal verifieringsadress finns i redirect-allowlist.
 
-```text
-VITE_SUPABASE_URL=https://DITT-SEPARATA-PROJEKT.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_DIN_PUBLIKA_NYCKEL
-```
+## Behörigheter
 
-Äldre anon-nyckel stöds också. Skicka aldrig service_role/secret key till klienten. Ingen Auth-registrering, gemensam PIN eller lösenord krävs för den offentliga kalendern. Stäng fortsatt av anonymous Auth sign-ins och publik användarregistrering; vanlig oinloggad API-roll `anon` är inte en anonym Auth-användare.
+- Alla familjetabeller har RLS. `anon` saknar både tabellåtkomst och execute på privata RPC:er.
+- `calendar_identity` och `calendar_family_id` härleder enbart från `auth.uid()`. Klienten skickar inget familje-ID eller identitetsbevis från localStorage.
+- `calendar_snapshot` är security invoker och läser RLS-skyddade familjerader.
+- `calendar_save`, `calendar_delete`, `calendar_import` är security definer med tom search_path, explicit familjekontroll och familjefilter i alla mutationer. Identitet och familj härleds på servern; payload-fält kan inte byta dem.
+- Direkta tabellskrivningar är nekade även för autentiserade kalenderanvändare. Profiler, familjer och personprovisionering är admin-only. Alla familjemedlemmar får redigera den gemensamma kalendern; `created_by`/`updated_by` är serverstyrda.
+- Kalenderns tabeller heter nu `private_calendar_events`, `private_calendar_people`, `private_calendar_settings` och `private_school_lessons`. Publikationsmedlemskap för Realtime bevaras vid namnbyte; RLS filtrerar leveranserna.
+- Utloggning rensar klientstate, pågående detalj/editor och realtidskanaler. Sena svar får inte återställa gammal data. Realtid får den autentiserade token och laddar om snapshot vid återanslutning. Privat data cachas inte av service worker.
 
-5. I GitHub → Settings → Secrets and variables → Actions → **Variables**: ange samma två publika värden. Starta workflow via Actions → Validate and deploy Familjen → Run workflow eller pusha en ändring. Dessa värden är offentliga klientvärden, inte hemligheter. Använd inte en annan apps värden.
-6. Kontrollera Database → Publications → `supabase_realtime`: `open_calendar_events`, `open_school_lessons`, `open_calendar_people`, `open_calendar_settings` ska ingå. Migrationen lägger till dem om standardpublikationen finns. Aktivera inte privata tabeller på måfå.
-7. Kör SQL-kontrollerna nedan och sedan ett riktigt tvåenhetstest: skapa på telefon A, se på B utan omladdning; redigera från B; bekräfta radering från A. Testa även från en privat/oinloggad webbläsare eftersom kalendern avsiktligt är offentlig. E2E:s lokala SQL-adapter verifierar inte Supabase Realtime eller dess JWT/protokoll.
-8. Öppna kalenderns Importera schema. Välj lokala `private-imports/sally.draft.json`, kontrollera tider, startdatum och lov; bekräfta att barnets schema får publiceras offentligt. Neos fil måste kompletteras från källbilden innan import. Saknade sluttider får inte uppskattas. Inga importer görs automatiskt.
+## Skolscheman
 
-## Avstängning
+Sallys 24 källposter inklusive fem luncher är granskade. Filerna ligger i git-ignorerade `private-imports/`. Neos fil är separat och tom eftersom källbilden saknas. Inga tider uppskattas. **Ingen import före bekräftad terminsstart, terminsslut och undantagsdatum.** Gamla eventuella skolrader får `term_confirmed=false` vid uppgradering och renderas inte innan de importerats med bekräftad period.
 
-```sql
-update public.open_calendar_settings set enabled = false where id = true;
-```
+## Drift och återkallning
 
-Det stänger offentlig läsning/skrivning i RPC och RLS. Redan nedladdad/offentlig information kan inte tas tillbaka. För att göra en redan offentlig kalender privat krävs dessutom ett nytt autentiserat åtkomstflöde; byt inte bara etikett i UI.
+Registreringslänkar och refresh tokens är hemligheter. Dela aldrig samma länk mellan familjemedlemmar eller spara den publikt. Administrativa nycklar hör enbart hemma i administratörens process/server, aldrig i `VITE_*`, Pages eller privatregistreringsfiler. En förlorad enhet återkallas i Auth-administrationen. Att ändra profilkoppling stoppar nya API-läsningar omedelbart; befintlig JWT/session kan fortfarande behöva återkallas för andra Auth-flöden. Redan hämtad data kan inte tas tillbaka från en enhet.
 
-## Databasverifiering
+Projektets initiala databaslösenord skapades slumpmässigt och sparades inte. Management API användes för migrationerna. Återställ lösenordet i Dashboard om direkt SQL/CLI-db-anslutning behövs. Förnya inte kontots/andra projekts nycklar av misstag.
 
-Kör som databasadministratör i ett **testprojekt**, inte med privat klientdata:
+Referenser: [Supabase sessions](https://supabase.com/docs/guides/auth/sessions), [RLS](https://supabase.com/docs/guides/database/postgres/row-level-security), [generateLink](https://supabase.com/docs/reference/javascript/auth-admin-generatelink).
 
-```sql
-begin;
-set local role anon;
-select public.public_calendar_snapshot(); -- fungerar endast när aktiverad
-select * from public.chat_messages;      -- måste nekas (transaction aborted efter detta)
-rollback;
-```
+## Utfärda nya länkar lokalt
 
-Privata Phase 0-tabeller har ingen anonym policy och inga anon-tabellrättigheter. Direkt INSERT/UPDATE/DELETE på `open_*` är också nekad; kalenderns avsiktligt offentliga skrivfunktioner är begränsade till validerade fält och egna tabeller. Läsning sker via RLS. Skriv-RPC:er är `security definer` med tom search_path, kvalificerade namn och explicit kontroll av administrativ aktivering. Medlemskap/private identiteter kan inte provisioneras genom dem. Optimistisk `version` kontrolleras vid ändring/radering. Radering är en tombstone så att Realtime kan signalera den; snapshot filtrerar raderade poster.
-
-PGlite-tester kör båda migrationerna och testar detta isolerat. Hosted Supabase/PostgREST och faktisk tvåenhetssynkning återstår tills ett projekt är anslutet.
-
-## Driftbegränsningar
-
-En offentlig redigerbar kalender kan vandaliseras, kopieras och överbelastas. Profilnamn bevisar inte vem som gjort något. Gratisnivåns lagring/mail/realtidskvoter är ingen driftgaranti. Inga automatjobb, SMS eller betalresurser startas. Ta regelbundna säkerhetskopior när riktig data börjar användas. Privat chatt, positioner och push kräver separat säker inloggning innan de kan aktiveras.
-
-Referenser: [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security), [databasfunktioner och security invoker/definer](https://supabase.com/docs/guides/database/functions), [Realtime](https://supabase.com/docs/guides/realtime/postgres-changes).
+Kör `python3 scripts/create-registration.py` på macOS med rätt CLI-kontoprofil. Endast engångslänkar sparas i privata, git-ignorerade HTML-filer; administrativa nycklar stannar i minnet. Öppna respektive fil på rätt telefon via en privat överföring. Installerad PWA och vanlig Safari-flik kan ha separata sessioner; registrera den avsedda appmiljön. Om länken har gått ut eller använts: utfärda en ny.

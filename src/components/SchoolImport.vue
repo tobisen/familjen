@@ -12,11 +12,10 @@ import {
   canWrite,
   saving,
 } from '../stores/calendar'
-import { today } from '../domain/calendar'
 const emit = defineEmits<{ close: [] }>()
 const dialog = ref<HTMLDialogElement | null>(null)
 const draft = ref<SchoolDraft | null>(null)
-const start = ref(today())
+const start = ref('')
 const end = ref('')
 const exceptions = ref('')
 const confirmed = ref(false)
@@ -48,7 +47,7 @@ async function readFile(e: Event) {
     if (!file) return
     if (file.size > 2_000_000) throw new Error('Filen är för stor (max 2 MB).')
     draft.value = parseDraft(JSON.parse(await file.text()))
-    start.value = draft.value.term_start ?? today()
+    start.value = draft.value.term_start ?? ''
     end.value = draft.value.term_end ?? ''
     exceptions.value = draft.value.exception_dates.join(', ')
   } catch (e) {
@@ -89,8 +88,8 @@ async function submit() {
       </button>
     </div>
     <p class="public-warning">
-      Importerade lektioner blir offentliga på internet, inklusive elev, tider,
-      ämnen och sal. Alla besökare kan uppdatera dem.
+      Schemat delas endast med registrerade familjemedlemmar. Bekräftade
+      terminsdatum krävs före import.
     </p>
     <label
       >JSON-fil<input
@@ -110,8 +109,9 @@ async function submit() {
       <div class="form-row">
         <label>Gäller från<input v-model="start" type="date" required /></label
         ><label
-          >Gäller till<input v-model="end" type="date" /><span class="small"
-            >Tomt = varje vecka tills manuell uppdatering.</span
+          >Gäller till<input v-model="end" type="date" required /><span
+            class="small"
+            >Bekräftat terminsslut krävs.</span
           ></label
         >
       </div>
@@ -159,8 +159,8 @@ async function submit() {
       </p>
       <label class="check-label"
         ><input v-model="confirmed" type="checkbox" />Jag har kontrollerat
-        tider, giltighet och undantag och bekräftar att schemat får publiceras
-        offentligt.</label
+        tider, terminsstart, terminsslut och undantag och bekräftar att
+        uppgifterna ska delas med familjen.</label
       ><button
         class="primary-button"
         :disabled="!confirmed || !canWrite || saving || !draft.lessons.length"

@@ -15,7 +15,6 @@ import {
 import { useRegisterSW } from 'virtual:pwa-register/vue'
 import { selectedProfile, profiles, storageError } from './domain/profiles'
 import {
-  startCalendar,
   editor,
   detail,
   openCreate,
@@ -23,11 +22,18 @@ import {
   calendarStatus,
 } from './stores/calendar'
 import { today } from './domain/calendar'
+import {
+  initializeAuth,
+  authStatus,
+  identity,
+  registration,
+} from './stores/auth'
+import AuthGate from './components/AuthGate.vue'
 import EventEditor from './components/EventEditor.vue'
 import EventDetails from './components/EventDetails.vue'
 import ProfilePicker from './components/ProfilePicker.vue'
 import { backendConfigured } from './services/supabase'
-onMounted(() => startCalendar())
+onMounted(() => initializeAuth())
 const nav = [
   { to: '/', label: 'Hem', icon: House },
   { to: '/kalender', label: 'Kalender', icon: CalendarDays },
@@ -36,7 +42,9 @@ const nav = [
   { to: '/karta', label: 'Karta', icon: MapPin },
 ]
 const profile = computed(() =>
-  profiles.find((p) => p.id === selectedProfile.value),
+  profiles.find(
+    (p) => p.id === (identity.value?.profile_key ?? selectedProfile.value),
+  ),
 )
 const quick = ref(false)
 const dialog = ref<HTMLDialogElement | null>(null)
@@ -56,7 +64,10 @@ const { needRefresh, updateServiceWorker } = useRegisterSW()
 </script>
 <template>
   <a class="skip" href="#main">Till innehållet</a>
-  <ProfilePicker v-if="!selectedProfile" initial />
+  <AuthGate
+    v-if="backendConfigured && (authStatus !== 'ready' || registration)"
+  />
+  <ProfilePicker v-else-if="!selectedProfile" initial />
   <div v-else class="shell">
     <aside class="sidebar">
       <RouterLink to="/" class="brand"
@@ -122,14 +133,14 @@ const { needRefresh, updateServiceWorker } = useRegisterSW()
             <strong>{{
               backendConfigured
                 ? calendarStatus === 'ready'
-                  ? 'Offentlig familjekalender'
+                  ? 'Privat familjekalender'
                   : 'Kalenderanslutning återstår'
                 : 'En bra början. Snart fyller vi den med er vardag.'
             }}</strong>
             <p>
               {{
                 backendConfigured
-                  ? 'Kalendern är offentlig för läsning och redigering. Chatt, GPS och push är fortsatt skyddade och inaktiva.'
+                  ? 'Familjedata är tillgänglig endast för registrerade familjemedlemmar. Chatt, GPS och push är ännu inte aktiverade.'
                   : 'Supabase är inte konfigurerat. Familjedata och synkning aktiveras efter säker installation.'
               }}
             </p>
@@ -138,7 +149,7 @@ const { needRefresh, updateServiceWorker } = useRegisterSW()
             ><ArrowUpRight :size="22"
           /></RouterLink>
         </div>
-        <footer>FAMILJEN <span>Byggd för vår vardag · Phase 1</span></footer>
+        <footer>FAMILJEN <span>Byggd för vår vardag · Phase 1.5</span></footer>
       </main>
     </div>
     <button
@@ -171,8 +182,8 @@ const { needRefresh, updateServiceWorker } = useRegisterSW()
         <button aria-label="Stäng" @click="quick = false"><X /></button>
       </div>
       <p>
-        Aktiviteter kan sparas när Supabase är konfigurerat och den offentliga
-        kalendern är aktiverad. Uppgifter och inköp kommer i Phase 2.
+        Aktiviteter kan sparas när Supabase är konfigurerat och din personliga
+        enhetssession är registrerad. Uppgifter och inköp kommer i Phase 2.
       </p>
       <div class="quick-options">
         <div v-for="label in ['Aktivitet', 'Uppgift', 'Inköp']" :key="label">

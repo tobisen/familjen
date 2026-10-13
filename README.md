@@ -1,8 +1,8 @@
 # Familjen
 
-Mobilanpassad PWA för Tobias, Neo och Sally. Phase 1 implementerar gemensam kalender med dag-, vecko- och månadsvy, CRUD, deltagare, heldag, återkommande serier, undantag, schemaimport och Supabase Realtime.
+Mobilanpassad PWA för Tobias, Neo och Sally. Phase 1/1.5 implementerar gemensam kalender med dag-, vecko- och månadsvy, CRUD, deltagare, heldag, återkommande serier, undantag, schemaimport och Supabase Realtime.
 
-**Ändrat säkerhetsbeslut 2026-10-13:** användaren har uttryckligen valt att kalendern får vara offentlig för både läsning och redigering. Profilvalet är därför en lokal preferens, inte autentisering. Alla med webbadressen kan läsa, skapa, ändra och radera kalenderdata när administratören har aktiverat den. Inga inloggningskoder eller lösenord används för kalendern. Framtida chatt, GPS, listor och push ligger kvar i separat, skyddad Phase 0-modell. Öppna aldrig dessa tabeller för att få kalendern att fungera.
+**Phase 1.5:** kalendern är åter privat. En personlig engångslänk registrerar enheten; därefter sparas sessionen utan återkommande lösenord. Lokal profil är en preferens, inte autentisering. Anonym åtkomst och de gamla publika RPC:erna är borttagna. [Aktuell setup](docs/phase1-setup.md).
 
 ## Lokal utveckling
 
@@ -14,7 +14,7 @@ cp .env.example .env
 npm run dev
 ```
 
-Öppna normalt `http://localhost:5173/familjen/`. Appen startar utan Supabase-konfiguration och visar tydligt att aktiviteter inte kan hämtas/sparas. Med konfiguration används enbart ett **eget, separat Familjen-projekt**; Vinskåpets databas och nycklar återanvänds aldrig.
+Öppna normalt `http://localhost:5173/familjen/`. Det separata Familjen-projektets offentliga klientkonfiguration finns i `config/public-supabase.json`. Appen kräver personlig registrering för familjedata. `VITE_SUPABASE_DISABLED=true` startar ett isolerat appskal utan backend. Vinskåpets databas och nycklar återanvänds aldrig.
 
 ```sh
 npm run lint
@@ -30,7 +30,7 @@ npm run test:e2e:calendar
 
 ## Supabase-installation
 
-Följ [Phase 1 setup](docs/phase1-setup.md). Kör båda migreringarna i ordning. Den offentliga kalendern är avstängd som standard och aktiveras administrativt. `.env` och GitHub repository variables behöver projektets publika URL och publicerbara nyckel. Ingen `service_role`, `sb_secret_*`, databaslösenord eller administrativ nyckel får finnas i frontend eller `VITE_*`.
+Följ [Phase 1 setup](docs/phase1-setup.md). De tre migrationerna är körda i det separata projektet; vid ny miljö körs alla i ordning. Den gamla offentliga kalendern är avvecklad av migration 003. Den publika konfigurationsfilen används redan av Pages; `.env` och repository variables är valfria overrides. Ingen `service_role`, `sb_secret_*`, databaslösenord eller administrativ nyckel får finnas i frontend eller `VITE_*`.
 
 ## Kalendern
 
@@ -45,13 +45,13 @@ Följ [Phase 1 setup](docs/phase1-setup.md). Kör båda migreringarna i ordning.
 
 ## Skolscheman
 
-[Importformat och arbetssätt](docs/school-import.md). Förhandsgranska lokal JSON och bekräfta uppgifter/publicering innan någon lektion skickas till Supabase. Veckovis giltighet från valt startdatum, med valfritt slutdatum; tomt slutdatum innebär tills manuell uppdatering enligt användarens senare instruktion. Lov/studiedagar hanteras som undantagsdatum.
+[Importformat och arbetssätt](docs/school-import.md). Förhandsgranska lokal JSON och bekräfta uppgifter/publicering innan någon lektion skickas till Supabase. Veckovis giltighet från valt startdatum, med bekräftad terminsstart och terminsslut. Import blockeras om något datum saknas. Lov/studiedagar hanteras som undantagsdatum.
 
 Faktiska underlag ligger lokalt i git-ignorerade `private-imports/`, aldrig i `public/`, `src/` eller publikt Git-repo. Sallys 24 användarangivna lektioner är transkriberade utan gissade salar eller terminsdatum. Neos mall är tom eftersom källbilden saknas i aktuell kontext. Inga scheman importeras automatiskt.
 
 ## GitHub Pages och PWA
 
-[Publicerad app](https://tobisen.github.io/familjen/). `.github/workflows/pages.yml` validerar och publicerar från main. Settings → Pages → Source: GitHub Actions. Lägg valfria repository variables `VITE_SUPABASE_URL` och `VITE_SUPABASE_PUBLISHABLE_KEY` för det separata projektet. Utan dem publiceras ett fungerande appskal med tydlig konfigurationsstatus.
+[Publicerad app](https://tobisen.github.io/familjen/). `.github/workflows/pages.yml` validerar och publicerar från main. Settings → Pages → Source: GitHub Actions. Lägg valfria repository variables `VITE_SUPABASE_URL` och `VITE_SUPABASE_PUBLISHABLE_KEY` för det separata projektet. Utan overrides används projektets publika konfigurationsfil; administrativa nycklar avvisas vid build.
 
 Hash-routing fungerar utan serveromskrivning. CI härleder base från repositorynamnet. Vid namnbyte behöver också testernas URL:er justeras. Användarsajt `owner.github.io` kräver base `/`. HTTPS krävs för PWA och framtida push/GPS.
 
@@ -65,9 +65,13 @@ Vinskåpets arbetsmetod återanvänds: rena testbara domänfunktioner, separat r
 - `src/data/calendarRepository.ts`: Supabase RPC och Realtime-adapter.
 - `src/stores/calendar.ts`: data, fel/laddning, mutationer och synkning.
 - `src/views`, `src/components`: UI.
-- `supabase/migrations`: separat offentlig kalender och oförändrad privat Phase 0-modell.
+- `supabase/migrations`: privat familjekalender med serveridentitet och skyddad Phase 0-modell.
 - `tests/support`: isolerad SQL-testmiljö; aldrig importerad av appen.
+
+## Verifiering av riktig synk
+
+Riktig registrering, två separata sessioner, Realtime, återanslutning och hosted RLS har verifierats. Se [Phase 1.5 verifieringsrapport](docs/phase1.5-verification.md). Lokala registreringslänkar utfärdas med `python3 scripts/create-registration.py` efter publicering; filer under `private-registration/` får aldrig delas publikt.
 
 ## Fortsättning
 
-Phase 2 – att göra och inköpslista. Bestäm dessa funktioners sekretess uttryckligen innan datalager aktiveras; kalenderns offentliga behörighet gäller bara kalendern. Chatt, push/påminnelser och frivillig GPS-delning följer senare. [Tidigare arkitektur för push/GPS](docs/architecture.md) gäller fortsatt för dessa funktioner.
+Phase 2 – att göra och inköpslista. Återanvänd den verifierade privata familjeidentiteten och RLS-modellen. Chatt, push/påminnelser och frivillig GPS-delning följer senare. [Tidigare arkitektur för push/GPS](docs/architecture.md) gäller fortsatt för dessa funktioner.

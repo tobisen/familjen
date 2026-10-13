@@ -15,6 +15,7 @@ export default defineConfig({
     url: 'http://127.0.0.1:4173/familjen/',
     reuseExistingServer: false,
     env: {
+      VITE_SUPABASE_DISABLED: 'true',
       VITE_SUPABASE_URL: '',
       VITE_SUPABASE_PUBLISHABLE_KEY: '',
       VITE_BASE_PATH: '/familjen/',

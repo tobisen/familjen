@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitest/config'
 import { loadEnv } from 'vite'
 import { publicConfiguration } from './src/services/supabaseConfig'
+import project from './config/public-supabase.json'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig(({ mode }) => {
@@ -9,6 +10,10 @@ export default defineConfig(({ mode }) => {
   const key =
     process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
     env.VITE_SUPABASE_PUBLISHABLE_KEY
+  if (!publicConfiguration(project.url, project.publishableKey))
+    throw new Error(
+      'Projektkonfigurationen får endast innehålla offentlig Supabase-nyckel.',
+    )
   if ((url || key) && !publicConfiguration(url, key))
     throw new Error(
       'Ogiltig Supabase-konfiguration: endast projekt-URL och publishable/anon-nyckel får byggas in i frontend.',

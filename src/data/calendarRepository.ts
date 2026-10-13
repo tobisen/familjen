@@ -36,28 +36,27 @@ export function createCalendarRepository(): CalendarRepository | null {
     return data as T
   }
   return {
-    load: () => rpc<CalendarSnapshot>('public_calendar_snapshot'),
+    load: () => rpc<CalendarSnapshot>('calendar_snapshot'),
     save: (input, id, version) =>
-      rpc<string>('public_calendar_save', {
+      rpc<string>('calendar_save', {
         payload: input,
         event_id: id,
         expected_version: version,
       }),
     remove: async (id, version) => {
-      await rpc('public_calendar_delete', {
+      await rpc('calendar_delete', {
         event_id: id,
         expected_version: version,
       })
     },
-    importLessons: (rows) =>
-      rpc<number>('public_calendar_import', { lessons: rows }),
+    importLessons: (rows) => rpc<number>('calendar_import', { lessons: rows }),
     subscribe(onChange, onStatus) {
-      const channel = client.channel('public-calendar-changes')
+      const channel = client.channel('family-calendar-changes')
       for (const table of [
-        'open_calendar_events',
-        'open_school_lessons',
-        'open_calendar_people',
-        'open_calendar_settings',
+        'private_calendar_events',
+        'private_school_lessons',
+        'private_calendar_people',
+        'private_calendar_settings',
       ])
         channel.on(
           'postgres_changes',

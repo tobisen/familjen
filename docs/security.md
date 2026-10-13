@@ -1,24 +1,13 @@
-> Phase 1-tillägg: användaren har senare valt offentlig kalender för både läsning och redigering. Det genomförs i separata `open_*`-tabeller; nedanstående privata Phase 0-modell är fortsatt stängd. Se [Phase 1 setup och aktuellt säkerhetsbeslut](phase1-setup.md). Ingen gemensam kod eller lokal profil används som autentisering.
+# Familjens säkerhetsmodell – Phase 1.5
 
-# Säkerhetsmodell och Supabase-setup
+Familjedata kräver Supabase Auth och serverregistrerat medlemskap. GitHub Pages distribuerar enbart appskal och offentlig klientkonfiguration. Profilpreferens i localStorage är aldrig ett åtkomstbevis. SDK lagrar en signerad Auth-session separat; servern verifierar JWT och RLS härleder familj från `auth.uid()`.
 
-## Gränser
+Phase 1:s tidigare publika kalender är avvecklad genom migration 003. Inga publika läs-/skrivpolicyer finns kvar. Gamla `public_calendar_*`-RPC:er och `open_calendar_enabled()` är borttagna. En gammal frontend kan därför inte fortsätta läsa eller skriva kalenderdata anonymt.
 
-GitHub Pages distribuerar offentligt läsbara statiska filer. Därför innehåller bygget inga privata uppgifter. Lokal profilväljare ger ingen åtkomst och dess ID används aldrig som behörighetsbevis. Supabase Auth JWT + administrativt provisionerat medlemskap i `profiles.auth_user_id` avgör databasåtkomst. Familjemedlemmar får läsa familjens gemensamma data; egna pushprenumerationer är bara läsbara av ägaren. Positioner är läsbara av familjen, skrivbara endast av positionsägaren. Chatt och aktivitetsförfattare måste vara autentiserad profil. Profiler och familjer kan bara administreras från betrodd server/SQL Editor.
+Alla 14 familjetabeller skyddas med RLS och nekad anon-åtkomst. Authenticated utan provisionerat medlemskap får ingen familjedata. Profiler/familjer får endast administreras från betrodd SQL/Admin API. Personliga registreringslänkar kan inte provisionera medlemskap; de autentiserar redan administrativt kopplade identiteter.
 
-RLS är aktiverad på samtliga tabeller. `anon` saknar tabellrättigheter; ingen anonym policy finns. Inloggade konton utan medlemskap får inga rader. Familje-ID och profil-ID binds med sammansatta foreign keys för att förhindra korskoppling mellan familjer. Medlemsfunktionerna är `security definer` med tom `search_path`, kvalificerade tabellnamn och begränsad execute-rättighet för att undvika rekursiv profil-RLS. Flytta inte administrativ provisioning till klienten. Anonym Auth-inloggning är inte en registreringslösning för denna app.
+Kalenderns security definer-RPC:er kontrollerar familj explicit, binder varje ändring till serverprofil och filtrerar rad-ID inom den familjen. Optimistiska versioner förhindrar tysta överskrivningar. Direkta kalenderwrites är nekade. Samma textnyckel `neo` kan finnas i två familjer, men kombinerade nycklar och familjefilter förhindrar korskoppling. Phase 0:s privata deltagar-/profil-FK och ägarpolicyer för chatt, GPS och push är kvar.
 
-## Exakta installationssteg
+Service worker cachar endast statiska resurser, inte Auth/API/data. Registreringsfragmentet rensas före navigation, och token används först efter aktiv registreringsknapp. Utloggning stänger kanaler och rensar all laddad kalenderdata; generationskontroll avvisar sena svar. En annan lokal profil kan aldrig byta registrerad identitet.
 
-1. Skapa eget Supabase-projekt på tillgänglig gratisnivå. Välj lämplig region och förvara databaslösenord privat.
-2. Kör `supabase/migrations/202610130001_phase0.sql` en gång via SQL Editor eller Supabase CLI migrations. Ingen seed med familjedata ingår.
-3. Stäng av öppen användarregistrering och anonymous sign-ins i Auth. Förbered inbjudna användare med verifierade e-postadresser. Aktivera lösenordsfri e-post-OTP/magic link, korrekta redirect-URL:er och mailleverans. Inga lösenord behövs, men engångsregistrering och identitetsverifiering krävs. Dela inte en persons inloggningslänk med övriga.
-4. Lägg administrativt in en `families`-rad och tre `profiles`-rader med motsvarande `auth.users.id` som `auth_user_id`. UUID:erna i databasen är separata från UI-valen `tobias`, `neo`, `sally`. Identitetskopplingen kommer från autentiserad användare, aldrig från lokal profil. För barn utan egen verifierbar inloggningskanal måste en säker, uttryckligt beslutad enhetsregistrering utformas innan dataåtkomst aktiveras.
-5. Lägg projekt-URL och **publishable** nyckel (alternativt äldre anon-nyckel) i `.env` och valfria GitHub repository variables. Aldrig `service_role`, `sb_secret_*`, JWT-signeringsnyckel eller databaslösenord. `.env` är git-ignorerad.
-6. Implementera och verifiera Auth-flödet i Phase 1 innan privat data laddas. Klientgränsen `requireSession` verifierar användaren; RLS är sista skyddet. Lokal profil får inte ändra autentiserad ägare. Utloggning ska rensa känsligt appstate och realtidskanaler.
-7. Verifiera i ett isolerat projekt: oinloggad klient kan inte läsa/skriva någon tabell; inloggad icke-medlem får inga rader; familj A kan inte läsa/skriva familj B; familjemedlem kan inte provisionera profiler, skriva annans position, skicka som annan eller läsa annans pushendpoint. Testa även UPDATE till annan `family_id`. Migrations- och RLS-tester körs i PGlite/PostgreSQL med emulerad Auth-funktion (`src/data/security.test.ts`). De verifierar SQL och policyer; integration med riktiga Supabase JWT/testidentiteter återstår.
-8. Aktivera endast nödvändiga tabeller för Realtime i Phase 1 och testa att kanalernas behörigheter följer RLS. Lagra aldrig pushhemligheter i publika tabeller.
-
-Gratisnivåer och mailkvoter kan begränsa drift; dokumentera aktuella begränsningar vid aktivering. Säkerhetskopiering, återställning och retention för chatt/positioner behöver beslutas innan skarp användning. Koordinater och pushendpoints får inte skickas till loggar eller analysverktyg.
-
-Referens: [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security), [Supabase users och administrativa nycklar](https://supabase.com/docs/guides/auth/users).
+Se [aktuell setup, registrering och återkallning](phase1-setup.md). Testbevis och faktisk live-status redovisas i Phase 1.5-verifieringen.

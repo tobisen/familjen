@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { calendarStatus, syncStatus } from '../stores/calendar'
+import { identity, signOut } from '../stores/auth'
 import ProfilePicker from '../components/ProfilePicker.vue'
 import { backendConfigured, configurationError } from '../services/supabase'
 import { deviceCapabilities } from '../services/capabilities'
@@ -61,16 +62,15 @@ const capabilities = deviceCapabilities()
     </dl>
   </section>
   <section class="panel settings-panel">
-    <h2>Offentlig kalender</h2>
-    <p>
-      Alla som hittar webbadressen kan läsa, ändra och radera
-      kalenderaktiviteter och importerade lektioner. Profilvalet ger en
-      personlig vy och förvald deltagare, inte en verifierad identitet.
+    <h2>Privat familjekalender</h2>
+    <p v-if="identity">
+      Registrerad som {{ identity.display_name }}. Profilval i lokal lagring kan
+      inte ändra denna identitet.
     </p>
-    <p class="small">
-      Chatt, GPS och push delar inte kalenderns öppna datalager och är ännu inte
-      aktiverade.
-    </p>
+    <p v-else>En personlig registrering krävs innan familjedata kan hämtas.</p>
+    <button v-if="identity" class="secondary-button" @click="signOut">
+      Logga ut den här enheten
+    </button>
   </section>
   <section class="panel settings-panel">
     <h2>Installera Familjen</h2>

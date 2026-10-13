@@ -8,6 +8,7 @@ import {
   saveActivity,
   saving,
 } from '../stores/calendar'
+import { identity } from '../stores/auth'
 import { selectedProfile } from '../domain/profiles'
 import {
   addDays,
@@ -43,7 +44,7 @@ const endTime = ref(last.time)
 const participants = ref(
   original
     ? [...original.participant_ids]
-    : [selectedProfile.value ?? 'tobias'],
+    : [identity.value?.profile_key ?? selectedProfile.value ?? 'tobias'],
 )
 const frequency = ref(original?.recurrence?.frequency ?? 'none')
 const interval = ref(original?.recurrence?.interval ?? 1)
@@ -123,8 +124,7 @@ async function submit() {
         </button>
       </div>
       <p class="public-warning">
-        Offentlig kalender: alla som hittar adressen kan läsa och ändra
-        aktiviteten.
+        Aktiviteten delas med din registrerade familj.
       </p>
       <p v-if="original?.recurrence" class="notice">
         Du redigerar hela serien. Undantag för enstaka tillfällen görs i

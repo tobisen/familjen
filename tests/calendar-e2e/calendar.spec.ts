@@ -1,8 +1,48 @@
 import { test, expect, type BrowserContext } from '@playwright/test'
-import { calendarDatabase, calendarRpc } from '../support/database'
+import { calendarDatabase, calendarRpc, testUser } from '../support/database'
 import type { PGlite } from '@electric-sql/pglite'
 let db: PGlite
-async function api(context: BrowserContext) {
+const sallyUser = '00000000-0000-0000-0000-000000000012'
+function session(user: string) {
+  const claims = {
+    sub: user,
+    role: 'authenticated',
+    aud: 'authenticated',
+    exp: Math.floor(Date.now() / 1000) + 3600,
+    iat: Math.floor(Date.now() / 1000),
+  }
+  const access_token = `${Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url')}.${Buffer.from(JSON.stringify(claims)).toString('base64url')}.test_signature`
+  return {
+    access_token,
+    refresh_token: 'test_refresh',
+    token_type: 'bearer',
+    expires_in: 3600,
+    expires_at: claims.exp,
+    user: {
+      id: user,
+      aud: 'authenticated',
+      role: 'authenticated',
+      email: 'fixture@example.invalid',
+      app_metadata: {},
+      user_metadata: {},
+      created_at: '2026-01-01T00:00:00Z',
+    },
+  }
+}
+async function api(context: BrowserContext, user = testUser) {
+  const stored = session(user)
+  await context.addInitScript(
+    (value) =>
+      localStorage.setItem('familjen.supabase.session', JSON.stringify(value)),
+    stored,
+  )
+  await context.route('https://familjen.test.invalid/auth/v1/user', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(stored.user),
+    }),
+  )
   await context.route(
     'https://familjen.test.invalid/rest/v1/rpc/**',
     async (route) => {
@@ -19,7 +59,12 @@ async function api(context: BrowserContext) {
         return
       }
       try {
-        const result = await calendarRpc(db, name, req.postDataJSON() ?? {})
+        const result = await calendarRpc(
+          db,
+          name,
+          req.postDataJSON() ?? {},
+          user,
+        )
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -42,6 +87,9 @@ async function api(context: BrowserContext) {
 }
 test.beforeEach(async ({ context }) => {
   db = await calendarDatabase()
+  await db.exec(
+    `insert into auth.users values ('${sallyUser}'); update public.profiles set auth_user_id='${sallyUser}' where profile_key='sally'`,
+  )
   await api(context)
 })
 test.afterEach(async () => db.close())
@@ -50,7 +98,7 @@ test('calendar CRUD with participants, views, filter, persistence and deletion c
   context,
 }) => {
   await page.goto('./')
-  await page.getByRole('button', { name: 'N Neo' }).click()
+  await expect(page.getByRole('heading', { name: /Hej Neo/ })).toBeVisible()
   await page
     .getByRole('navigation', { name: 'Mobilnavigation' })
     .getByRole('link', { name: 'Kalender' })
@@ -103,10 +151,10 @@ test('calendar CRUD with participants, views, filter, persistence and deletion c
     ...{ viewport: { width: 390, height: 844 } },
     serviceWorkers: 'block',
   })
-  await api(other)
+  await api(other, sallyUser)
   const second = await other.newPage()
   await second.goto('http://127.0.0.1:4174/familjen/')
-  await second.getByRole('button', { name: 'S Sally' }).click()
+  await expect(second.getByRole('heading', { name: /Hej Sally/ })).toBeVisible()
   await second
     .getByRole('navigation', { name: 'Mobilnavigation' })
     .getByRole('link', { name: 'Kalender' })
@@ -137,7 +185,7 @@ test('school preview, publication confirmation and idempotent import', async ({
   page,
 }) => {
   await page.goto('./')
-  await page.getByRole('button', { name: 'S Sally' }).click()
+  await expect(page.getByRole('heading', { name: /Hej Neo/ })).toBeVisible()
   await page
     .getByRole('navigation', { name: 'Mobilnavigation' })
     .getByRole('link', { name: 'Kalender' })
@@ -147,7 +195,7 @@ test('school preview, publication confirmation and idempotent import', async ({
     student_id: 'sally',
     source: 'E2E fixture',
     term_start: '2026-01-01',
-    term_end: null,
+    term_end: '2026-12-20',
     exception_dates: [],
     lessons: [
       {
@@ -185,7 +233,7 @@ test('school preview, publication confirmation and idempotent import', async ({
   await expect(dialog.getByRole('status')).toContainText(
     '1 lektioner importerades',
   )
-  const rows = await db.query('select * from public.open_school_lessons')
+  const rows = await db.query('select * from public.private_school_lessons')
   expect(rows.rows).toHaveLength(1)
 })
 
@@ -193,7 +241,7 @@ test('empty time slot, heldag recurrence and a single skipped occurrence', async
   page,
 }) => {
   await page.goto('./')
-  await page.getByRole('button', { name: 'T Tobias' }).click()
+  await expect(page.getByRole('heading', { name: /Hej Neo/ })).toBeVisible()
   await page
     .getByRole('navigation', { name: 'Mobilnavigation' })
     .getByRole('link', { name: 'Kalender' })
