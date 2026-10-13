@@ -1697,3 +1697,229 @@ th {
 .settings-panel > .secondary-button {
   margin-top: 15px;
 }
+
+/* Shared lists, mobile-first controls and dialogs. */
+.list-panel {
+  padding: 24px;
+}
+.list-filters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 18px 0;
+}
+.list-filters button {
+  border: 1px solid var(--line, #dedfd8);
+  background: transparent;
+  border-radius: 99px;
+  padding: 10px 16px;
+  min-height: 44px;
+}
+.list-filters button[aria-pressed='true'] {
+  color: white;
+  background: #204f46;
+  border-color: #204f46;
+}
+.list-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 19px 0;
+  border-top: 1px solid #e7e8df;
+}
+.list-row h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+.list-row-content {
+  flex: 1;
+  min-width: 0;
+}
+.list-row p {
+  margin: 5px 0;
+}
+.list-description {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.92rem;
+}
+.list-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.76rem;
+  align-items: center;
+  margin: 9px 0;
+}
+.overdue {
+  color: #a13a2c;
+  font-weight: 700;
+}
+.priority-tag {
+  border-radius: 99px;
+  padding: 3px 8px;
+  background: #f1f2ec;
+}
+.priority-tag.high {
+  background: #fce9e2;
+  color: #973d2a;
+}
+.check-item {
+  flex-shrink: 0;
+  border: 2px solid #9ba99b;
+  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  background: #fff;
+  display: grid;
+  place-items: center;
+}
+.check-item.checked {
+  background: #204f46;
+  color: white;
+  border-color: #204f46;
+}
+.is-done h3 {
+  text-decoration: line-through;
+  color: #6a766e;
+}
+.row-edit {
+  border: 0;
+  background: transparent;
+  min-height: 44px;
+  min-width: 44px;
+  color: #53665b;
+  display: grid;
+  place-items: center;
+}
+.list-form,
+.shopping-quick {
+  display: grid;
+  gap: 16px;
+}
+.list-form label,
+.shopping-quick label {
+  display: grid;
+  gap: 7px;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.list-form input,
+.list-form textarea,
+.list-form select,
+.shopping-quick input {
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  padding: 11px;
+  border: 1px solid #ccd4c8;
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+  font-size: 16px;
+}
+.form-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.list-form fieldset {
+  border: 1px solid #dde2d7;
+  border-radius: 12px;
+  padding: 12px;
+  min-width: 0;
+}
+.people-checks {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.people-checks label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+}
+.people-checks input {
+  width: 20px;
+  min-height: 20px;
+  accent-color: #204f46;
+}
+.list-editor {
+  width: min(540px, calc(100% - 24px));
+  max-height: 88dvh;
+  overflow-y: auto;
+}
+.list-editor .dialog-head {
+  margin-bottom: 18px;
+}
+.list-editor .danger-link {
+  margin-top: 20px;
+}
+.danger-link {
+  color: #a13a2c;
+}
+.shopping-quick {
+  padding-bottom: 22px;
+}
+.list-subheading {
+  margin: 20px 0;
+  font-size: 0.95rem;
+}
+.history-toggle {
+  margin-top: 20px;
+}
+.purchase-history {
+  margin-top: 15px;
+}
+.purchase-history .secondary-button {
+  padding: 10px;
+}
+.purchase-history .list-row {
+  flex-wrap: wrap;
+}
+.undo-purchase {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.home-tasks {
+  padding: 25px;
+  margin-top: 24px;
+}
+.home-task-row {
+  display: grid;
+  gap: 5px;
+  padding: 15px 0;
+  border-top: 1px solid #e7e8df;
+  color: inherit;
+  text-decoration: none;
+}
+.home-task-row > span {
+  font-size: 0.85rem;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+@media (max-width: 480px) {
+  .list-panel {
+    padding: 18px;
+  }
+  .list-row {
+    gap: 9px;
+  }
+  .list-filters button {
+    padding: 9px 13px;
+  }
+}
+
+.list-form > .list-fields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 16px;
+}

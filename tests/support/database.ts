@@ -13,6 +13,7 @@ export async function calendarDatabase(enabled = true) {
     '202610130003_private_calendar.sql',
     '202610130004_registration_codes.sql',
     '202610130005_nonexpiring_codes.sql',
+    '202610130006_family_lists.sql',
   ])
     await db.exec(readFileSync(`supabase/migrations/${f}`, 'utf8'))
   if (enabled) {
@@ -63,6 +64,28 @@ export async function calendarRpc(
       sql: 'select public.calendar_import($1::jsonb) as result',
       values: [JSON.stringify(args.lessons)],
     },
+  }
+  specs.lists_snapshot = {
+    sql: 'select public.lists_snapshot() as result',
+    values: [],
+  }
+  specs.lists_save = {
+    sql: 'select public.lists_save($1,$2::jsonb,$3::uuid,$4::integer,$5::uuid) as result',
+    values: [
+      args.kind,
+      JSON.stringify(args.payload),
+      args.item_id ?? null,
+      args.expected_version ?? null,
+      args.request_id ?? null,
+    ],
+  }
+  specs.lists_set_done = {
+    sql: 'select public.lists_set_done($1,$2::uuid,$3::boolean,$4::integer) as result',
+    values: [args.kind, args.item_id, args.done, args.expected_version],
+  }
+  specs.lists_delete = {
+    sql: 'select public.lists_delete($1,$2::uuid,$3::integer) as result',
+    values: [args.kind, args.item_id, args.expected_version],
   }
   specs.calendar_identity = {
     sql: 'select public.calendar_identity() as result',

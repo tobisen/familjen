@@ -14,6 +14,7 @@ const fake = vi.hoisted(() => ({
 vi.mock('../services/supabase', () => ({
   supabase: { auth: fake, rpc: fake.rpc, realtime: { setAuth: fake.setAuth } },
 }))
+vi.mock('./lists', () => ({ stopLists: vi.fn(), startLists: vi.fn() }))
 vi.mock('./calendar', () => ({
   stopCalendar: fake.stop,
   startCalendar: fake.start,

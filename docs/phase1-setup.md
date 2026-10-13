@@ -7,7 +7,7 @@ Phase 1:s offentliga kalender är ersatt av en privat kalender. Kör aldrig tidi
 - Separat Supabase-projekt **familjen**, ref `mulsuwdmpixzukzwpocf`, region Stockholm `eu-north-1`.
 - Skapat i befintlig organisation efter verifiering av gratisplanen och ledig projektplats. Vinskåpets databas, nycklar och sessioner används inte.
 - Kontoinloggningen återanvändes via Supabase CLI:s namngivna profil `supabase` i OS credential store. Administrativa nycklar har hanterats endast i processminnet, inte lagrats i repo/frontend.
-- De fem migrationerna är tillämpade i ordning och journalförda i `supabase_migrations.schema_migrations`.
+- De sex migrationerna är tillämpade i ordning och journalförda i `supabase_migrations.schema_migrations`.
 - `config/public-supabase.json` innehåller endast projekt-URL och offentlig **anon**-nyckel. Den får vara publik; RLS och RPC-behörigheter skyddar all familjedata. Vite validerar att nyckeln är publishable/anon och avvisar administrativa nycklar. Miljövariabler kan ersätta dessa publika värden; `VITE_SUPABASE_DISABLED=true` stänger backend i det isolerade shell-testet.
 
 ## Registrera en enhet
@@ -49,3 +49,7 @@ Referenser: [Supabase sessions](https://supabase.com/docs/guides/auth/sessions),
 ## Utfärda nya länkar lokalt
 
 Kör `python3 scripts/create-registration.py` på macOS med rätt CLI-kontoprofil. Endast engångslänkar sparas i privata, git-ignorerade HTML-filer; administrativa nycklar stannar i minnet. Öppna respektive fil på rätt telefon via en privat överföring. Installerad PWA och vanlig Safari-flik kan ha separata sessioner; registrera den avsedda appmiljön. Om länken har gått ut eller använts: utfärda en ny.
+
+## Phase 2
+
+Migration 006 utökar de privata listorna och aktiverar deras Realtime-tabeller. [Detaljer, återkomstregler och säkerhetsverifiering](phase2.md). Befintliga registreringar och koder fortsätter fungera.

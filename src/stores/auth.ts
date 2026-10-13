@@ -6,6 +6,7 @@ import {
   publicSupabaseKey,
 } from '../services/supabase'
 import { stopCalendar, startCalendar } from './calendar'
+import { stopLists, startLists } from './lists'
 import { selectProfile, type ProfileId } from '../domain/profiles'
 export interface FamilyIdentity {
   profile_id: string
@@ -66,6 +67,7 @@ function clearIdentity() {
   generation++
   identity.value = null
   stopCalendar()
+  stopLists()
 }
 export async function restoreIdentity(session?: Session | null) {
   if (!supabase) return
@@ -120,6 +122,7 @@ export async function restoreIdentity(session?: Session | null) {
     if (location.pathname === import.meta.env.BASE_URL + 'register/')
       history.replaceState(null, '', import.meta.env.BASE_URL + '#/')
     startCalendar()
+    startLists()
   } catch (e) {
     if (attempt !== generation) return
     clearIdentity()

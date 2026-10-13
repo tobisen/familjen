@@ -14,6 +14,20 @@ import CalendarEvent from '../components/CalendarEvent.vue'
 import { occurrences, today, addDays } from '../domain/calendar'
 import { activities, schoolLessons, calendarStatus } from '../stores/calendar'
 import EmptyState from '../components/EmptyState.vue'
+import {
+  tasks,
+  remainingShopping,
+  listsStatus,
+  listPeople,
+} from '../stores/lists'
+import { filterTasks, taskTiming } from '../domain/lists'
+import { identity } from '../stores/auth'
+const currentTasks = computed(() =>
+  filterTasks(tasks.value, 'active', identity.value?.profile_key ?? null).slice(
+    0,
+    5,
+  ),
+)
 const upcoming = computed(() =>
   occurrences(
     activities.value,
@@ -90,7 +104,10 @@ const date = new Intl.DateTimeFormat('sv-SE', {
         },
         {
           title: 'Inköp',
-          text: 'Kom ihåg det som saknas hemma',
+          text:
+            listsStatus === 'ready'
+              ? `${remainingShopping} varor kvar att köpa`
+              : 'Kom ihåg det som saknas hemma',
           to: '/listor?tab=inkop',
           icon: ShoppingBasket,
           color: 'peach',
@@ -106,10 +123,46 @@ const date = new Intl.DateTimeFormat('sv-SE', {
       <p>{{ item.text }}</p>
       <span class="card-link"
         >{{
-          item.title === 'Kalender' ? 'Öppna kalendern' : 'Kommer i Phase 2'
+          item.title === 'Kalender'
+            ? 'Öppna kalendern'
+            : item.title === 'Att göra'
+              ? 'Visa uppgifter'
+              : 'Öppna inköpslistan'
         }}
         <ArrowRight :size="16" /></span
     ></RouterLink>
+  </section>
+  <section class="panel home-tasks">
+    <div class="panel-title">
+      <h2>Att göra just nu</h2>
+      <RouterLink to="/listor"
+        >Alla uppgifter <ArrowRight :size="16"
+      /></RouterLink>
+    </div>
+    <RouterLink
+      v-for="task in currentTasks"
+      :key="task.id"
+      to="/listor"
+      class="home-task-row"
+      ><strong>{{ task.title }}</strong
+      ><span :class="{ overdue: taskTiming(task, today()) === 'Förfallen' }"
+        >{{ taskTiming(task, today())
+        }}{{ task.deadline ? ` · ${task.deadline}` : '' }}</span
+      ><span class="small">{{
+        task.assigned_ids
+          .map((id) => listPeople.find((p) => p.key === id)?.name)
+          .join(', ') || 'Ingen tilldelad'
+      }}</span></RouterLink
+    >
+    <p v-if="!currentTasks.length" class="small">
+      {{
+        listsStatus === 'ready'
+          ? 'Inga aktiva uppgifter. Lägg till det ni vill få gjort.'
+          : listsStatus === 'loading'
+            ? 'Hämtar uppgifter…'
+            : 'Uppgifter visas när listans anslutning är klar.'
+      }}
+    </p>
   </section>
   <section class="home-grid">
     <div class="panel">

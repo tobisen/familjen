@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView, useRoute } from 'vue-router'
+import ListEditor from './components/ListEditor.vue'
+import { listEditor, openListEditor, listsWritable } from './stores/lists'
 import {
   House,
   CalendarDays,
@@ -46,6 +48,18 @@ const profile = computed(() =>
     (p) => p.id === (identity.value?.profile_key ?? selectedProfile.value),
   ),
 )
+const route = useRoute()
+function add() {
+  if (route.path === '/listor' && listsWritable.value)
+    openListEditor(route.query.tab === 'inkop' ? 'shopping' : 'task')
+  else if (route.path === '/kalender' && canWrite.value) openCreate(today())
+  else quick.value = true
+}
+function choose(kind: 'activity' | 'task' | 'shopping') {
+  quick.value = false
+  if (kind === 'activity') openCreate(today())
+  else openListEditor(kind)
+}
 const quick = ref(false)
 const dialog = ref<HTMLDialogElement | null>(null)
 const plus = ref<HTMLButtonElement | null>(null)
@@ -165,15 +179,10 @@ const { needRefresh, updateServiceWorker } = useRegisterSW({
             ><ArrowUpRight :size="22"
           /></RouterLink>
         </div>
-        <footer>FAMILJEN <span>Byggd för vår vardag · Phase 1.5</span></footer>
+        <footer>FAMILJEN <span>Byggd för vår vardag · Phase 2</span></footer>
       </main>
     </div>
-    <button
-      ref="plus"
-      class="quick-add"
-      aria-label="Lägg till"
-      @click="canWrite ? openCreate(today()) : (quick = true)"
-    >
+    <button ref="plus" class="quick-add" aria-label="Lägg till" @click="add">
       <Plus :size="24" /><span>Lägg till</span>
     </button>
     <nav class="bottom-nav" aria-label="Mobilnavigation">
@@ -197,17 +206,33 @@ const { needRefresh, updateServiceWorker } = useRegisterSW({
         <h2 id="quick-title">Vad vill du lägga till?</h2>
         <button aria-label="Stäng" @click="quick = false"><X /></button>
       </div>
-      <p>
-        Aktiviteter kan sparas när Supabase är konfigurerat och din personliga
-        enhetssession är registrerad. Uppgifter och inköp kommer i Phase 2.
-      </p>
+      <p>Vad vill du komma ihåg?</p>
       <div class="quick-options">
-        <div v-for="label in ['Aktivitet', 'Uppgift', 'Inköp']" :key="label">
-          <Plus :size="20" /><strong>{{ label }}</strong
-          ><span class="tag">Kommer snart</span>
-        </div>
+        <button
+          class="secondary-button"
+          :disabled="!canWrite"
+          @click="choose('activity')"
+        >
+          <Plus :size="20" />Aktivitet
+        </button>
+        <button
+          class="secondary-button"
+          :disabled="!listsWritable"
+          @click="choose('task')"
+        >
+          <Plus :size="20" />Uppgift
+        </button>
+        <button
+          class="secondary-button"
+          :disabled="!listsWritable"
+          @click="choose('shopping')"
+        >
+          <Plus :size="20" />Inköp
+        </button>
       </div>
-      <p class="small">Ingenting sparas ännu.</p>
+      <p v-if="!canWrite && !listsWritable" class="small">
+        Supabase och en registrerad enhet krävs. Ingenting sparas ännu.
+      </p>
       <RouterLink to="/kalender" class="text-link" @click="quick = false"
         >Visa kalendern</RouterLink
       >
@@ -217,5 +242,6 @@ const { needRefresh, updateServiceWorker } = useRegisterSW({
       :key="`${editor.id}:${editor.date}:${editor.time}`"
     />
     <EventDetails v-if="detail" :key="detail.key" />
+    <ListEditor v-if="listEditor" :key="listEditor.request" />
   </div>
 </template>

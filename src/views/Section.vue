@@ -68,6 +68,7 @@ const scope = ref('alla')
   </div>
   <div class="panel section-panel">
     <EmptyState
+      prepared
       :title="
         scope === 'skola' && section === 'kalender'
           ? 'Inget skolschema importerat'
