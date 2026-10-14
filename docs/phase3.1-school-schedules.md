@@ -6,7 +6,14 @@ Tidigare fanns bara ignorerade lokala JSON-underlag. Inga lektioner hade lagrats
 
 Underlagen finns nu i **privat Supabase-lagring**, tillgängliga för familjens registrerade identiteter. De ingår inte i GitHub-repot, frontendpaketet eller service worker-cachen. Sally har 24 kompletta tider. Neo har 18 preliminära poster med saknade sluttider och bevarade cirka-markeringar. Inga originalbilder finns i repositoryt.
 
-**Inga verkliga lektioner har aktiverats.** Sally behöver höstens sista undervisningsdag samt bekräftad årskurs inför vårterminen. Neo behöver verifierade sluttider och bekräftelse av preliminära uppgifter. Detta är faktablockeringar, inte saknad Supabase-anslutning. Återkommande aktiviteter aktiveras aldrig med gissade datum eller tider.
+**Sallys schema är nu aktiverat för båda terminerna:** 24 återkommande veckoposter inklusive fem luncher per termin, lagrade som 48 periodbundna rader. Användaren bekräftade årskurs 1 och gav uttryckligen tillåtelse att göra rimliga val som kan korrigeras i appen.
+
+- HT 2026: 2026-08-17–2026-12-22. Startdatumet är verifierat. **22 december är ett preliminärt valt slutdatum**, dagen före skolans publicerade jullovsstart; det är inte ett verifierat besked om sista undervisningsdagen. Detta framgår även av anteckningarna i appen.
+- VT 2027: 2027-01-13–2027-06-10. Båda gränserna är verifierade för Sallys nu bekräftade årskurs.
+- Samma granskade veckounderlag används i båda perioderna tills manuell uppdatering. Höstlov vecka 44, sportlov vecka 8, påsklov och röda dagar undantas. Uppropsdagen 17 augusti undantas från ordinarie schema enligt skolans [skolstartsbesked](https://drottningblanka.se/uppsala/nyheter/).
+- Studiedagar, klämdagar och särskilda första/sista skoldagar behöver fortfarande kontrolleras i Schoolsoft. De okända dagarna har inte hittats på. Redigera periodens datum/undantag i administrationen och importera igen med samma period-ID.
+
+**Neo är inte aktiverad:** samtliga 18 poster saknar verifierade sluttider och vissa starttider är ungefärliga. Dessa tider uppskattas inte.
 
 ## Officiella källor, kontrollerade 2026-10-14
 
@@ -25,7 +32,9 @@ Underlagen finns nu i **privat Supabase-lagring**, tillgängliga för familjens 
 | Avslutning, uttryckligen åk 1–2 | 2027-06-10            |
 | Student                         | 2027-06-11            |
 
-**Höstterminens sista undervisningsdag anges inte uttryckligen.** Vi antar inte att den infaller dagen före jullovsstart. Sallys årskurs behöver bekräftas innan avslutningen för åk 1–2 används för hennes vårtermin. Studiedagar och andra avvikelser hänvisas till Schoolsoft. Höstutkastet har nu verifierad start och höstlov vecka 44, men saknar slutdatum. Kommunens datum ersätter inte skolans egna.
+**Höstterminens sista undervisningsdag anges inte uttryckligen.** Efter användarens tillåtelse används 22 december som ett tydligt markerat preliminärt slutdatum. Sallys årskurs 1 är nu bekräftad, så avslutningen 10 juni kan användas för hennes vårtermin. Studiedagar och andra avvikelser hänvisas fortfarande till Schoolsoft. Kommunens datum ersätter inte skolans egna.
+
+Sportlov vecka 8 motsvarar 22–28 februari 2027. Skolans påsklov 30 mars–2 april kompletteras med långfredag 26 mars och annandag påsk 29 mars. Kristi himmelsfärdsdag 6 maj undantas också. [Lag om allmänna helgdagar](https://data.riksdagen.se/dokument/sfs-1989-253.html) anger helgdagarna; [datum för påsken 2027](https://publicholidays.se/sv/easter/) och [Kristi himmelsfärdsdag 2027](https://publicholidays.se/sv/ascension-day/) har kontrollerats separat. Inga okända studiedagar, Valborg eller klämdagar har lagts till för DBGY.
 
 ### Amerikanska Gymnasiet Uppsala
 
@@ -76,4 +85,6 @@ Enhets-/SQL-tester täcker partiell import, validering, dubbletter, stabila UUID
 
 `scripts/live-school.mjs` tar tillfälliga autentiserade sessioner via stdin. Verifieringen använder riktig Supabase och tre separata webbläsarkontexter: privata underlag, syntetisk partiell aktivering, realtid, ändring, återanslutning och samma UUID efter omimport. Testets syntetiska poster städas med exakta identifierare av en betrodd operatör. Testsessionerna loggas ut separat; befintliga telefoners sessioner påverkas inte. Fysiska telefoner har inte verifierats.
 
-Verifierat lokalt: lint, typecheck, 124 enhets-/SQL-tester, 34 kalender-/list-/chatt-/Auth-E2E och 16 app-/PWA-E2E. Produktionsbygget passerar. Hosted RLS har även verifierats med en separat tillfällig autentiserad familj: inga andra familjers scheman kan läsas, förfalskad familjemetadata ger inte åtkomst och direkt tabellskrivning nekas. De två riktiga underlagen finns kvar efter att syntetiska testposter och testfamiljen rensats.
+Verifierat lokalt: lint, typecheck, 124 enhets-/SQL-tester, 34 kalender-/list-/chatt-/Auth-E2E och 16 app-/PWA-E2E. Produktionsbygget passerar. Hosted RLS har även verifierats med en separat tillfällig autentiserad familj: inga andra familjers scheman kan läsas, förfalskad familjemetadata ger inte åtkomst och direkt tabellskrivning nekas. De riktiga underlagen och aktiverade schemana bevaras när syntetiska testposter och testfamiljen rensas.
+
+Efter faktisk aktivering verifierades Sallys schema på GitHub Pages för Tobias, Neo och Sally i tre separata autentiserade webbläsarkontexter: dag-, vecko- och månadsvy, rätt personfärg, båda periodernas importstatus samt samma 48 lagrade skolrader. Upprepad höstimport behöll samtliga UUID. Privata aktiviteter jämfördes före/efter och var oförändrade.
