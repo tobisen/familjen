@@ -36,7 +36,8 @@ Detaljvyn erbjuder redigering av hela serien eller bara detta tillfälle.
 samma transaktion. Ogiltig ersättning återställer hela transaktionen; ett
 upprepat anrop med gammal version skapar ingen dubblett. Radera detta tillfälle
 skapar ett undantag; seriens radering kräver bekräftelse. En ersättning redigeras
-fortsättningsvis som en vanlig aktivitet.
+fortsättningsvis separat, men migration 013 behåller kopplingen till serien så
+att radering av hela serien även tar bort redigerade tillfällen.
 
 ## Raderade chattmeddelanden
 
@@ -76,9 +77,11 @@ manifestets temafärger följer det nya mörka standardtemat.
 ## Körda kontroller
 
 - Lint, typecheck och produktionsbuild inklusive service worker-koppling.
-- 154 Vitest-tester och två Deno-tester för pushworker.
+- 155 Vitest-tester och två Deno-tester för pushworker.
 - 20 PWA-/navigationstester och 44 funktions-E2E i Chromium/WebKit.
 - Hosted Supabase: tre isolerade autentiserade webbläsarsessioner, verklig
   Realtime-radering, olästa-räknare, ägarbehörighet och återanslutning godkända.
-- Migration 012 är körd i Familjens separata projekt. Historiska tombstones
+  Serverstyrt deltagande, tilldelning, enskild ersättning och serieradering är
+  också verifierade mot hosted RPC med samma isolerade testfamilj.
+- Migrationerna 012–013 är körda i Familjens separata projekt. Historiska tombstones
   saknar innehåll; aktiva meddelanden och Sallys befintliga scheman behålls.

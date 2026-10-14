@@ -308,3 +308,22 @@ it('isolates participation, task assignment, occurrence edits and revision signa
   )
   expect(revisions.rows).toEqual([])
 })
+
+it('deleting the whole series also removes edited occurrences while preserving unrelated activities', async () => {
+  const series = await rpc('calendar_save', { payload })
+  const separate = await rpc('calendar_save', {
+    payload: { ...payload, title: 'Unrelated', recurrence: null },
+  })
+  const replacement = await rpc('calendar_save_occurrence', {
+    event_id: series,
+    expected_version: 1,
+    occurrence_date: '2026-10-25',
+    payload: { ...payload, title: 'Linked override' },
+  })
+  await rpc('calendar_delete', { event_id: series, expected_version: 2 })
+  const rows = (
+    (await rpc('calendar_snapshot')) as { activities: CalendarActivity[] }
+  ).activities
+  expect(rows.some((a) => a.id === series || a.id === replacement)).toBe(false)
+  expect(rows.some((a) => a.id === separate)).toBe(true)
+})
