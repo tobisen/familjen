@@ -13,10 +13,9 @@
 
 ## Trasig gammal Android-installation
 
-1. Stäng alla Familjen-fönster och flikar. Öppna https://tobisen.github.io/familjen/recover/ i Chrome och välj **Återställ appens cache**. Åtgärden rensar endast Familjens service worker och statiska cache; sessionen behålls. Nätanslutning behövs.
-2. Om Chrome fortfarande säger ”redan installerad” och **Öppna** inte fungerar: Android → Inställningar → Appar → Familjen → Avinstallera. Det går också att hålla inne appikonen → Appinformation → Avinstallera. Att bara ta bort genvägen kan lämna installationen kvar.
-3. Stäng Chrome, öppna appadressen igen och installera från Chrome-menyn. Starta den nya ikonen.
-4. Serverlagrade aktiviteter försvinner inte vid avinstallation. Om Android har tagit bort den lokala sessionen behöver du en ny personlig engångskod. Rensa inte hela webbplatsens lagring som första åtgärd; det kan även logga ut andra appar på samma GitHub Pages-domän.
+Om Chrome säger ”redan installerad”, ”Det gick inte att öppna appen” och Familjen saknas i Androids applista: följ [Pixel 7 – WebAPK-felsökning och nytt installationstest](android-webapk.md). Cacheåterställning påverkar inte Androids paketregister. Börja med att uppdatera/tvinga avslut av Chrome och undersöka `chrome://webapks`, inte med att rensa alla Chrome-data.
+
+Om webbappen i sig inte startar: `/familjen/recover/` → **Återställ appens cache** rensar bara appscopets statiska cache/service worker och behåller sessionen. **Visa teknisk kontroll** läser offentligt manifest/ikoner utan att ändra lagring.
 
 Fristående starthjälp och återställning finns också under Inställningar och på registreringssidan. Uppdateringsbanderollen **Uppdatera appen** aktiverar en ny version utan att rensa autentiseringslagring.
 

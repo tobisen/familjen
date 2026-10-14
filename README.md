@@ -53,6 +53,8 @@ Faktiska underlag ligger lokalt i git-ignorerade `private-imports/`, aldrig i `p
 
 ## GitHub Pages och PWA
 
+[Pixel 7: WebAPK redan installerad men kan inte öppnas](docs/android-webapk.md). PWA-identiteten behålls; webbcache och Androids paketregistrering hanteras separat.
+
 [Publicerad app](https://tobisen.github.io/familjen/). `.github/workflows/pages.yml` validerar och publicerar från main. Settings → Pages → Source: GitHub Actions. Lägg valfria repository variables `VITE_SUPABASE_URL` och `VITE_SUPABASE_PUBLISHABLE_KEY` för det separata projektet. Utan overrides används projektets publika konfigurationsfil; administrativa nycklar avvisas vid build.
 
 Hash-routing fungerar utan serveromskrivning. CI härleder base från repositorynamnet. Vid namnbyte behöver också testernas URL:er justeras. Användarsajt `owner.github.io` kräver base `/`. HTTPS krävs för PWA och framtida push/GPS.

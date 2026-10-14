@@ -49,8 +49,8 @@
           (await caches.keys())
             .filter(function (name) {
               return (
-                name.startsWith('familjen-') ||
-                (name.startsWith('workbox-') && name.includes(scope))
+                (name.startsWith('familjen-') || name.startsWith('workbox-')) &&
+                name.endsWith(scope)
               )
             })
             .map(function (name) {

@@ -1,0 +1,27 @@
+[
+  {
+    "commit": "f852712",
+    "manifestUrl": "https://tobisen.github.io/familjen/manifest.webmanifest",
+    "start_url": "./",
+    "scope": "./"
+  },
+  {
+    "commit": "b5f22ac",
+    "manifestUrl": "https://tobisen.github.io/familjen/manifest.webmanifest",
+    "start_url": "./",
+    "scope": "./"
+  },
+  {
+    "commit": "6471c15",
+    "manifestUrl": "https://tobisen.github.io/familjen/manifest.webmanifest",
+    "start_url": "./",
+    "scope": "./"
+  },
+  {
+    "commit": "46c748b",
+    "manifestUrl": "https://tobisen.github.io/familjen/manifest.webmanifest",
+    "start_url": "/familjen/",
+    "scope": "/familjen/",
+    "id": "/familjen/"
+  }
+]

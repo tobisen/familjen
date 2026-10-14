@@ -1,7 +1,7 @@
 export function isAppCache(name: string, scope: string) {
   return (
-    name.startsWith('familjen-') ||
-    (name.startsWith('workbox-') && name.includes(scope))
+    (name.startsWith('familjen-') || name.startsWith('workbox-')) &&
+    name.endsWith(scope)
   )
 }
 export async function resetAppResources(base = import.meta.env.BASE_URL) {

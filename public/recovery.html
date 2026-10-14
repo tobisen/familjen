@@ -38,12 +38,61 @@
       registrerade session och serverlagrade aktiviteter raderas inte.
     </p>
     <button id="boot-repair" data-reset-app>Återställ appens cache</button>
+    <h2>Chrome säger redan installerad, men appen saknas</h2>
     <p>
-      Om Android fortfarande visar en trasig installation: avinstallera just
-      Familjen via Inställningar → Appar, öppna sedan webbplatsen i Chrome och
-      installera på nytt. Serverdata finns kvar. En ny personlig kod kan behövas
-      om Android tar bort installationens lokala session.
+      Cacheknappen ovan återställer webbappen. Den kan inte avregistrera en
+      Android-app eller en felaktig WebAPK-post i Chrome.
     </p>
+    <p>
+      I Chrome 155.0.8059.41 kan andra appar på samma domän göra att Familjen
+      felaktigt visas som installerad. Rensa inte data och avinstallera inte
+      andra appar för detta. Öppna Familjens Inställningar → Hjälp med
+      installation och start och prova <strong>Installera Familjen</strong> om
+      knappen visas. Den använder Chromes direkta installationshändelse; ingen
+      fungerande Pixel-installation utlovas.
+    </p>
+    <ol>
+      <li>
+        Uppdatera Chrome i Play Butik. Android → Inställningar → Appar → Chrome
+        → Tvinga avslut. Öppna Chrome igen. Välj inte Rensa lagring.
+      </li>
+      <li>
+        Skriv <code>chrome://webapks</code> i Chromes adressfält. Leta efter
+        Familjen och kontrollera att Scope och Manifest Start URL är
+        <code>https://tobisen.github.io/familjen/</code>. Kontrollera även om en
+        annan app har scope över hela <code>tobisen.github.io</code>.
+      </li>
+      <li>
+        Om Familjen finns: anteckna Package name och Owning Browser.
+        Avinstallera bara det identifierade paketet om Android hittar det.
+        Update-knappen kan begära en uppdatering, men är ingen
+        avinstallationsknapp och kan kräva att appen går att starta.
+      </li>
+      <li>
+        Om posten saknas eller appen fortfarande inte går att öppna: starta om
+        telefonen och testa installation från webbplatsens startsida igen. Den
+        fungerande vanliga genvägen kan användas tills Chrome-felet är löst.
+      </li>
+    </ol>
+    <p>
+      Om felet kvarstår behövs Chrome-version, Android-version och uppgifterna
+      från <code>chrome://webapks</code>. Webbappen kan inte reparera Chromes
+      paketregister. Rensa inte all Chrome-data. En eventuell återställning av
+      webbplatsdata för <code>tobisen.github.io</code> kan logga ut även andra
+      appar på samma domän och kräva en ny personlig kod.
+    </p>
+    <button id="pwa-check">Visa teknisk kontroll</button>
+    <p>
+      Kontrollen läser webbappens offentliga konfiguration. Den läser inte din
+      session och ändrar ingen lagring.
+    </p>
+    <pre
+      id="pwa-report"
+      aria-live="polite"
+      style="white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px"
+    ></pre>
+    <a href="__APP_BASE__">Öppna Familjen i webbläsaren</a>
     <script src="__APP_BASE__boot.js"></script>
+    <script src="__APP_BASE__pwa-diagnostics.js"></script>
   </body>
 </html>
