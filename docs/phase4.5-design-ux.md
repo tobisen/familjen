@@ -85,3 +85,24 @@ manifestets temafärger följer det nya mörka standardtemat.
   också verifierade mot hosted RPC med samma isolerade testfamilj.
 - Migrationerna 012–013 är körda i Familjens separata projekt. Historiska tombstones
   saknar innehåll; aktiva meddelanden och Sallys befintliga scheman behålls.
+
+## Korrigering av gammal appversion och notisruta
+
+Den publicerade databasen kontrollerades efter rapport om kvarvarande
+raderingsplatshållare: fem raderade meddelanden var korrekt markerade och inga
+aktiva meddelanden innehöll de rapporterade platshållartexterna. Telefonens
+installerade version kunde inte inspekteras; en äldre öppen appversion är därför
+en sannolik förklaring, inte en verifierad enhetsdiagnos.
+
+Chattvyn filtrerar nu även själv bort tombstones före rendering och datumgruppering.
+Tillgängliga appuppdateringar tillämpas automatiskt när appen är synlig och ledig.
+Registrering, öppna dialoger, fokuserade fält, oskickad text och väntande
+chattmeddelanden skjuter upp uppdateringen. Autentiseringslagring rensas inte.
+En redan öppen version från före rättningen behöver fortfarande laddas om:
+tryck **Uppdatera appen** när meddelandet om ny version visas. Vid behov finns
+**Återställ appens cache** i Inställningar; den behåller autentiseringssessionen.
+
+Startsidan visar notisinformation endast tills behörighet och prenumeration är
+klara, eller om ett anslutningsfel behöver hanteras. Vid godkänd aktivering
+försvinner hela rutan omedelbart, även dess hjälpinformation. I Inställningar
+finns status och testnotis kvar. Detta testas både som komponent och i mobila E2E.

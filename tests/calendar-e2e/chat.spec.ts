@@ -274,3 +274,29 @@ test('desktop Enter sends and Shift Enter keeps a line break', async ({
   await expect(page.locator('.chat-message')).toHaveCount(1)
   await context.close()
 })
+
+test('previously deleted messages leave neither text nor a bubble on reopening chat', async ({
+  page,
+}) => {
+  const deleted = (await calendarRpc(db, 'chat_send', {
+    message_body: 'Legacy deleted content',
+    request_id: crypto.randomUUID(),
+  })) as { id: string }
+  await calendarRpc(db, 'chat_change', {
+    message_id: deleted.id,
+    message_body: '',
+    expected_version: 1,
+    remove_message: true,
+  })
+  await page.goto('./#/chatt')
+  await expect(page.getByLabel('Meddelande', { exact: true })).toBeEnabled()
+  await expect(page.locator('.chat-message')).toHaveCount(0)
+  await expect(
+    page.getByText(
+      /Borttaget meddelande|Bortaget meddelande|Meddelandet har raderats/,
+    ),
+  ).toHaveCount(0)
+  await page.reload()
+  await expect(page.getByLabel('Meddelande', { exact: true })).toBeEnabled()
+  await expect(page.locator('.chat-message')).toHaveCount(0)
+})

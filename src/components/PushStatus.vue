@@ -7,6 +7,7 @@ import {
   restorePush,
   testPush,
 } from '../services/push'
+const props = defineProps<{ compact?: boolean }>()
 const permission = ref(
   'Notification' in window ? Notification.permission : 'unsupported',
 )
@@ -65,7 +66,13 @@ onMounted(() => {
 onUnmounted(() => window.removeEventListener('focus', refresh))
 </script>
 <template>
-  <section v-if="identity" class="panel settings-panel">
+  <section
+    v-if="
+      identity &&
+      (!props.compact || permission !== 'granted' || !connected || error)
+    "
+    class="panel settings-panel"
+  >
     <h2>Notiser på den här enheten</h2>
     <p>
       Familjens meddelanden, aktiviteter, uppgifter och inköp ger automatiskt

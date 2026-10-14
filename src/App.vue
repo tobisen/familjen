@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import PushStatus from './components/PushStatus.vue'
+import { canApplyAppUpdate } from './services/appUpdate'
 import { restorePush } from './services/push'
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import ListEditor from './components/ListEditor.vue'
-import { chatSummary } from './stores/chat'
+import { chatSummary, pendingMessages } from './stores/chat'
 import { listEditor, openListEditor, listsWritable } from './stores/lists'
 import {
   CalendarDays,
@@ -99,6 +99,47 @@ const { needRefresh, updateServiceWorker } = useRegisterSW({
     check()
   },
 })
+let applyingUpdate = false
+async function applyAvailableUpdate() {
+  if (
+    !needRefresh.value ||
+    applyingUpdate ||
+    (backendConfigured && authStatus.value !== 'ready') ||
+    pendingMessages.value.length > 0 ||
+    editor.value ||
+    detail.value ||
+    listEditor.value ||
+    quick.value ||
+    !canApplyAppUpdate()
+  )
+    return
+  applyingUpdate = true
+  try {
+    await updateServiceWorker(true)
+  } catch {
+    applyingUpdate = false
+  }
+}
+watch(
+  [
+    needRefresh,
+    authStatus,
+    pendingMessages,
+    editor,
+    detail,
+    listEditor,
+    quick,
+    () => route.path,
+  ],
+  () => {
+    void applyAvailableUpdate()
+  },
+  { flush: 'post' },
+)
+onMounted(() => {
+  window.addEventListener('focus', applyAvailableUpdate)
+  document.addEventListener('visibilitychange', applyAvailableUpdate)
+})
 </script>
 <template>
   <a class="skip" href="#main" @click.prevent="focusMain">Till innehållet</a>
@@ -157,7 +198,6 @@ const { needRefresh, updateServiceWorker } = useRegisterSW({
           Profilen kunde inte sparas. Tillåt lokal lagring för att behålla
           valet.
         </p>
-        <PushStatus v-if="route.path === '/' && authStatus === 'ready'" />
         <RouterView />
       </main>
     </div>

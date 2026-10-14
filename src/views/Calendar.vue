@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PushStatus from '../components/PushStatus.vue'
 import CalendarOverview from '../components/CalendarOverview.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { isDate } from '../domain/publicSchoolImport'
@@ -208,6 +209,7 @@ watch(
       <Upload :size="17" />Importera schema
     </button>
   </div>
+  <PushStatus compact />
   <CalendarOverview v-if="calendarStatus === 'ready'" />
   <p v-if="pushLinkError" role="alert" class="notice">{{ pushLinkError }}</p>
   <div class="calendar-controls">

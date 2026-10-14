@@ -40,6 +40,9 @@ const editing = ref<ChatMessage | null>(null),
   busy = ref(false),
   editDialog = ref<HTMLDialogElement | null>(null)
 const viewportHeight = ref('100dvh')
+const visibleMessages = computed(() =>
+  messages.value.filter((message) => !message.deleted_at),
+)
 const people = computed(() => chatSummary.value.people)
 function person(id: string) {
   return people.value.find((p) => p.id === id)
@@ -174,14 +177,14 @@ onUnmounted(() => {
       >
         {{ loadingOlder ? 'Hämtar…' : 'Ladda äldre meddelanden' }}
       </button>
-      <p v-if="!messages.length && !opening" class="chat-empty">
+      <p v-if="!visibleMessages.length && !opening" class="chat-empty">
         Här börjar familjesnacket. Skriv ett hej 👋
       </p>
-      <template v-for="(message, index) in messages" :key="message.id">
+      <template v-for="(message, index) in visibleMessages" :key="message.id">
         <div
           v-if="
             index === 0 ||
-            chatDate(messages[index - 1]!.created_at) !==
+            chatDate(visibleMessages[index - 1]!.created_at) !==
               chatDate(message.created_at)
           "
           class="chat-date"

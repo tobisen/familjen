@@ -689,3 +689,45 @@ test('joins with the registered identity and edits just one occurrence without d
     page.getByRole('button', { name: 'Ny serietitel, heldag' }),
   ).toHaveCount(0)
 })
+
+test('home notification information disappears after permission, while Settings remains available', async ({
+  page,
+  context,
+}) => {
+  await mockPush(context)
+  await page.goto('./#/kalender')
+  const session = await page.evaluate(() =>
+    localStorage.getItem('familjen.supabase.session'),
+  )
+  await expect(
+    page.getByRole('heading', { name: 'Notiser på den här enheten' }),
+  ).toBeVisible()
+  await page
+    .getByRole('button', { name: 'Aktivera notiser', exact: true })
+    .click()
+  await expect(
+    page.getByRole('heading', { name: 'Notiser på den här enheten' }),
+  ).toHaveCount(0)
+  await expect(
+    page.getByText(
+      'Familjens meddelanden, aktiviteter, uppgifter och inköp ger automatiskt',
+      { exact: false },
+    ),
+  ).toHaveCount(0)
+  await page.getByRole('link', { name: 'Inställningar och profil' }).click()
+  await expect(
+    page.getByRole('button', { name: 'Skicka testnotis' }),
+  ).toBeVisible()
+  await page
+    .getByRole('navigation', { name: 'Huvudnavigation' })
+    .getByRole('link', { name: 'Kalender', exact: true })
+    .click()
+  await expect(
+    page.getByRole('heading', { name: 'Notiser på den här enheten' }),
+  ).toHaveCount(0)
+  expect(
+    await page.evaluate(() =>
+      localStorage.getItem('familjen.supabase.session'),
+    ),
+  ).toBe(session)
+})
