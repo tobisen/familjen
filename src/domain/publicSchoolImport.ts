@@ -2,12 +2,18 @@ import { Temporal } from '@js-temporal/polyfill'
 import type { PublicSchoolLesson } from './calendar'
 export type SchoolImportRow = Omit<PublicSchoolLesson, 'id'>
 export interface SchoolDraft {
+  period_key?: string
+  notes?: string
+  date_source?: string
   student_id: string
   source: string
   term_start: string | null
   term_end: string | null
   exception_dates: string[]
   lessons: {
+    confirmed?: boolean
+    uncertainty?: string
+    exception_dates?: string[]
     external_id: string
     weekday: number
     starts_at: string | null
@@ -64,8 +70,23 @@ export function parseDraft(input: unknown): SchoolDraft {
       !(row.ends_at === null || time(row.ends_at))
     )
       throw new Error('Ogiltig lektion eller dubblerat externt ID.')
+    if (
+      row.exception_dates !== undefined &&
+      (!Array.isArray(row.exception_dates) ||
+        !row.exception_dates.every(isDate))
+    )
+      throw new Error('Ogiltiga lektionsavvikelser.')
     keys.add(row.external_id)
   }
+  if (
+    r.period_key !== undefined &&
+    (typeof r.period_key !== 'string' ||
+      !/^[a-zA-Z0-9_-]{1,60}$/.test(r.period_key))
+  )
+    throw new Error('Ogiltigt period-ID.')
+  for (const row of r.lessons)
+    if (row.confirmed !== undefined && typeof row.confirmed !== 'boolean')
+      throw new Error('Ogiltig verifieringsmarkering.')
   return input as SchoolDraft
 }
 export function prepareSchoolImport(
@@ -86,19 +107,45 @@ export function prepareSchoolImport(
     throw new Error('Ange ett giltigt startdatum och giltiga undantagsdatum.')
   if (!draft.lessons.length)
     throw new Error('Schemat saknar verifierade lektioner.')
-  return draft.lessons.map((l) => {
-    if (!l.starts_at || !l.ends_at || l.starts_at >= l.ends_at)
-      throw new Error(
-        `${l.subject}: verifierad start- och sluttid krävs. Okända tider uppskattas inte.`,
-      )
+  const eligible = draft.lessons.filter((l) => !lessonIssues(l).length)
+  if (!eligible.length)
+    throw new Error(
+      'Inga verifierade lektioner med fullständiga tider. Komplettera underlaget.',
+    )
+  return eligible.map((l) => {
     return {
       ...l,
       student_id: draft.student_id,
       term_start: start,
       term_end: end,
-      exception_dates: [...new Set(exceptions)],
-      starts_at: l.starts_at,
-      ends_at: l.ends_at,
+      exception_dates: [
+        ...new Set([...exceptions, ...(l.exception_dates ?? [])]),
+      ],
+      starts_at: l.starts_at!,
+      ends_at: l.ends_at!,
     }
   })
+}
+
+export function lessonIssues(l: SchoolDraft['lessons'][number]): string[] {
+  const issues: string[] = []
+  if (!l.starts_at) issues.push('Starttid saknas')
+  if (!l.ends_at) issues.push('Sluttid saknas')
+  if (l.starts_at && l.ends_at && l.starts_at >= l.ends_at)
+    issues.push('Slut måste vara efter start')
+  if (l.confirmed === false)
+    issues.push('Uppgifterna är preliminära – behöver bekräftas')
+  return issues
+}
+
+export function exceptionRange(start: string, end: string): string[] {
+  if (!isDate(start) || !isDate(end) || end < start)
+    throw new Error('Ange ett giltigt datumintervall för ledigheten.')
+  const days = Temporal.PlainDate.from(start).until(
+    Temporal.PlainDate.from(end),
+  ).days
+  if (days > 3660) throw new Error('Datumintervallet är för långt.')
+  return Array.from({ length: days + 1 }, (_, i) =>
+    Temporal.PlainDate.from(start).add({ days: i }).toString(),
+  )
 }

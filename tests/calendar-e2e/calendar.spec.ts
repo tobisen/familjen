@@ -218,7 +218,7 @@ test('school preview, publication confirmation and idempotent import', async ({
   await expect(
     dialog.getByRole('button', { name: 'Importera schema', exact: true }),
   ).toBeDisabled()
-  await dialog.getByRole('checkbox').check()
+  await dialog.getByRole('checkbox', { name: /Jag har kontrollerat/ }).check()
   await dialog
     .getByRole('button', { name: 'Importera schema', exact: true })
     .click()
@@ -226,7 +226,7 @@ test('school preview, publication confirmation and idempotent import', async ({
     '1 lektioner importerades',
   )
   await expect(dialog).toContainText('1 uppdateras')
-  await dialog.getByRole('checkbox').check()
+  await dialog.getByRole('checkbox', { name: /Jag har kontrollerat/ }).check()
   await dialog
     .getByRole('button', { name: 'Importera schema', exact: true })
     .click()
@@ -280,4 +280,172 @@ test('empty time slot, heldag recurrence and a single skipped occurrence', async
   await expect(
     page.getByRole('button', { name: 'E2E serie, heldag' }),
   ).toHaveCount(0)
+})
+
+test('school administration partially activates a private draft and displays lessons in every calendar view', async ({
+  page,
+}) => {
+  const { today, addDays } = await import('../../src/domain/calendar')
+  const { Temporal } = await import('@js-temporal/polyfill')
+  const date = today()
+  const data = {
+    student_id: 'sally',
+    source: 'E2E synthetic school',
+    period_key: 'e2e-term',
+    term_start: date,
+    term_end: addDays(date, 14),
+    exception_dates: [],
+    lessons: [
+      {
+        external_id: 'verified',
+        weekday: Temporal.PlainDate.from(date).dayOfWeek,
+        starts_at: '10:00',
+        ends_at: '11:00',
+        subject: 'E2E verified lesson',
+        room: 'A1',
+        confirmed: true,
+      },
+      {
+        external_id: 'incomplete',
+        weekday: 1,
+        starts_at: '09:00',
+        ends_at: null,
+        subject: 'E2E incomplete',
+        room: null,
+        confirmed: false,
+        uncertainty: 'End is unknown',
+      },
+      {
+        external_id: 'lunch',
+        weekday: Temporal.PlainDate.from(date).dayOfWeek,
+        starts_at: '11:00',
+        ends_at: '11:30',
+        subject: 'Lunch',
+        room: null,
+        confirmed: true,
+      },
+    ],
+  }
+  await calendarRpc(db, 'school_save', { payload: data })
+  await page.goto('./#/installningar')
+  await expect(
+    page.getByRole('heading', { name: 'Inställningar', exact: true }),
+  ).toBeVisible()
+  await page.getByRole('button', { name: 'Hantera skolscheman' }).click()
+  const dialog = page.getByRole('dialog')
+  await dialog
+    .getByLabel('Familjens sparade scheman')
+    .selectOption({ label: 'Sally · e2e-term · 0 aktiverade' })
+  await expect(dialog).toContainText('2 av 3 poster kan aktiveras')
+  await expect(dialog).toContainText('Sluttid saknas')
+  await dialog.getByRole('checkbox', { name: /Jag har kontrollerat/ }).check()
+  await dialog
+    .getByRole('button', { name: 'Importera schema', exact: true })
+    .click()
+  await expect(dialog.getByRole('status')).toContainText(
+    '2 lektioner importerades',
+  )
+  await expect(dialog.getByRole('status')).toContainText(
+    '1 ofullständiga poster väntar',
+  )
+  await dialog.getByRole('button', { name: 'Stäng', exact: true }).click()
+  await page
+    .getByRole('navigation', { name: 'Mobilnavigation' })
+    .getByRole('link', { name: 'Kalender' })
+    .click()
+  await expect(
+    page.getByRole('button', { name: 'E2E verified lesson, 10:00' }).first(),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'E2E incomplete, 09:00' }),
+  ).toHaveCount(0)
+  await page.getByLabel('Visa luncher').uncheck()
+  await expect(page.getByRole('button', { name: 'Lunch, 11:00' })).toHaveCount(
+    0,
+  )
+  await page.getByLabel('Visa luncher').check()
+  await page.getByRole('button', { name: 'Dag', exact: true }).click()
+  await expect(
+    page.getByRole('button', { name: 'E2E verified lesson, 10:00' }),
+  ).toBeVisible()
+  await page.getByRole('button', { name: 'Månad', exact: true }).click()
+  await expect(
+    page.getByRole('button', { name: 'E2E verified lesson, 10:00' }).first(),
+  ).toBeVisible()
+  await page.reload()
+  await expect(
+    page.getByRole('button', { name: 'E2E verified lesson, 10:00' }).first(),
+  ).toBeVisible()
+  expect(
+    (await db.query('select * from public.private_school_lessons')).rows,
+  ).toHaveLength(2)
+})
+
+test('school draft correction preserves unknown times and rejects concurrent overwrites', async ({
+  page,
+}) => {
+  const data = {
+    student_id: 'neo',
+    source: 'E2E preliminary source',
+    period_key: 'e2e-incomplete',
+    term_start: null,
+    term_end: null,
+    exception_dates: [],
+    lessons: [
+      {
+        external_id: 'draft',
+        weekday: 1,
+        starts_at: '08:45',
+        ends_at: null,
+        subject: 'E2E uncertain lesson',
+        room: null,
+        confirmed: false,
+        uncertainty: 'End time unknown',
+      },
+    ],
+  }
+  const saved = (await calendarRpc(db, 'school_save', { payload: data })) as {
+    record: { version: number }
+  }
+  await page.goto('./#/installningar')
+  await page.getByRole('button', { name: 'Hantera skolscheman' }).click()
+  const dialog = page.getByRole('dialog')
+  await dialog
+    .getByLabel('Familjens sparade scheman')
+    .selectOption({ label: 'Neo · e2e-incomplete · 0 aktiverade' })
+  await expect(dialog).toContainText(
+    'Komplettera bekräftad terminsstart och terminsslut',
+  )
+  await expect(
+    dialog.getByRole('button', { name: 'Importera schema', exact: true }),
+  ).toBeDisabled()
+  await dialog
+    .locator('summary')
+    .filter({ hasText: 'E2E uncertain lesson' })
+    .click()
+  await expect(dialog.getByLabel('Sluttid 1', { exact: true })).toHaveValue('')
+  await dialog.getByLabel('Sluttid 1', { exact: true }).fill('09:45')
+  await dialog.getByLabel('Lektion 1 verifierad mot källa').check()
+  await expect(dialog).toContainText('1 av 1 poster kan aktiveras')
+  // A different authenticated device changes the server version while this form is open.
+  await calendarRpc(db, 'school_save', {
+    payload: { ...data, source: 'New source from another device' },
+    expected_version: saved.record.version,
+  })
+  await dialog
+    .getByRole('button', { name: 'Spara utkast', exact: true })
+    .click()
+  await expect(dialog.getByRole('alert')).toContainText(
+    'Schemat ändrades på en annan enhet',
+  )
+  expect(
+    (await db.query('select * from public.private_school_lessons')).rows,
+  ).toHaveLength(0)
+  await dialog
+    .getByRole('button', {
+      name: 'Hämta senaste och återställ förhandsgranskningen',
+    })
+    .click()
+  await expect(dialog).toContainText('New source from another device')
+  await expect(dialog.getByLabel('Sluttid 1', { exact: true })).toHaveValue('')
 })

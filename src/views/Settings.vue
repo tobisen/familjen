@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+import SchoolImport from '../components/SchoolImport.vue'
+const showSchool = ref(false)
 import { calendarStatus, syncStatus } from '../stores/calendar'
 import { identity, signOut } from '../stores/auth'
 import PwaTools from '../components/PwaTools.vue'
@@ -73,6 +76,21 @@ const capabilities = deviceCapabilities()
       Logga ut den här enheten
     </button>
   </section>
+  <section class="panel settings-panel">
+    <h2>Skolscheman</h2>
+    <p>
+      Förhandsgranska och korrigera Sallys och Neos schema, hantera terminer,
+      lov och importstatus.
+    </p>
+    <button
+      class="secondary-button"
+      :disabled="!identity"
+      @click="showSchool = true"
+    >
+      Hantera skolscheman
+    </button>
+  </section>
+  <SchoolImport v-if="showSchool" @close="showSchool = false" />
   <PwaTools />
   <section class="panel settings-panel">
     <h2>Installera Familjen</h2>

@@ -35,6 +35,7 @@ const view = ref<'day' | 'week' | 'month'>('week')
 const date = ref(today())
 const selectedPeople = ref<string[]>([])
 const category = ref('all')
+const showLunch = ref(true)
 const showImport = ref(false)
 const days = computed(() =>
   view.value === 'day'
@@ -46,7 +47,10 @@ const days = computed(() =>
 const visible = computed(() =>
   occurrences(
     activities.value,
-    schoolLessons.value,
+    schoolLessons.value.filter(
+      (l) =>
+        showLunch.value || l.subject.trim().toLocaleLowerCase('sv') !== 'lunch',
+    ),
     days.value[0]!,
     addDays(days.value.at(-1)!, 1),
     selectedPeople.value,
@@ -194,6 +198,9 @@ window.addEventListener('online', () => (off.value = false))
       </select></label
     >
   </div>
+  <label class="check-label"
+    ><input v-model="showLunch" type="checkbox" />Visa luncher</label
+  >
   <p v-if="calendarStatus === 'loading'" role="status" class="notice">
     Hämtar kalendern…
   </p>

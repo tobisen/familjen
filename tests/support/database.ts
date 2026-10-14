@@ -15,6 +15,8 @@ export async function calendarDatabase(enabled = true) {
     '202610130005_nonexpiring_codes.sql',
     '202610130006_family_lists.sql',
     '202610140007_family_chat.sql',
+    '202610140008_school_administration.sql',
+    '202610140009_school_validation.sql',
   ])
     await db.exec(readFileSync(`supabase/migrations/${f}`, 'utf8'))
   if (enabled) {
@@ -65,6 +67,19 @@ export async function calendarRpc(
       sql: 'select public.calendar_import($1::jsonb) as result',
       values: [JSON.stringify(args.lessons)],
     },
+  }
+  specs.school_snapshot = {
+    sql: 'select public.school_snapshot() as result',
+    values: [],
+  }
+  specs.school_save = {
+    sql: 'select public.school_save($1::jsonb,$2::integer,$3::boolean,$4::boolean) as result',
+    values: [
+      JSON.stringify(args.payload),
+      args.expected_version ?? null,
+      args.activate ?? false,
+      args.replace_missing ?? false,
+    ],
   }
   specs.lists_snapshot = {
     sql: 'select public.lists_snapshot() as result',

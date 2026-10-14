@@ -32,7 +32,7 @@ npm run test:e2e:calendar
 
 ## Supabase-installation
 
-Följ [Phase 1 setup](docs/phase1-setup.md). De sju migrationerna är körda i det separata projektet; vid ny miljö körs alla i ordning. Den gamla offentliga kalendern är avvecklad av migration 003. Den publika konfigurationsfilen används redan av Pages; `.env` och repository variables är valfria overrides. Ingen `service_role`, `sb_secret_*`, databaslösenord eller administrativ nyckel får finnas i frontend eller `VITE_*`.
+Följ [Phase 1 setup](docs/phase1-setup.md). De nio migrationerna är körda i det separata projektet; vid ny miljö körs alla i ordning. Den gamla offentliga kalendern är avvecklad av migration 003. Den publika konfigurationsfilen används redan av Pages; `.env` och repository variables är valfria overrides. Ingen `service_role`, `sb_secret_*`, databaslösenord eller administrativ nyckel får finnas i frontend eller `VITE_*`.
 
 ## Kalendern
 
@@ -81,3 +81,5 @@ Riktig registrering, två separata sessioner, Realtime, återanslutning och host
 ## Fortsättning
 
 Phase 3 är implementerad. Nästa uppdrag är Phase 4 – pushnotiser och påminnelser, med serverstyrd köhantering, mottagarval och VAPID-hemligheter i Edge Functions. Frivillig GPS-delning följer senare. [Tidigare arkitektur för push/GPS](docs/architecture.md) gäller fortsatt för dessa funktioner.
+
+[Phase 3.1: privat schemaadministration, officiella datumkällor och aktiveringsstatus](docs/phase3.1-school-schedules.md). Sallys och Neos underlag finns i Supabase. Sally inväntar bekräftade terminsdatum och Neo saknar verifierade sluttider; inga verkliga lektioner har aktiverats ännu.
