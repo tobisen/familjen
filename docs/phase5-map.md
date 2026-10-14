@@ -56,7 +56,10 @@ Flera enheter för samma profil delar dess senaste rad; nyaste giltiga GPS-tid v
 
 Direkt klientskrivning är återkallad. Authenticated SELECT skyddas av familje-RLS;
 anon kan varken läsa koordinater eller anropa kartans RPC. Realtime publicerar
-bara till behöriga familjemedlemmar. Snapshot hämtas om vid återanslutning.
+bara till behöriga familjemedlemmar. Snapshot hämtas om vid återanslutning och när kartan öppnas. En synlig kartvy
+stämmer dessutom av serverdata var 30:e sekund som reserv om en
+Realtime-händelse missas. Avstämningen ändrar aldrig GPS- eller mottagningstid
+och använder ingen ny GPS-avläsning.
 Inga koordinater sparas i localStorage, IndexedDB, service worker-cache eller
 applikationsloggar. Senaste position finns endast i reaktivt minne och Supabase;
 minnet rensas vid utloggning. Ingen separat positionshistorik skapas.

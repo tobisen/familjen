@@ -46,6 +46,7 @@ const route = useRoute(),
   showHelp = ref(false),
   candidate = ref<Sample | null>(null),
   helpDialog = ref<HTMLDialogElement | null>(null)
+let lastSnapshotCheck = 0
 let alive = true
 let map: L.Map | null = null,
   layer: L.LayerGroup | null = null,
@@ -314,9 +315,15 @@ onMounted(() => {
     .addTo(map)
   layer = L.layerGroup().addTo(map)
   draw()
+  lastSnapshotCheck = Date.now()
+  void reloadMap()
   tick = setInterval(() => {
     if (document.visibilityState !== 'visible') return
     refreshClock()
+    if (Date.now() - lastSnapshotCheck >= 30000) {
+      lastSnapshotCheck = Date.now()
+      void reloadMap()
+    }
     if (helpId.value && document.visibilityState === 'visible')
       void refreshHelpStatus().catch(() => {})
   }, 10000)

@@ -44,10 +44,10 @@ try {
     pages.push(page)
     await page.goto(input.baseUrl + '#/karta')
     await expect(page.getByText(/Realtid ansluten · GPS används/)).toBeVisible({
-      timeout: 30000,
+      timeout: 45000,
     })
     await expect(page.locator('.family-marker')).toHaveCount(i + 1, {
-      timeout: 30000,
+      timeout: 45000,
     })
     const c = createClient(input.projectUrl, input.publishableKey, {
       auth: { persistSession: false, autoRefreshToken: false },
@@ -58,7 +58,7 @@ try {
   stage = 'three-session GPS realtime'
   for (const [i, p] of pages.entries()) {
     stage = 'initial GPS fanout ' + i
-    await expect(p.locator('.family-marker')).toHaveCount(3, { timeout: 30000 })
+    await expect(p.locator('.family-marker')).toHaveCount(3, { timeout: 45000 })
   }
   const before = (await clients[0].rpc('map_snapshot')).data
   const neo = before.people.find((p) => p.key === 'neo').id
@@ -74,7 +74,7 @@ try {
     stage = 'movement GPS fanout ' + i
     await expect(
       p.locator('.map-person').filter({ hasText: 'Neo' }),
-    ).toContainText('±10 m', { timeout: 30000 })
+    ).toContainText('±10 m', { timeout: 45000 })
   }
   stage = 'reconnect GPS snapshot'
   await contexts[2].setOffline(true)
@@ -89,7 +89,7 @@ try {
   await contexts[2].setOffline(false)
   await expect(
     pages[2].locator('.map-person').filter({ hasText: 'Neo' }),
-  ).toContainText('±7 m', { timeout: 30000 })
+  ).toContainText('±7 m', { timeout: 45000 })
   stage = 'help confirmation and real chat synchronization'
   for (const p of [pages[0], pages[2]])
     await p

@@ -254,3 +254,39 @@ test('denied GPS allows an explicitly confirmed help message without pretending 
     'Ingen GPS-position',
   )
 })
+
+test('visible map recovers a missed realtime event without reloading the page or changing GPS time', async ({
+  page,
+  context,
+}) => {
+  await tiles(context)
+  let completedSnapshots = 0
+  page.on('response', (response) => {
+    if (response.url().endsWith('/rpc/map_snapshot') && response.ok())
+      completedSnapshots++
+  })
+  await page.clock.install()
+  await page.goto('./#/karta')
+  await expect(
+    page.getByRole('heading', { name: 'Familjekarta', exact: true }),
+  ).toBeVisible()
+  await expect(page.locator('.family-marker')).toHaveCount(0)
+  await expect.poll(() => completedSnapshots).toBeGreaterThanOrEqual(2)
+  const beforeSnapshots = completedSnapshots
+  const timestamp = new Date(Date.now() - 300000).toISOString()
+  await db.query(
+    'insert into public.positions(profile_id,family_id,latitude,longitude,accuracy,reported_at) select id,family_id,59.86,17.64,15,$1 from public.profiles where profile_key=$2',
+    [timestamp, 'sally'],
+  )
+  // The test API has no WebSocket server, so no realtime event reaches this page.
+  await page.clock.runFor(31000)
+  await expect.poll(() => completedSnapshots).toBeGreaterThan(beforeSnapshots)
+  await expect(page.locator('.family-marker')).toHaveCount(1)
+  await expect(
+    page.locator('.map-person').filter({ hasText: 'Sally' }),
+  ).toContainText('Äldre position')
+  const { rows } = await db.query<{ reported_at: Date }>(
+    'select reported_at from public.positions',
+  )
+  expect(new Date(rows[0]!.reported_at).toISOString()).toBe(timestamp)
+})
