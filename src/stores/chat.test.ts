@@ -126,3 +126,26 @@ it('removes pending bubble when Realtime confirms before a lost RPC acknowledgem
   await pending
   expect(pendingMessages.value).toEqual([])
 })
+
+it('ignores a late Realtime event from a previous identity after session switch', async () => {
+  let oldIncoming!: (message: ChatMessage | null) => void
+  repository.subscribe = vi.fn().mockImplementation((callback) => {
+    oldIncoming = callback
+    return vi.fn()
+  })
+  startChat(repository)
+  await openChat()
+  stopChat()
+  const next = {
+    ...repository,
+    page: vi.fn().mockResolvedValue([]),
+    summary: vi
+      .fn()
+      .mockResolvedValue({ ...summary, last_message: null, unread: 0 }),
+    subscribe: vi.fn().mockReturnValue(vi.fn()),
+  }
+  startChat(next)
+  await openChat()
+  oldIncoming(message)
+  expect(messages.value).toEqual([])
+})

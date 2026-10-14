@@ -27,7 +27,7 @@ Sändningar låses kort per familj innan sekvens tilldelas; sekvensordning följ
 
 ## Arkitektur
 
-`src/domain/chat.ts` har modeller, sortering/deduplicering, säker länkdelning, svensk tidsformatering och tangentbordsregler. `src/data/chatRepository.ts` kapslar RPC/Realtime och tidsgränser. `src/stores/chat.ts` hanterar historik, status, prenumeration, återförsök och läsmarkering. `src/views/Chat.vue` är mobil-UI. Utloggning rensar data, pågående sändningar och kanaler; generationskontroll stoppar sena svar från en tidigare session.
+`src/domain/chat.ts` har modeller, sortering/deduplicering, säker länkdelning, svensk tidsformatering och tangentbordsregler. `src/data/chatRepository.ts` kapslar RPC/Realtime och tidsgränser. `src/stores/chat.ts` hanterar historik, status, prenumeration, återförsök och läsmarkering. `src/views/Chat.vue` är mobil-UI. Utloggning rensar data, pågående sändningar och kanaler; generationskontroll stoppar sena svar och Realtime-event från en tidigare session.
 
 Historik hämtas först när chatten öppnas. Övriga vyer hämtar bara senaste meddelandet, personer, olästa och notisval. Hela familjens historik hämtas alltså inte vid varje appstart.
 
@@ -45,7 +45,7 @@ iOS kräver installerad PWA på iOS 16.4+ och behörighet från en aktiv använd
 
 ## Verifiering och begränsningar
 
-108 enhetstester och 40 E2E (30 appfunktioner + 10 PWA/appskal) passerar, tillsammans med lint, typecheck och build. Nya SQL-tester verifierar CRUD, ägarskap, versionskonflikt, cursorpaginering, läsmarkering, familjeisolering, idempotens och privat notiskö. Domän-/storetester täcker XSS-säker text/länkar, DST, tangentbord, utloggning/sena svar, återförsök och serverns notisurval. Mobil-E2E körs i Chromium och WebKit, inklusive minskad viewport, historik, olästa, edit/delete och förlorat serversvar.
+109 enhetstester och 40 E2E (30 appfunktioner + 10 PWA/appskal) passerar, tillsammans med lint, typecheck och build. Nya SQL-tester verifierar CRUD, ägarskap, versionskonflikt, cursorpaginering, läsmarkering, familjeisolering, idempotens och privat notiskö. Domän-/storetester täcker XSS-säker text/länkar, DST, tangentbord, utloggning/sena svar, återförsök och serverns notisurval. Mobil-E2E körs i Chromium och WebKit, inklusive minskad viewport, historik, olästa, edit/delete och förlorat serversvar.
 
 Riktig Supabase-verifiering via `scripts/live-chat.mjs` omfattar tre separata sessioner för Tobias, Neo och Sally, nya meddelanden, egna/andras placering, redigering/radering, lässtatus, samtidiga sändningar, dubbelsändning, offline/återanslutning, session efter omladdning och nekad anonym åtkomst. `scripts/live-chat-rls.mjs` verifierar annan familj och oregistrerad Auth-användare. Dessa verifieringar körs sekventiellt så att syntetiska meddelanden inte stör varandras exakta olästa-räkning. Administrativ städning tar bara bort testernas exakta request-ID:n och temporära testidentiteter. Tokens lämnas via stdin och loggas inte.
 

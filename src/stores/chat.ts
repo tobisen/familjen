@@ -123,8 +123,10 @@ export function startChat(injected?: ChatRepository) {
   if (!repository) return
   chatStatus.value = 'loading'
   void refreshChat()
+  const subscriptionGeneration = generation
   unsubscribe = repository.subscribe(
     (message) => {
+      if (subscriptionGeneration !== generation) return
       if (message && loaded) {
         messages.value = mergeMessages(messages.value, [message])
         // Realtime may confirm delivery before the RPC response reaches this device.
@@ -135,6 +137,7 @@ export function startChat(injected?: ChatRepository) {
       void refreshChat()
     },
     (status) => {
+      if (subscriptionGeneration !== generation) return
       chatSync.value =
         status === 'SUBSCRIBED'
           ? 'Realtid ansluten'
