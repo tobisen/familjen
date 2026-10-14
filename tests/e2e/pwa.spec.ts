@@ -175,3 +175,18 @@ test('direct install button is gated by browser event and preserves session with
     page.getByRole('button', { name: 'Installera Familjen', exact: true }),
   ).not.toBeVisible()
 })
+
+test('built service worker imports the current push handler rather than only precaching it', async ({
+  request,
+}) => {
+  const sw = await request.get('sw.js')
+  expect(sw.ok()).toBe(true)
+  const match = (await sw.text()).match(
+    /importScripts\("(push-sw\.js\?v=[a-f0-9]{12})"\)/,
+  )
+  expect(match, 'Worker must execute the push handler').not.toBeNull()
+  const handler = await request.get(match![1]!)
+  expect(handler.ok()).toBe(true)
+  expect(await handler.text()).toContain('FAMILJEN_PUSH_OWNER')
+  expect(await handler.text()).toContain('notificationclick')
+})

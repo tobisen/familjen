@@ -1,9 +1,11 @@
+import { createHash } from 'node:crypto'
 import { defineConfig } from 'vitest/config'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { loadEnv } from 'vite'
 import { publicConfiguration } from './src/services/supabaseConfig'
 import project from './config/public-supabase.json'
+import pushConfig from './config/public-push.json'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig(({ mode }) => {
@@ -19,6 +21,13 @@ export default defineConfig(({ mode }) => {
   if ((url || key) && !publicConfiguration(url, key))
     throw new Error(
       'Ogiltig Supabase-konfiguration: endast projekt-URL och publishable/anon-nyckel får byggas in i frontend.',
+    )
+  if (
+    Object.keys(pushConfig).some((k) => k !== 'publicKey') ||
+    (pushConfig.publicKey && !/^[A-Za-z0-9_-]{87}$/.test(pushConfig.publicKey))
+  )
+    throw new Error(
+      'Push-konfigurationen får bara innehålla en publik VAPID-nyckel.',
     )
   const base = process.env.VITE_BASE_PATH || '/familjen/'
   return {
@@ -80,6 +89,9 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
+          importScripts: [
+            `push-sw.js?v=${createHash('sha256').update(readFileSync('public/push-sw.js')).digest('hex').slice(0, 12)}`,
+          ],
           navigateFallback: base + 'index.html',
           navigateFallbackDenylist: [/\/recover(?:\/|$)/, /\/recovery\.html$/],
           cacheId: 'familjen',

@@ -63,4 +63,6 @@ Mot riktig Supabase verifierades sessionskoppling, nekad endpointövertagning, s
 
 Nästa fas: Phase 5 – familjekarta och frivillig GPS i förgrunden, med tydlig ålder på positionen och utan bakgrundsspårning.
 
-Slutkontroller lokalt: lint, typecheck, produktionsbuild, 144 enhets-/SQL-/service worker-tester, 2 Deno Edge-integrationstester och 56 mobil-/PWA-E2E. Alla passerar. Browserprenumerationer och OS-behörighet simuleras i E2E; hosted ogiltig-endpoint-test verifierar avvisning och städning, inte lyckad fysisk pushleverans.
+Slutkontroller lokalt: lint, typecheck, produktionsbuild, 144 enhets-/SQL-/service worker-tester, 2 Deno Edge-integrationstester och 58 mobil-/PWA-E2E. Alla passerar. Browserprenumerationer och OS-behörighet simuleras i E2E; hosted ogiltig-endpoint-test verifierar avvisning och städning, inte lyckad fysisk pushleverans.
+
+Produktionsbygget verifierar uttryckligen att den färdiga service workern importerar rätt versionshash av push-handlern och att publicerad handler matchar källfilen. E2E kontrollerar även denna koppling över HTTP. Det förhindrar att en endast precachad, men aldrig exekverad, push-handler publiceras.
