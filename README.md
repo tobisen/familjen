@@ -82,4 +82,4 @@ Riktig registrering, två separata sessioner, Realtime, återanslutning och host
 
 Phase 3 är implementerad. Nästa uppdrag är Phase 4 – pushnotiser och påminnelser, med serverstyrd köhantering, mottagarval och VAPID-hemligheter i Edge Functions. Frivillig GPS-delning följer senare. [Tidigare arkitektur för push/GPS](docs/architecture.md) gäller fortsatt för dessa funktioner.
 
-[Phase 3.1: privat schemaadministration, officiella datumkällor och aktiveringsstatus](docs/phase3.1-school-schedules.md). Sallys och Neos underlag finns i Supabase. Sally inväntar bekräftade terminsdatum och Neo saknar verifierade sluttider; inga verkliga lektioner har aktiverats ännu.
+[Phase 3.1: privat schemaadministration, officiella datumkällor och aktiveringsstatus](docs/phase3.1-school-schedules.md). Sallys och Neos underlag finns i Supabase. Sally inväntar bekräftat höstterminsslut och årskurs inför vårterminen och Neo saknar verifierade sluttider; inga verkliga lektioner har aktiverats ännu.

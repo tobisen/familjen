@@ -6,15 +6,26 @@ Tidigare fanns bara ignorerade lokala JSON-underlag. Inga lektioner hade lagrats
 
 Underlagen finns nu i **privat Supabase-lagring**, tillgängliga för familjens registrerade identiteter. De ingår inte i GitHub-repot, frontendpaketet eller service worker-cachen. Sally har 24 kompletta tider. Neo har 18 preliminära poster med saknade sluttider och bevarade cirka-markeringar. Inga originalbilder finns i repositoryt.
 
-**Inga verkliga lektioner har aktiverats.** Sally behöver bekräftade terminsgränser för rätt läsår. Neo behöver verifierade sluttider och bekräftelse av preliminära uppgifter. Detta är faktablockeringar, inte saknad Supabase-anslutning. Återkommande aktiviteter aktiveras aldrig med gissade datum eller tider.
+**Inga verkliga lektioner har aktiverats.** Sally behöver höstens sista undervisningsdag samt bekräftad årskurs inför vårterminen. Neo behöver verifierade sluttider och bekräftelse av preliminära uppgifter. Detta är faktablockeringar, inte saknad Supabase-anslutning. Återkommande aktiviteter aktiveras aldrig med gissade datum eller tider.
 
 ## Officiella källor, kontrollerade 2026-10-14
 
 ### DBGY Uppsala
 
-[Skolans läsårstider](https://drottningblanka.se/uppsala/om-dbgy/lasarstider/) anger 17 augusti, höstlov vecka 44, jullov 23 december, vårstart 13 januari, sportlov vecka 8, påsklov 30 mars–2 april, avslutning 10 juni för åk 1–2 och student 11 juni. **Årtal saknas och sidan har dessutom rubriken 2024/2025.** Dessa uppgifter kan därför inte säkert tillskrivas 2026/27. Höstterminens sista undervisningsdag anges inte uttryckligen. Sidan hänvisar till Schoolsoft för studiedagar och andra avvikelser.
+[Skolans läsårstider](https://drottningblanka.se/uppsala/om-dbgy/lasarstider/) saknar årtal i den synliga texten och har en gammal rubrik 2024/2025. **HTML-källans åtta `<time datetime="…">` innehåller däremot fullständiga datum för 2026/27**, verifierade genom direkt hämtning från skolan. Publiceringssidans ändringstid är 2026-08-14. Årtalen kan alltså verifieras trots sidans missvisande presentation.
 
-Komplettera från Schoolsoft: HT 2026 start/slut, VT 2027 start/slut, lov och studiedagar. Använd inte kommunens datum som ersättning: fristående skolor kan avvika.
+| Händelse                        | Verifierat datum      |
+| ------------------------------- | --------------------- |
+| Höstterminsstart                | 2026-08-17            |
+| Höstlov, vecka 44               | Från 2026-10-26       |
+| Jullov                          | Från 2026-12-23       |
+| Vårterminsstart                 | 2027-01-13            |
+| Sportlov, vecka 8               | Från 2027-02-22       |
+| Påsklov                         | 2027-03-30–2027-04-02 |
+| Avslutning, uttryckligen åk 1–2 | 2027-06-10            |
+| Student                         | 2027-06-11            |
+
+**Höstterminens sista undervisningsdag anges inte uttryckligen.** Vi antar inte att den infaller dagen före jullovsstart. Sallys årskurs behöver bekräftas innan avslutningen för åk 1–2 används för hennes vårtermin. Studiedagar och andra avvikelser hänvisas till Schoolsoft. Höstutkastet har nu verifierad start och höstlov vecka 44, men saknar slutdatum. Kommunens datum ersätter inte skolans egna.
 
 ### Amerikanska Gymnasiet Uppsala
 
