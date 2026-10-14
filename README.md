@@ -59,7 +59,7 @@ Faktiska underlag ligger lokalt i git-ignorerade `private-imports/`, aldrig i `p
 
 Hash-routing fungerar utan serveromskrivning. CI härleder base från repositorynamnet. Vid namnbyte behöver också testernas URL:er justeras. Användarsajt `owner.github.io` kräver base `/`. HTTPS krävs för PWA och framtida push/GPS.
 
-iPhone: Safari → Dela → Lägg till på hemskärmen. Android: webbläsarmenyn → Installera app/Lägg till på startskärmen. Push kräver på iOS 16.4+ en installerad PWA och aktivt godkännande. Push och platsdelning är ännu inte aktiverade; ingen bakgrunds-GPS utlovas.
+iPhone: Safari → Dela → Lägg till på hemskärmen. Android: webbläsarmenyn → Installera app/Lägg till på startskärmen. Push kräver på iOS 16.4+ en installerad PWA och aktivt godkännande. Push är implementerat och kräver telefonens notifieringsbehörighet. Platsdelning är ännu inte aktiverad; ingen bakgrunds-GPS utlovas.
 
 ## Arkitektur och arbetsmetod
 
@@ -85,3 +85,5 @@ Phase 4 är implementerad med serverstyrd köhantering, mottagarval och VAPID-he
 [Phase 3.1: privat schemaadministration, officiella datumkällor och aktiveringsstatus](docs/phase3.1-school-schedules.md). Sallys 24 veckoposter inklusive fem luncher är aktiverade för HT 2026 och VT 2027. Höstens slutdatum 22 december är tydligt markerat preliminärt; vårterminens gränser är verifierade för årskurs 1. Neos 18 preliminära poster finns privat i Supabase men inväntar verifierade sluttider. Datum och undantag kan uppdateras i Inställningar → Hantera skolscheman.
 
 [Phase 4: pushnotiser, påminnelser och drift](docs/phase4-push.md). Serverstyrd kö, VAPID, Edge Function och minutjobb är konfigurerade. Aktivera telefonens behörighet i appen och prova Skicka testnotis. Fysisk Android-/iPhone-leverans återstår att verifiera. Nästa uppdrag är Phase 5 – Familjekarta och GPS.
+
+[Phase 4.5: modern design, låst profil, deltagande och osynliga chattraderingar](docs/phase4.5-design-ux.md). Mörkt tema är standard, ljust tema finns i Inställningar. Fyra fasta toppflikar ersätter bottennavigationen. Kalendern är appens startsida.

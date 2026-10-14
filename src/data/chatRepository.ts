@@ -65,7 +65,11 @@ export function createChatRepository(): ChatRepository | null {
               : null,
           ),
       )
-      for (const table of ['chat_read_states', 'notification_preferences'])
+      for (const table of [
+        'chat_read_states',
+        'notification_preferences',
+        'chat_revisions',
+      ])
         channel.on(
           'postgres_changes',
           { event: '*', schema: 'public', table },

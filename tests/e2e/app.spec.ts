@@ -2,24 +2,30 @@ import { test, expect } from '@playwright/test'
 test('profile persists, routes work, quick add is honest', async ({ page }) => {
   await page.goto('./')
   await page.getByRole('button', { name: 'N Neo' }).click()
-  await expect(page.getByRole('heading', { name: /Hej Neo/ })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Kalender', exact: true }),
+  ).toBeVisible()
   await page.reload()
-  await expect(page.getByRole('heading', { name: /Hej Neo/ })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Kalender', exact: true }),
+  ).toBeVisible()
   for (const [path, heading] of [
     ['kalender', 'Kalender'],
-    ['listor', 'Listor'],
+    ['listor', 'Att göra'],
     ['chatt', 'Chatt'],
     ['karta', 'Karta'],
     ['installningar', 'Inställningar'],
   ]) {
     await page.goto(`./#/${path}`)
     await expect(
-      page.getByRole('heading', { name: heading, exact: true }),
+      page.getByRole('heading', { name: heading, exact: true, level: 1 }),
     ).toBeVisible()
   }
-  await page.getByRole('button', { name: 'S Sally' }).click()
+  await expect(page.getByRole('button', { name: 'S Sally' })).toHaveCount(0)
   await page.goto('./')
-  await expect(page.getByRole('heading', { name: /Hej Sally/ })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Kalender', exact: true }),
+  ).toBeVisible()
   await page.getByRole('button', { name: 'Lägg till', exact: true }).click()
   await expect(page.getByRole('dialog')).toContainText('Ingenting sparas ännu.')
   await page.keyboard.press('Escape')
@@ -45,7 +51,50 @@ test('manifest and offline app shell', async ({ page, context }) => {
     .toBe(true)
   await context.setOffline(true)
   await page.reload()
-  await expect(page.getByRole('heading', { name: /Hej Tobias/ })).toBeVisible()
-  await expect(page.getByRole('status')).toContainText('offline')
+  await expect(
+    page.getByRole('heading', { name: 'Kalender', exact: true }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Du är offline' }),
+  ).toBeVisible()
   await context.setOffline(false)
+})
+
+test('four sticky top tabs, preserved calendar view, locked profile and persistent theme', async ({
+  page,
+}) => {
+  await page.goto('./')
+  await page.getByRole('button', { name: 'N Neo' }).click()
+  const nav = page.getByRole('navigation', { name: 'Huvudnavigation' })
+  await expect(nav.getByRole('link')).toHaveCount(4)
+  expect(
+    await page.evaluate(() => document.documentElement.dataset.theme),
+  ).toBe('dark')
+  await page.getByRole('button', { name: 'Månad', exact: true }).click()
+  await nav.getByRole('link', { name: 'Att göra', exact: true }).click()
+  await nav.getByRole('link', { name: 'Inköp', exact: true }).click()
+  await expect(
+    page.getByRole('heading', { name: 'Inköp', level: 1 }),
+  ).toBeVisible()
+  await nav.getByRole('link', { name: 'Kalender', exact: true }).click()
+  await expect(
+    page.getByRole('button', { name: 'Månad', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true')
+  await page.evaluate(() => window.scrollTo(0, 500))
+  expect((await nav.boundingBox())!.y).toBeGreaterThanOrEqual(0)
+  expect((await nav.boundingBox())!.y).toBeLessThan(50)
+  await page.getByRole('link', { name: 'Inställningar och profil' }).click()
+  await expect(
+    page.getByRole('button', { name: /S Sally|T Tobias/ }),
+  ).toHaveCount(0)
+  await page.getByRole('button', { name: 'Ljust', exact: true }).click()
+  await page.reload()
+  expect(
+    await page.evaluate(() => document.documentElement.dataset.theme),
+  ).toBe('light')
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true)
 })

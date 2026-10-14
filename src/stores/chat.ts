@@ -41,6 +41,7 @@ let repository: ChatRepository | null = null,
   unsubscribe: (() => void) | null = null,
   generation = 0,
   loaded = false
+let historyStart: number | null = null
 let refreshing: Promise<void> | null = null,
   dirty = false,
   reading = false
@@ -50,6 +51,7 @@ export function stopChat() {
   unsubscribe = null
   repository = null
   loaded = false
+  historyStart = null
   refreshing = null
   dirty = false
   reading = false
@@ -83,14 +85,16 @@ export async function refreshChat() {
       dirty = false
       try {
         if (loaded) {
-          let cursor = (messages.value[0]?.seq ?? 1) - 1
+          let cursor = (historyStart ?? messages.value[0]?.seq ?? 1) - 1
+          let snapshot: ChatMessage[] = []
           for (;;) {
             const rows = await r.page(null, cursor, 100)
             if (token !== generation) return
-            messages.value = mergeMessages(messages.value, rows)
+            snapshot = mergeMessages(snapshot, rows)
             if (rows.length < 100) break
             cursor = rows.at(-1)!.seq
           }
+          messages.value = snapshot
         }
         const summary = await r.summary()
         if (token !== generation) return
@@ -157,6 +161,7 @@ export async function openChat() {
       const rows = await repository.page(null)
       if (token !== generation) return
       messages.value = mergeMessages(messages.value, rows)
+      historyStart = rows[0]?.seq ?? null
       hasOlder.value = rows.length === 40
       loaded = true
     }
@@ -174,9 +179,10 @@ export async function loadOlder() {
     token = generation
   loadingOlder.value = true
   try {
-    const rows = await r.page(messages.value[0]?.seq ?? null)
+    const rows = await r.page(historyStart ?? messages.value[0]?.seq ?? null)
     if (token !== generation) return
     messages.value = mergeMessages(messages.value, rows)
+    historyStart = rows[0]?.seq ?? historyStart
     hasOlder.value = rows.length === 40
     chatError.value = ''
   } catch (e) {

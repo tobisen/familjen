@@ -40,3 +40,22 @@ it('desktop Enter sends; Shift, composition and mobile Enter keep text editing',
   expect(shouldSend({ ...enter, isComposing: true }, false)).toBe(false)
   expect(shouldSend(enter, true)).toBe(false)
 })
+
+it('removes tombstones without rendering a placeholder', () => {
+  expect(
+    mergeMessages(
+      [message],
+      [
+        {
+          ...message,
+          version: 2,
+          body: '',
+          deleted_at: '2026-10-14T12:00:00Z',
+        },
+      ],
+    ),
+  ).toEqual([])
+  expect(
+    mergeMessages([], [{ ...message, deleted_at: '2026-10-14T12:00:00Z' }]),
+  ).toEqual([])
+})

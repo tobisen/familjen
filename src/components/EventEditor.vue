@@ -6,6 +6,7 @@ import {
   activities,
   people,
   saveActivity,
+  saveOccurrence,
   saving,
 } from '../stores/calendar'
 import { identity } from '../stores/auth'
@@ -22,10 +23,10 @@ const original = state.id
   ? activities.value.find((a) => a.id === state.id)
   : null
 const first = original
-  ? localParts(original.starts_at)
+  ? localParts(state.single ? state.occurrence!.starts_at : original.starts_at)
   : { date: state.date, time: state.time }
 const last = original
-  ? localParts(original.ends_at)
+  ? localParts(state.single ? state.occurrence!.ends_at : original.ends_at)
   : {
       date: state.date,
       time:
@@ -46,11 +47,15 @@ const participants = ref(
     ? [...original.participant_ids]
     : [identity.value?.profile_key ?? selectedProfile.value ?? 'tobias'],
 )
-const frequency = ref(original?.recurrence?.frequency ?? 'none')
+const frequency = ref(
+  state.single ? 'none' : (original?.recurrence?.frequency ?? 'none'),
+)
 const interval = ref(original?.recurrence?.interval ?? 1)
 const until = ref(original?.recurrence?.until ?? '')
 const category = ref(original?.category ?? 'family')
-const exceptions = ref(original?.exception_dates.join(', ') ?? '')
+const exceptions = ref(
+  state.single ? '' : (original?.exception_dates.join(', ') ?? ''),
+)
 const dst = ref<'reject' | 'earlier' | 'later'>('reject')
 const error = ref('')
 const dialog = ref<HTMLDialogElement | null>(null)
@@ -92,7 +97,9 @@ async function submit() {
       exception_dates: exceptions.value.split(/[\s,]+/).filter(Boolean),
     }
     validateActivity(input)
-    await saveActivity(input, state.id, original?.version ?? null)
+    if (state.single && state.occurrence)
+      await saveOccurrence(input, state.occurrence)
+    else await saveActivity(input, state.id, original?.version ?? null)
     editor.value = null
   } catch (e) {
     error.value =
@@ -126,7 +133,7 @@ async function submit() {
       <p class="public-warning">
         Aktiviteten delas med din registrerade familj.
       </p>
-      <p v-if="original?.recurrence" class="notice">
+      <p v-if="original?.recurrence && !state.single" class="notice">
         Du redigerar hela serien. Undantag för enstaka tillfällen görs i
         detaljvyn.
       </p>
@@ -182,12 +189,14 @@ async function submit() {
         </select></label
       >
       <div class="form-row">
-        <label
+        <label v-if="!state.single"
           >Upprepning<select v-model="frequency">
             <option value="none">Ingen</option>
             <option value="daily">Dagligen</option>
-            <option value="weekly">Veckovis</option>
-            <option value="monthly">Månadsvis</option>
+            <option value="weekly">
+              Varje vecka på startdatumets veckodag
+            </option>
+            <option value="monthly">Varje månad på startdatumets datum</option>
           </select></label
         ><label v-if="frequency !== 'none'"
           >Intervall<input

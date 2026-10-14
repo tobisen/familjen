@@ -10,6 +10,7 @@ import type {
   PublicSchoolLesson,
   Occurrence,
 } from '../domain/calendar'
+export const calendarView = ref<'day' | 'week' | 'month'>('week')
 export const people = ref<CalendarPerson[]>([])
 export const activities = ref<CalendarActivity[]>([])
 export const schoolLessons = ref<PublicSchoolLesson[]>([])
@@ -125,18 +126,20 @@ export const editor = ref<{
   time: string
   allDay?: boolean
   occurrence: Occurrence | null
+  single?: boolean
 } | null>(null)
 export const detail = ref<Occurrence | null>(null)
 export function openCreate(date: string, time = '09:00', allDay = false) {
   editor.value = { id: null, date, time, allDay, occurrence: null }
 }
-export function openEdit(o: Occurrence) {
+export function openEdit(o: Occurrence, single = false) {
   detail.value = null
   editor.value = {
     id: o.activity.id,
     date: o.date,
     time: '09:00',
     occurrence: o,
+    single,
   }
 }
 // Reload after a background tab resumes and when network returns, as a Realtime safety net.
@@ -151,4 +154,33 @@ if (typeof window !== 'undefined') {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') void reloadCalendar()
   })
+}
+
+export async function saveOccurrence(
+  input: ActivityInput,
+  occurrence: Occurrence,
+) {
+  if (!repository?.saveOccurrence) throw new Error('Kalenderanslutning krävs.')
+  saving.value = true
+  try {
+    await repository.saveOccurrence(
+      input,
+      occurrence.activity.id,
+      occurrence.date,
+      occurrence.activity.version,
+    )
+    await reloadCalendar()
+  } finally {
+    saving.value = false
+  }
+}
+export async function joinActivity(activity: CalendarActivity, join: boolean) {
+  if (!repository?.participate) throw new Error('Kalenderanslutning krävs.')
+  saving.value = true
+  try {
+    await repository.participate(activity.id, activity.version, join)
+    await reloadCalendar()
+  } finally {
+    saving.value = false
+  }
 }

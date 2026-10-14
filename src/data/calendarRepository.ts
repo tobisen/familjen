@@ -11,6 +11,13 @@ export interface CalendarSnapshot {
   lessons: PublicSchoolLesson[]
 }
 export interface CalendarRepository {
+  saveOccurrence?(
+    input: ActivityInput,
+    id: string,
+    date: string,
+    version: number,
+  ): Promise<string>
+  participate?(id: string, version: number, join: boolean): Promise<void>
   load(): Promise<CalendarSnapshot>
   save(
     input: ActivityInput,
@@ -36,6 +43,19 @@ export function createCalendarRepository(): CalendarRepository | null {
     return data as T
   }
   return {
+    saveOccurrence: (input, id, date, version) =>
+      rpc('calendar_save_occurrence', {
+        payload: input,
+        event_id: id,
+        occurrence_date: date,
+        expected_version: version,
+      }),
+    participate: (id, version, join) =>
+      rpc('calendar_participate', {
+        event_id: id,
+        expected_version: version,
+        joining: join,
+      }),
     load: () => rpc<CalendarSnapshot>('calendar_snapshot'),
     save: (input, id, version) =>
       rpc<string>('calendar_save', {

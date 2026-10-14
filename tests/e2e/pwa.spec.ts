@@ -55,7 +55,9 @@ test('standalone recovery preserves session and unrelated caches', async ({
   )
   expect(keys.some((key) => key.endsWith('/familjen/demo/'))).toBe(true)
   expect(keys).toContain('other-app-cache')
-  await expect(page.getByRole('heading', { name: /Hej Neo/ })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Kalender', exact: true }),
+  ).toBeVisible()
 })
 test('startup fallback is usable when the app JavaScript is unavailable', async ({
   page,

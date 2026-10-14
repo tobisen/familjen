@@ -134,10 +134,10 @@ test('tasks: mobile plus, multiple assignees, priority, filters, edit, completio
   await dialog.getByLabel('Titel', { exact: true }).fill('Tvätta kläder')
   await dialog.getByRole('button', { name: 'Spara', exact: true }).click()
   await page.goto('./')
-  await expect(
-    page.getByRole('heading', { name: 'Att göra just nu' }),
-  ).toBeVisible()
-  await expect(page.locator('.home-task-row')).toContainText('Tvätta kläder')
+  await expect(page.getByLabel('Vardagen just nu')).toBeVisible()
+  await expect(page.getByLabel('Vardagen just nu')).toContainText(
+    'Tvätta kläder',
+  )
   await page.goto('./#/listor')
   await page.getByRole('button', { name: 'Slutför Tvätta kläder' }).click()
   await expect(
@@ -202,7 +202,9 @@ test('shopping: quick input, buy, undo, history restore, edit, delete and homepa
   await expect(page.locator('.shopping-row')).toContainText('2 liter')
   await page.goto('./')
   await expect(
-    page.getByText('1 varor kvar att köpa', { exact: true }),
+    page
+      .getByLabel('Vardagen just nu')
+      .getByRole('link', { name: /1 att handla/ }),
   ).toBeVisible()
   await page.goto('./#/listor?tab=inkop')
   await page.getByRole('button', { name: 'Köp Mjölk' }).click()
@@ -255,4 +257,40 @@ test('failed purchase keeps item active and reports the error', async ({
   await page.getByRole('button', { name: 'Köp Testvara' }).click()
   await expect(page.getByRole('alert')).toContainText('Tillfälligt serverfel')
   await expect(page.locator('.shopping-row')).toHaveCount(1)
+})
+
+test('assign me preserves Sally and uses Neo from the registered session', async ({
+  page,
+}) => {
+  await calendarRpc(db, 'lists_save', {
+    kind: 'task',
+    request_id: crypto.randomUUID(),
+    payload: {
+      title: 'Ta ansvar',
+      description: '',
+      priority: 'normal',
+      deadline: null,
+      assigned_ids: ['sally'],
+      recurrence: null,
+      reminder_days: null,
+    },
+  })
+  await page.goto('./#/listor')
+  await page
+    .getByRole('button', { name: '+ Tilldela mig', exact: true })
+    .click()
+  await expect(page.locator('.task-row')).toContainText('Neo, Sally')
+  await expect(
+    page.getByRole('button', { name: '+ Tilldela mig', exact: true }),
+  ).toHaveCount(0)
+  await page.getByRole('button', { name: 'Mina', exact: true }).click()
+  await expect(page.locator('.task-row')).toHaveCount(1)
+  await page.goto('./#/installningar')
+  await expect(page.locator('.locked-profile')).toContainText('Neo')
+  await expect(
+    page.getByRole('button', { name: /S Sally|T Tobias/ }),
+  ).toHaveCount(0)
+  await page.evaluate(() => localStorage.setItem('familjen.profile', 'sally'))
+  await page.reload()
+  await expect(page.locator('.locked-profile')).toContainText('Neo')
 })

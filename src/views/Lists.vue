@@ -35,6 +35,7 @@ import {
   setListDone,
   restorePurchase,
   saveListItem,
+  assignMyself,
 } from '../stores/lists'
 const route = useRoute(),
   router = useRouter()
@@ -81,6 +82,14 @@ async function toggle(
   } catch (e) {
     error.value =
       e instanceof Error ? e.message : 'Ändringen kunde inte sparas.'
+  }
+}
+async function claim(task: Task) {
+  error.value = ''
+  try {
+    await assignMyself(task)
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : 'Kunde inte tilldela.'
   }
 }
 async function undo() {
@@ -136,20 +145,10 @@ watch(
   <div class="page-heading">
     <div>
       <span class="eyebrow">VÅR GEMENSAMMA VARDAG</span>
-      <h1>Listor</h1>
+      <h1>{{ tab === 'task' ? 'Att göra' : 'Inköp' }}</h1>
       <p>Lite mindre att komma ihåg.</p>
     </div>
     <span class="tag">Gemensamt för oss tre</span>
-  </div>
-  <div class="tabs" aria-label="Välj lista">
-    <button :aria-pressed="tab === 'task'" @click="router.replace('/listor')">
-      Att göra</button
-    ><button
-      :aria-pressed="tab === 'shopping'"
-      @click="router.replace('/listor?tab=inkop')"
-    >
-      Inköp <span>{{ active.length }}</span>
-    </button>
   </div>
   <p class="small" role="status">
     {{
@@ -188,9 +187,17 @@ watch(
         ]"
         :key="option.id"
         :aria-pressed="filter === option.id"
+        :aria-label="option.name"
         @click="filter = option.id as TaskFilter"
       >
         {{ option.name }}
+        <span>{{
+          filterTasks(
+            tasks,
+            option.id as TaskFilter,
+            identity?.profile_key ?? null,
+          ).length
+        }}</span>
       </button>
     </div>
     <div
@@ -225,6 +232,18 @@ watch(
           }}</span>
         </div>
         <p class="small">{{ assignedNames(task) }}</p>
+        <button
+          v-if="
+            identity &&
+            !task.assigned_ids.includes(identity.profile_key) &&
+            !task.completed
+          "
+          class="self-assign"
+          :disabled="!listsWritable || pendingListIds.has(task.id)"
+          @click="claim(task)"
+        >
+          + Tilldela mig
+        </button>
         <p class="small">
           Skapad av {{ personName(task.created_by)
           }}<template v-if="task.completed">

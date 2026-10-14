@@ -7,25 +7,17 @@ import ListEditor from './components/ListEditor.vue'
 import { chatSummary } from './stores/chat'
 import { listEditor, openListEditor, listsWritable } from './stores/lists'
 import {
-  House,
   CalendarDays,
   ListChecks,
+  ShoppingBasket,
   MessageCircle,
-  MapPin,
   Settings,
   Plus,
   X,
-  ArrowUpRight,
 } from 'lucide-vue-next'
 import { useRegisterSW } from 'virtual:pwa-register/vue'
 import { selectedProfile, profiles, storageError } from './domain/profiles'
-import {
-  editor,
-  detail,
-  openCreate,
-  canWrite,
-  calendarStatus,
-} from './stores/calendar'
+import { editor, detail, openCreate, canWrite } from './stores/calendar'
 import { today } from './domain/calendar'
 import {
   initializeAuth,
@@ -43,11 +35,10 @@ watch(identity, (p) => {
   if (p) void restorePush(p.profile_id).catch(() => {})
 })
 const nav = [
-  { to: '/', label: 'Hem', icon: House },
   { to: '/kalender', label: 'Kalender', icon: CalendarDays },
-  { to: '/listor', label: 'Listor', icon: ListChecks },
+  { to: '/listor?tab=todo', label: 'Att göra', icon: ListChecks },
+  { to: '/listor?tab=inkop', label: 'Inköp', icon: ShoppingBasket },
   { to: '/chatt', label: 'Chatt', icon: MessageCircle },
-  { to: '/karta', label: 'Karta', icon: MapPin },
 ]
 const profile = computed(() =>
   profiles.find(
@@ -64,6 +55,9 @@ watch(
   },
   { flush: 'sync' },
 )
+function focusMain() {
+  document.getElementById('main')?.focus()
+}
 function add() {
   if (route.path === '/listor' && listsWritable.value)
     openListEditor(route.query.tab === 'inkop' ? 'shopping' : 'task')
@@ -107,7 +101,7 @@ const { needRefresh, updateServiceWorker } = useRegisterSW({
 })
 </script>
 <template>
-  <a class="skip" href="#main">Till innehållet</a>
+  <a class="skip" href="#main" @click.prevent="focusMain">Till innehållet</a>
   <div v-if="needRefresh" class="notice pwa-update" role="status">
     En ny version finns.
     <button @click="updateServiceWorker()">Uppdatera appen</button> Din
@@ -116,48 +110,13 @@ const { needRefresh, updateServiceWorker } = useRegisterSW({
   <AuthGate
     v-if="backendConfigured && (authStatus !== 'ready' || registration)"
   />
-  <ProfilePicker v-else-if="!selectedProfile" initial />
+  <ProfilePicker v-else-if="!selectedProfile && !identity" initial />
   <div v-else class="shell">
-    <aside class="sidebar">
-      <RouterLink to="/" class="brand"
-        ><span class="brand-mark"><House :size="23" /></span>Familjen<span
-          class="brand-dot"
-          >.</span
-        ></RouterLink
-      ><span class="eyebrow sidebar-label">VÅR VARDAG, TILLSAMMANS</span>
-      <nav aria-label="Huvudnavigation">
-        <RouterLink v-for="item in nav" :key="item.to" :to="item.to"
-          ><component :is="item.icon" :size="21" />{{ item.label
-          }}<span
-            v-if="item.to === '/chatt' && chatSummary.unread"
-            class="unread-badge"
-            :aria-label="`${chatSummary.unread} olästa meddelanden`"
-            >{{ chatSummary.unread > 99 ? '99+' : chatSummary.unread }}</span
-          ></RouterLink
-        >
-      </nav>
-      <div class="sidebar-bottom">
-        <div class="family-mini">
-          <span
-            v-for="p in profiles"
-            :key="p.id"
-            class="avatar"
-            :class="p.color"
-            >{{ p.name[0] }}</span
-          >
-        </div>
-        <p>En liten plats för oss.</p>
-        <RouterLink to="/installningar"
-          ><Settings :size="19" />Inställningar</RouterLink
-        >
-      </div>
-    </aside>
     <div class="workspace">
       <header class="topbar">
         <RouterLink to="/" class="mobile-brand"
           >Familjen<span>.</span></RouterLink
-        ><span class="desktop-welcome"
-          >Lite mer tillsammans. Lite mindre att hålla i huvudet.</span
+        ><span class="desktop-welcome">Vår plats. Våra planer.</span
         ><RouterLink
           to="/installningar"
           class="current-profile"
@@ -169,7 +128,28 @@ const { needRefresh, updateServiceWorker } = useRegisterSW({
           ><Settings :size="18"
         /></RouterLink>
       </header>
-      <main id="main">
+      <nav class="main-tabs" aria-label="Huvudnavigation">
+        <RouterLink
+          v-for="item in nav"
+          :key="item.to"
+          :to="item.to"
+          :class="{
+            'active-tab':
+              route.path === item.to.split('?')[0] &&
+              ((item.label !== 'Att göra' && item.label !== 'Inköp') ||
+                (route.query.tab === 'inkop') === (item.label === 'Inköp')),
+          }"
+        >
+          <component :is="item.icon" :size="20" /><span>{{ item.label }}</span>
+          <span
+            v-if="item.to === '/chatt' && chatSummary.unread"
+            class="unread-badge"
+            :aria-label="`${chatSummary.unread} olästa meddelanden`"
+            >{{ chatSummary.unread > 99 ? '99+' : chatSummary.unread }}</span
+          >
+        </RouterLink>
+      </nav>
+      <main id="main" tabindex="-1">
         <p v-if="!online" class="notice" role="status">
           Du är offline. Appens skal fungerar; familjedata synkas inte.
         </p>
@@ -179,45 +159,11 @@ const { needRefresh, updateServiceWorker } = useRegisterSW({
         </p>
         <PushStatus v-if="route.path === '/' && authStatus === 'ready'" />
         <RouterView />
-        <div class="setup-notice">
-          <span class="status-dot"></span>
-          <div>
-            <strong>{{
-              backendConfigured
-                ? calendarStatus === 'ready'
-                  ? 'Privat familjekalender'
-                  : 'Kalenderanslutning återstår'
-                : 'En bra början. Snart fyller vi den med er vardag.'
-            }}</strong>
-            <p>
-              {{
-                backendConfigured
-                  ? 'Familjedata är tillgänglig endast för registrerade familjemedlemmar. GPS och push är ännu inte aktiverade.'
-                  : 'Supabase är inte konfigurerat. Familjedata och synkning aktiveras efter säker installation.'
-              }}
-            </p>
-          </div>
-          <RouterLink to="/installningar" aria-label="Visa konfiguration"
-            ><ArrowUpRight :size="22"
-          /></RouterLink>
-        </div>
-        <footer>FAMILJEN <span>Byggd för vår vardag · Phase 3</span></footer>
       </main>
     </div>
     <button ref="plus" class="quick-add" aria-label="Lägg till" @click="add">
       <Plus :size="24" /><span>Lägg till</span>
     </button>
-    <nav class="bottom-nav" aria-label="Mobilnavigation">
-      <RouterLink v-for="item in nav" :key="item.to" :to="item.to"
-        ><component :is="item.icon" :size="22" /><span>{{ item.label }}</span
-        ><span
-          v-if="item.to === '/chatt' && chatSummary.unread"
-          class="unread-badge"
-          :aria-label="`${chatSummary.unread} olästa meddelanden`"
-          >{{ chatSummary.unread > 99 ? '99+' : chatSummary.unread }}</span
-        ></RouterLink
-      >
-    </nav>
     <dialog
       ref="dialog"
       aria-labelledby="quick-title"

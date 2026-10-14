@@ -6,6 +6,7 @@ import type {
   ShoppingInput,
 } from '../domain/lists'
 export interface ListsRepository {
+  assignSelf?(id: string, version: number): Promise<void>
   load(): Promise<ListsSnapshot>
   save(
     kind: ListKind,
@@ -37,6 +38,8 @@ export function createListsRepository(): ListsRepository | null {
     return data as T
   }
   return {
+    assignSelf: (id, version) =>
+      rpc('task_assign_self', { item_id: id, expected_version: version }),
     load: () => rpc('lists_snapshot'),
     save: (kind, payload, id, version, request) =>
       rpc('lists_save', {

@@ -23,7 +23,9 @@ export function mergeMessages(current: ChatMessage[], incoming: ChatMessage[]) {
     const old = map.get(message.id)
     if (!old || old.version <= message.version) map.set(message.id, message)
   }
-  return [...map.values()].sort((a, b) => a.seq - b.seq)
+  return [...map.values()]
+    .filter((m) => !m.deleted_at)
+    .sort((a, b) => a.seq - b.seq)
 }
 export function chatDate(value: string) {
   return new Intl.DateTimeFormat('sv-SE', {

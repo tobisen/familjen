@@ -98,9 +98,11 @@ test('calendar CRUD with participants, views, filter, persistence and deletion c
   context,
 }) => {
   await page.goto('./')
-  await expect(page.getByRole('heading', { name: /Hej Neo/ })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Kalender', exact: true }),
+  ).toBeVisible()
   await page
-    .getByRole('navigation', { name: 'Mobilnavigation' })
+    .getByRole('navigation', { name: 'Huvudnavigation' })
     .getByRole('link', { name: 'Kalender' })
     .click()
   await expect(
@@ -154,9 +156,11 @@ test('calendar CRUD with participants, views, filter, persistence and deletion c
   await api(other, sallyUser)
   const second = await other.newPage()
   await second.goto('http://127.0.0.1:4174/familjen/')
-  await expect(second.getByRole('heading', { name: /Hej Sally/ })).toBeVisible()
+  await expect(
+    second.getByRole('heading', { name: 'Kalender', exact: true }),
+  ).toBeVisible()
   await second
-    .getByRole('navigation', { name: 'Mobilnavigation' })
+    .getByRole('navigation', { name: 'Huvudnavigation' })
     .getByRole('link', { name: 'Kalender' })
     .click()
   await expect(
@@ -185,9 +189,11 @@ test('school preview, publication confirmation and idempotent import', async ({
   page,
 }) => {
   await page.goto('./')
-  await expect(page.getByRole('heading', { name: /Hej Neo/ })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Kalender', exact: true }),
+  ).toBeVisible()
   await page
-    .getByRole('navigation', { name: 'Mobilnavigation' })
+    .getByRole('navigation', { name: 'Huvudnavigation' })
     .getByRole('link', { name: 'Kalender' })
     .click()
   await page.getByRole('button', { name: 'Importera schema' }).click()
@@ -241,9 +247,11 @@ test('empty time slot, heldag recurrence and a single skipped occurrence', async
   page,
 }) => {
   await page.goto('./')
-  await expect(page.getByRole('heading', { name: /Hej Neo/ })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Kalender', exact: true }),
+  ).toBeVisible()
   await page
-    .getByRole('navigation', { name: 'Mobilnavigation' })
+    .getByRole('navigation', { name: 'Huvudnavigation' })
     .getByRole('link', { name: 'Kalender' })
     .click()
   const slot = page
@@ -263,7 +271,7 @@ test('empty time slot, heldag recurrence and a single skipped occurrence', async
   await dialog.getByRole('button', { name: 'Spara aktivitet' }).click()
   await expect(dialog).not.toBeVisible()
   await page.getByRole('button', { name: 'E2E serie, heldag' }).click()
-  await page.getByRole('button', { name: /Undanta \d{4}-\d{2}-\d{2}/ }).click()
+  await page.getByRole('button', { name: 'Radera detta tillfälle' }).click()
   await expect(
     page.getByRole('button', { name: 'E2E serie, heldag' }),
   ).toHaveCount(0)
@@ -350,7 +358,7 @@ test('school administration partially activates a private draft and displays les
   )
   await dialog.getByRole('button', { name: 'Stäng', exact: true }).click()
   await page
-    .getByRole('navigation', { name: 'Mobilnavigation' })
+    .getByRole('navigation', { name: 'Huvudnavigation' })
     .getByRole('link', { name: 'Kalender' })
     .click()
   await expect(
@@ -608,4 +616,76 @@ test('notification deep links open the right activity and task on a cold start',
   await expect(
     page.getByRole('dialog').getByLabel('Titel', { exact: true }),
   ).toHaveValue('E2E linked task')
+})
+
+test('joins with the registered identity and edits just one occurrence without duplicating the series', async ({
+  page,
+}) => {
+  const { today, toInstant, addDays } =
+    await import('../../src/domain/calendar')
+  const day = today()
+  const id = await calendarRpc(db, 'calendar_save', {
+    payload: {
+      title: 'Gemensam serie',
+      description: '',
+      location: '',
+      all_day: true,
+      starts_at: toInstant(day, '00:00'),
+      ends_at: toInstant(addDays(day, 1), '00:00'),
+      participant_ids: ['sally'],
+      category: 'family',
+      recurrence: { frequency: 'weekly', interval: 1, until: addDays(day, 14) },
+      exception_dates: [],
+    },
+  })
+  await page.goto('./#/kalender')
+  await page.getByRole('button', { name: 'Gemensam serie, heldag' }).click()
+  await page.getByRole('button', { name: 'Lägg till mig', exact: true }).click()
+  await expect(
+    page.getByRole('dialog').locator('.participant-chips'),
+  ).toContainText('Neo')
+  await page
+    .getByRole('button', { name: 'Lämna aktivitet', exact: true })
+    .click()
+  await expect(
+    page.getByRole('dialog').locator('.participant-chips'),
+  ).not.toContainText('Neo')
+  await page.getByRole('button', { name: 'Stäng', exact: true }).click()
+  await page.getByRole('button', { name: 'Gemensam serie, heldag' }).click()
+  await page.getByRole('button', { name: 'Redigera detta tillfälle' }).click()
+  await page
+    .getByRole('dialog')
+    .getByLabel('Titel', { exact: true })
+    .fill('Bara idag')
+  await page.getByRole('button', { name: 'Spara aktivitet' }).click()
+  await expect(
+    page.getByRole('button', { name: 'Bara idag, heldag' }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Gemensam serie, heldag' }),
+  ).toHaveCount(0)
+  await page.getByRole('button', { name: 'Nästa period' }).click()
+  await expect(
+    page.getByRole('button', { name: 'Gemensam serie, heldag' }),
+  ).toBeVisible()
+  const { rows } = await db.query<{ exception_dates: string[] }>(
+    'select exception_dates from public.private_calendar_events where id=$1',
+    [id],
+  )
+  expect(rows[0]?.exception_dates).toEqual([day])
+  await page.getByRole('button', { name: 'Gemensam serie, heldag' }).click()
+  await page.getByRole('button', { name: 'Redigera hela serien' }).click()
+  await page
+    .getByRole('dialog')
+    .getByLabel('Titel', { exact: true })
+    .fill('Ny serietitel')
+  await page.getByRole('button', { name: 'Spara aktivitet' }).click()
+  await expect(
+    page.getByRole('button', { name: 'Ny serietitel, heldag' }),
+  ).toBeVisible()
+  await page.getByRole('button', { name: 'Nästa period' }).click()
+  await page.getByRole('button', { name: 'Nästa period' }).click()
+  await expect(
+    page.getByRole('button', { name: 'Ny serietitel, heldag' }),
+  ).toHaveCount(0)
 })

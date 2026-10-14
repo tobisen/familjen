@@ -197,10 +197,7 @@ onUnmounted(() => {
             <strong class="chat-sender">{{
               person(message.sender_id)?.name ?? 'Familjemedlem'
             }}</strong>
-            <p v-if="message.deleted_at" class="deleted-message">
-              Meddelandet har raderats
-            </p>
-            <p v-else class="message-body">
+            <p class="message-body">
               <template v-for="(part, n) in messageParts(message.body)" :key="n"
                 ><a
                   v-if="part.href"

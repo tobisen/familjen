@@ -149,3 +149,16 @@ it('ignores a late Realtime event from a previous identity after session switch'
   oldIncoming(message)
   expect(messages.value).toEqual([])
 })
+
+it('authoritative refresh removes deletions missed while disconnected', async () => {
+  startChat(repository)
+  await openChat()
+  expect(messages.value).toHaveLength(1)
+  repository.page = vi.fn().mockResolvedValue([])
+  repository.summary = vi
+    .fn()
+    .mockResolvedValue({ ...summary, last_message: null, unread: 0 })
+  await refreshChat()
+  expect(messages.value).toEqual([])
+  expect(chatSummary.value.unread).toBe(0)
+})

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CalendarOverview from '../components/CalendarOverview.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { isDate } from '../domain/publicSchoolImport'
 import { detail } from '../stores/calendar'
@@ -31,12 +32,13 @@ import {
   reloadCalendar,
   openCreate,
   canWrite,
+  calendarView,
 } from '../stores/calendar'
 import CalendarEvent from '../components/CalendarEvent.vue'
 import SchoolImport from '../components/SchoolImport.vue'
 const route = useRoute(),
   router = useRouter()
-const view = ref<'day' | 'week' | 'month'>('week')
+const view = calendarView
 const date = ref(today())
 const selectedPeople = ref<string[]>([])
 const category = ref('all')
@@ -181,21 +183,7 @@ watch(
 )
 </script>
 <template>
-  <div class="page-heading calendar-page-heading">
-    <div>
-      <span class="eyebrow">VÅR GEMENSAMMA VARDAG</span>
-      <h1>Kalender</h1>
-      <p>Planer, skoldagar och tid tillsammans.</p>
-    </div>
-    <button class="secondary-button" @click="showImport = true">
-      <Upload :size="17" />Importera schema
-    </button>
-  </div>
-  <p class="public-warning">
-    Privat kalender · delas endast med registrerade familjemedlemmar.
-  </p>
-  <p v-if="pushLinkError" role="alert" class="notice">{{ pushLinkError }}</p>
-  <div class="calendar-controls">
+  <div class="calendar-view-tabs">
     <div class="tabs" aria-label="Kalendervy">
       <button
         v-for="[value, label] in [
@@ -210,6 +198,19 @@ watch(
         {{ label }}
       </button>
     </div>
+  </div>
+  <div class="page-heading calendar-page-heading">
+    <div>
+      <h1>Kalender</h1>
+      <p>Planer, skoldagar och tid tillsammans.</p>
+    </div>
+    <button class="secondary-button" @click="showImport = true">
+      <Upload :size="17" />Importera schema
+    </button>
+  </div>
+  <CalendarOverview v-if="calendarStatus === 'ready'" />
+  <p v-if="pushLinkError" role="alert" class="notice">{{ pushLinkError }}</p>
+  <div class="calendar-controls">
     <div class="calendar-period">
       <button aria-label="Föregående period" @click="move(-1)">
         <ChevronLeft />
@@ -264,9 +265,9 @@ watch(
     Offline: visade aktiviteter kan vara gamla. Återanslut för att spara.
   </p>
   <div class="calendar-meta">
-    <span
-      >{{ calendarStatus === 'ready' ? syncStatus : 'Ingen datakoppling' }} ·
-      Europe/Stockholm</span
+    <span>{{
+      calendarStatus === 'ready' ? syncStatus : 'Ingen datakoppling'
+    }}</span
     ><button
       v-if="calendarStatus === 'ready'"
       aria-label="Uppdatera kalender"

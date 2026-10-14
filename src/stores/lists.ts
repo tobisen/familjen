@@ -223,3 +223,10 @@ if (typeof window !== 'undefined') {
     if (document.visibilityState === 'visible') void reloadLists()
   })
 }
+
+export function assignMyself(task: Task) {
+  return mutate(task.id, (r) => {
+    if (!r.assignSelf) throw new Error('Anslutning krävs.')
+    return r.assignSelf(task.id, task.version)
+  })
+}

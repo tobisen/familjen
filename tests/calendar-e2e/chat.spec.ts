@@ -124,9 +124,9 @@ test('chat sends emoji and safe links, edits and deletes own messages without un
     'Meddelandets text tas bort',
   )
   await page.getByRole('button', { name: 'Ja, radera' }).click()
-  await expect(page.locator('.deleted-message')).toBeVisible()
+  await expect(page.locator('.chat-message')).toHaveCount(0)
   await page.reload()
-  await expect(page.locator('.deleted-message')).toBeVisible()
+  await expect(page.locator('.chat-message')).toHaveCount(0)
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
@@ -148,15 +148,15 @@ test('home preview, unread badge, own read state and notification preference', a
   )
   await page.goto('./')
   await expect(
-    page.getByRole('heading', { name: 'Senast från Sally' }),
+    page.getByLabel('Vardagen just nu').getByRole('link', { name: /Sally/ }),
   ).toBeVisible()
   await expect(
     page
-      .getByRole('navigation', { name: 'Mobilnavigation' })
+      .getByRole('navigation', { name: 'Huvudnavigation' })
       .getByLabel('1 olästa meddelanden'),
   ).toBeVisible()
   await page
-    .getByRole('navigation', { name: 'Mobilnavigation' })
+    .getByRole('navigation', { name: 'Huvudnavigation' })
     .getByRole('link', { name: /Chatt/ })
     .click()
   await expect(page.locator('.chat-message')).toHaveCount(1)
@@ -166,7 +166,7 @@ test('home preview, unread badge, own read state and notification preference', a
   ).toBe(0)
   await expect(
     page
-      .getByRole('navigation', { name: 'Mobilnavigation' })
+      .getByRole('navigation', { name: 'Huvudnavigation' })
       .getByLabel('1 olästa meddelanden'),
   ).not.toBeVisible()
   await expect(page.getByLabel('Notiser för nya chattmeddelanden')).toHaveCount(

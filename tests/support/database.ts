@@ -1,7 +1,7 @@
 export const testUser = '00000000-0000-0000-0000-000000000011'
 import { PGlite } from '@electric-sql/pglite'
 import { readFileSync } from 'node:fs'
-export async function calendarDatabase(enabled = true) {
+export async function calendarDatabase(enabled = true, withUx = true) {
   const db = new PGlite()
   await db.exec(`create role anon;create role authenticated;create role service_role;create schema auth;
  create table auth.users(id uuid primary key);
@@ -20,8 +20,10 @@ export async function calendarDatabase(enabled = true) {
     '202610140009_school_validation.sql',
     '202610140010_push.sql',
     '202610140011_push_retry_recovery.sql',
+    '202610140012_design_ux.sql',
   ])
-    await db.exec(readFileSync(`supabase/migrations/${f}`, 'utf8'))
+    if (withUx || !f.includes('0012_'))
+      await db.exec(readFileSync(`supabase/migrations/${f}`, 'utf8'))
   if (enabled) {
     await db.exec(
       `insert into auth.users values ('${testUser}'); insert into auth.sessions values ('${testUser}','${testUser}'); update public.profiles set auth_user_id='${testUser}' where profile_key='neo'`,
@@ -73,6 +75,23 @@ export async function calendarRpc(
       sql: 'select public.calendar_import($1::jsonb) as result',
       values: [JSON.stringify(args.lessons)],
     },
+  }
+  specs.calendar_participate = {
+    sql: 'select public.calendar_participate($1::uuid,$2::integer,$3::boolean) as result',
+    values: [args.event_id, args.expected_version, args.joining],
+  }
+  specs.task_assign_self = {
+    sql: 'select public.task_assign_self($1::uuid,$2::integer) as result',
+    values: [args.item_id, args.expected_version],
+  }
+  specs.calendar_save_occurrence = {
+    sql: 'select public.calendar_save_occurrence($1::jsonb,$2::uuid,$3::date,$4::integer) as result',
+    values: [
+      JSON.stringify(args.payload),
+      args.event_id,
+      args.occurrence_date,
+      args.expected_version,
+    ],
   }
   specs.push_register = {
     sql: 'select public.push_register($1::jsonb) as result',

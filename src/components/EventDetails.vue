@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { identity } from '../stores/auth'
 import { X } from 'lucide-vue-next'
 import {
   detail,
@@ -9,6 +10,8 @@ import {
   saveActivity,
   saving,
   canWrite,
+  joinActivity,
+  activities,
 } from '../stores/calendar'
 import {
   dateLabel,
@@ -18,7 +21,23 @@ import {
   type ActivityInput,
 } from '../domain/calendar'
 const occurrence = detail.value!
+const current = computed(
+  () =>
+    activities.value.find((a) => a.id === occurrence.activity.id) ??
+    occurrence.activity,
+)
 const activity = occurrence.activity
+const joined = computed(() =>
+  current.value.participant_ids.includes(identity.value?.profile_key ?? ''),
+)
+async function participate() {
+  try {
+    await joinActivity(current.value, !joined.value)
+  } catch (e) {
+    error.value =
+      e instanceof Error ? e.message : 'Kunde inte ändra deltagande.'
+  }
+}
 const endDay = activity.all_day
   ? addDays(localParts(occurrence.ends_at).date, -1)
   : localParts(occurrence.ends_at).date
@@ -31,7 +50,7 @@ function close() {
 }
 async function remove() {
   try {
-    await deleteActivity(activity.id, activity.version)
+    await deleteActivity(current.value.id, current.value.version)
     detail.value = null
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Radering misslyckades.'
@@ -40,12 +59,12 @@ async function remove() {
 async function skip() {
   try {
     const input: ActivityInput = {
-      ...activity,
+      ...current.value,
       exception_dates: [
-        ...new Set([...activity.exception_dates, occurrence.date]),
+        ...new Set([...current.value.exception_dates, occurrence.date]),
       ],
     }
-    await saveActivity(input, activity.id, activity.version)
+    await saveActivity(input, current.value.id, current.value.version)
     detail.value = null
   } catch (e) {
     error.value =
@@ -94,7 +113,7 @@ async function skip() {
     <div class="participant-chips">
       <span
         v-for="p in people.filter((p) =>
-          activity.participant_ids.includes(p.id),
+          current.participant_ids.includes(p.id),
         )"
         :key="p.id"
         class="person-chip"
@@ -103,28 +122,45 @@ async function skip() {
       >
     </div>
     <p v-if="activity.recurrence" class="small">
-      Återkommande serie. Redigering gäller hela serien; ett undantag hoppar
-      över enbart detta tillfälle.
+      Återkommande aktivitet. Välj ett tillfälle eller hela serien.
     </p>
     <p v-if="occurrence.school" class="notice">
       Importerad lektion. Ändra tider och lov via en ny schemaimport med samma
       externa ID.
+    </p>
+    <button
+      v-if="!occurrence.school && canWrite"
+      class="secondary-button"
+      :disabled="saving || (joined && current.participant_ids.length === 1)"
+      @click="participate"
+    >
+      {{ joined ? 'Lämna aktivitet' : 'Lägg till mig' }}
+    </button>
+    <p v-if="joined && current.participant_ids.length === 1" class="small">
+      Minst en deltagare behövs.
     </p>
     <p v-if="error" class="notice" role="alert">{{ error }}</p>
     <div v-if="!occurrence.school && canWrite" class="form-actions">
       <button
         class="secondary-button"
         :disabled="saving"
-        @click="openEdit(occurrence)"
+        @click="openEdit({ ...occurrence, activity: current })"
       >
-        Redigera</button
+        {{ activity.recurrence ? 'Redigera hela serien' : 'Redigera' }}</button
+      ><button
+        v-if="activity.recurrence"
+        class="secondary-button"
+        :disabled="saving"
+        @click="openEdit({ ...occurrence, activity: current }, true)"
+      >
+        Redigera detta tillfälle</button
       ><button
         v-if="activity.recurrence"
         class="secondary-button"
         :disabled="saving"
         @click="skip"
       >
-        Undanta {{ occurrence.date }}</button
+        Radera detta tillfälle</button
       ><button class="danger-button" :disabled="saving" @click="confirm = true">
         Radera
       </button>
@@ -147,8 +183,5 @@ async function skip() {
         Behåll
       </button>
     </div>
-    <p class="small">
-      Kalendern delas endast med registrerade familjemedlemmar.
-    </p>
   </dialog>
 </template>

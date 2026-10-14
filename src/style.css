@@ -5,8 +5,8 @@
     BlinkMacSystemFont,
     'Segoe UI',
     sans-serif;
-  color: #253e37;
-  background: #f7f6f2;
+  color: var(--text);
+  background: var(--background);
   font-synthesis: none;
   font-weight: 400;
   line-height: 1.55;
@@ -66,7 +66,7 @@ h3 {
   font-weight: 600;
 }
 p {
-  color: #747b75;
+  color: var(--muted);
   font-size: 14px;
 }
 button {
@@ -84,8 +84,8 @@ svg {
   position: fixed;
   inset: 0 auto 0 0;
   width: 236px;
-  background: #fdfcf9;
-  border-right: 1px solid #e6e8df;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
   padding: 39px 25px;
   display: flex;
   flex-direction: column;
@@ -107,8 +107,8 @@ svg {
   place-items: center;
   width: 38px;
   height: 38px;
-  background: #204f46;
-  color: white;
+  background: var(--accent);
+  color: var(--surface);
   border-radius: 12px;
 }
 .eyebrow {
@@ -116,7 +116,7 @@ svg {
   letter-spacing: 1.9px;
   font-weight: 700;
   text-transform: uppercase;
-  color: #7c877e;
+  color: var(--muted);
 }
 .sidebar-label {
   margin: 23px 0 38px;
@@ -135,11 +135,11 @@ svg {
   padding: 13px 15px;
   border-radius: 10px;
   font-size: 14px;
-  color: #758078;
+  color: var(--muted);
 }
 .sidebar nav a.router-link-exact-active {
-  color: #204f46;
-  background: #e9efe7;
+  color: var(--accent);
+  background: var(--surface-raised);
   font-weight: 650;
 }
 .sidebar-bottom {
@@ -158,7 +158,7 @@ svg {
   width: 31px;
   height: 31px;
   font-size: 12px;
-  border: 3px solid #fdfcf9;
+  border: 3px solid var(--surface);
   margin-left: -3px;
 }
 .avatar {
@@ -197,7 +197,7 @@ svg {
 }
 .desktop-welcome {
   font-size: 12px;
-  color: #90958c;
+  color: var(--muted);
 }
 .current-profile {
   display: flex;
@@ -207,7 +207,7 @@ svg {
 }
 .current-profile > svg {
   margin-left: 10px;
-  color: #90978e;
+  color: var(--muted);
 }
 .small-avatar {
   height: 32px;
@@ -243,24 +243,24 @@ main {
   border-radius: 20px;
   padding: 5px 11px;
   font-size: 10px;
-  color: #7d8976;
+  color: var(--muted);
   white-space: nowrap;
 }
 .phase-tag {
-  background: #efefe5;
+  background: var(--surface-raised);
 }
 .welcome-card {
   position: relative;
   overflow: hidden;
   min-height: 285px;
   border-radius: 18px;
-  background: #e9eddf;
+  background: var(--surface-raised);
   padding: 34px 36px;
   display: flex;
   justify-content: space-between;
 }
 .welcome-card .eyebrow {
-  color: #79886c;
+  color: var(--muted);
 }
 .welcome-card h2 {
   font-size: 32px;
@@ -270,7 +270,7 @@ main {
 }
 .welcome-card p {
   font-size: 13px;
-  color: #78826e;
+  color: var(--muted);
 }
 .welcome-card a {
   display: inline-flex;
@@ -382,7 +382,7 @@ main {
 }
 .section-title > span {
   font-size: 11px;
-  color: #999e93;
+  color: var(--muted);
 }
 .overview {
   display: grid;
@@ -390,7 +390,7 @@ main {
   gap: 16px;
 }
 .overview-card {
-  background: #fffefa;
+  background: var(--surface);
   border: 1px solid #e6e7de;
   border-radius: 13px;
   padding: 20px;
@@ -419,7 +419,7 @@ main {
   align-items: center;
   justify-content: space-between;
   font-size: 10px;
-  color: #929b88;
+  color: var(--muted);
 }
 .home-grid {
   display: grid;
@@ -428,7 +428,7 @@ main {
   margin-top: 22px;
 }
 .panel {
-  background: #fffefa;
+  background: var(--surface);
   border: 1px solid #e6e7de;
   border-radius: 14px;
 }
@@ -447,7 +447,7 @@ main {
   gap: 8px;
   align-items: center;
   font-size: 11px;
-  color: #7b8973;
+  color: var(--muted);
 }
 .empty {
   text-align: center;
@@ -458,7 +458,7 @@ main {
   place-items: center;
   height: 57px;
   width: 57px;
-  background: #f2f4ec;
+  background: var(--surface-raised);
   color: #9aa98c;
   border-radius: 50%;
   margin-bottom: 15px;
@@ -492,7 +492,7 @@ main {
   margin: 22px 23px 16px;
 }
 .family-bubbles .avatar {
-  border: 3px solid #fffefa;
+  border: 3px solid var(--surface);
   margin-right: -6px;
   height: 41px;
   width: 41px;
@@ -510,7 +510,7 @@ main {
   display: flex;
   align-items: center;
   gap: 14px;
-  background: #eeeee6;
+  background: var(--surface-raised);
   border-radius: 11px;
   padding: 18px 20px;
   margin-top: 25px;
@@ -552,8 +552,8 @@ footer span {
   align-items: center;
   gap: 8px;
   border-radius: 30px;
-  background: #204f46;
-  color: white;
+  background: var(--accent);
+  color: var(--surface);
   box-shadow: 0 6px 20px #204f4626;
   padding: 14px 19px;
   font-size: 12px;
@@ -579,15 +579,15 @@ footer span {
   align-items: center;
   gap: 17px;
   text-align: left;
-  background: #fffefa;
+  background: var(--surface);
   border: 1px solid #e0e5d9;
   padding: 15px;
   border-radius: 14px;
   min-height: 68px;
 }
 .profile-options button[aria-pressed='true'] {
-  border-color: #204f46;
-  background: #eef2e7;
+  border-color: var(--accent);
+  background: var(--surface-raised);
 }
 .profile-options button > span:last-child:not(.avatar) {
   margin-left: auto;
@@ -617,14 +617,14 @@ dl > div {
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  border-bottom: 1px solid #eeeee6;
+  border-bottom: 1px solid var(--surface-raised);
   padding: 16px 0;
   font-size: 13px;
 }
 dd {
   margin: 0;
   text-align: right;
-  color: #7b8577;
+  color: var(--muted);
 }
 .tabs {
   display: flex;
@@ -637,8 +637,8 @@ dd {
   padding: 12px 22px;
 }
 .tabs button[aria-pressed='true'] {
-  background: #204f46;
-  color: white;
+  background: var(--accent);
+  color: var(--surface);
 }
 .section-panel {
   min-height: 330px;
@@ -660,8 +660,8 @@ select {
   border: 1px solid #dce2d5;
   padding: 10px;
   border-radius: 8px;
-  background: #fffefa;
-  color: #344f43;
+  background: var(--surface);
+  color: var(--accent);
 }
 dialog {
   max-width: 480px;
@@ -669,8 +669,8 @@ dialog {
   border: 1px solid #e0e5d9;
   border-radius: 20px;
   padding: 27px;
-  color: #253e37;
-  background: #fffefa;
+  color: var(--accent);
+  background: var(--surface);
   box-shadow: 0 20px 90px #183b4333;
 }
 dialog::backdrop {
@@ -696,7 +696,7 @@ dialog::backdrop {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: #f4f5ee;
+  background: var(--surface-raised);
   padding: 18px;
   border-radius: 10px;
   font-size: 14px;
@@ -719,7 +719,7 @@ dialog::backdrop {
   position: fixed;
   top: -100px;
   left: 20px;
-  background: white;
+  background: var(--surface);
   padding: 12px;
   z-index: 100;
 }
@@ -775,7 +775,7 @@ dialog::backdrop {
   .topbar {
     height: 76px;
     padding: 0 22px;
-    background: #fdfcf9;
+    background: var(--surface);
   }
   .desktop-welcome {
     display: none;
@@ -904,7 +904,7 @@ dialog::backdrop {
     right: 0;
     background: #fdfcf9f5;
     backdrop-filter: blur(12px);
-    border-top: 1px solid #e4e7dc;
+    border-top: 1px solid var(--border);
     padding: 9px 8px calc(8px + env(safe-area-inset-bottom));
     justify-content: space-around;
     z-index: 5;
@@ -921,7 +921,7 @@ dialog::backdrop {
     padding: 4px;
   }
   .bottom-nav .router-link-exact-active {
-    color: #204f46;
+    color: var(--accent);
     font-weight: 700;
   }
   .quick-add {
@@ -978,7 +978,7 @@ dialog::backdrop {
 }
 /* Calendar, Phase 1 */
 .green {
-  background: #e2eddf;
+  background: var(--surface-raised);
   color: #3c673a;
 }
 .orange {
@@ -1015,11 +1015,11 @@ dialog::backdrop {
   line-height: 1.4;
 }
 .primary-button {
-  background: #204f46;
-  color: white;
+  background: var(--accent);
+  color: var(--surface);
 }
 .secondary-button {
-  background: #fffefa;
+  background: var(--surface);
   border: 1px solid #dbe1d4;
 }
 .danger-button {
@@ -1079,7 +1079,7 @@ button:disabled {
 }
 .calendar-filters legend {
   font-size: 10px;
-  color: #78836f;
+  color: var(--muted);
   margin-bottom: 9px;
 }
 .calendar-filters > label {
@@ -1097,7 +1097,7 @@ button:disabled {
 .person-chip input {
   width: 15px;
   height: 15px;
-  accent-color: #204f46;
+  accent-color: var(--accent);
 }
 .calendar-meta {
   display: flex;
@@ -1105,7 +1105,7 @@ button:disabled {
   align-items: center;
   margin: 17px 0;
   font-size: 10px;
-  color: #77846c;
+  color: var(--muted);
 }
 .calendar-meta .primary-button {
   margin-left: auto;
@@ -1161,7 +1161,7 @@ button:disabled {
   border: 1px solid #dde3d5;
   border-radius: 12px;
   overflow: hidden;
-  background: #fffefa;
+  background: var(--surface);
 }
 .month-day {
   min-height: 140px;
@@ -1174,11 +1174,11 @@ button:disabled {
   gap: 5px;
 }
 .month-day.other-month {
-  background: #f0f0e9;
+  background: var(--surface-raised);
 }
 .month-day.is-today .day-label {
-  background: #204f46;
-  color: white;
+  background: var(--accent);
+  color: var(--surface);
   border-radius: 20px;
 }
 .day-label {
@@ -1200,7 +1200,7 @@ button:disabled {
   overflow-x: auto;
   border: 1px solid #dde3d5;
   border-radius: 12px;
-  background: #fffefa;
+  background: var(--surface);
   margin-bottom: 13px;
   max-height: 740px;
   overscroll-behavior: contain;
@@ -1223,7 +1223,7 @@ button:disabled {
   text-align: center;
   font-size: 12px;
   width: 100%;
-  background: #f3f5ed;
+  background: var(--surface-raised);
   border-bottom: 1px solid #e0e5d8;
   position: sticky;
   top: 0;
@@ -1247,7 +1247,7 @@ button:disabled {
   font-size: 8px;
   justify-content: center;
   align-items: center;
-  color: #7f8c74;
+  color: var(--muted);
 }
 .all-day-events > button:last-child {
   min-height: 25px;
@@ -1261,7 +1261,7 @@ button:disabled {
   position: absolute;
   font-size: 9px;
   right: 6px;
-  color: #89937f;
+  color: var(--muted);
 }
 .time-slots {
   height: 1440px;
@@ -1275,7 +1275,7 @@ button:disabled {
   border-radius: 0;
 }
 .time-slot:hover:not(:disabled) {
-  background: #f1f5ea;
+  background: var(--surface-raised);
 }
 .positioned-event {
   position: absolute;
@@ -1316,9 +1316,9 @@ button:disabled {
   width: 100%;
   padding: 11px;
   border: 1px solid #d8e0d1;
-  background: #fffefb;
+  background: var(--surface);
   border-radius: 8px;
-  color: #253e37;
+  color: var(--accent);
   font: inherit;
   font-size: 16px;
   margin: 0;
@@ -1339,7 +1339,7 @@ button:disabled {
   height: 20px;
   width: 20px;
   flex-shrink: 0;
-  accent-color: #204f46;
+  accent-color: var(--accent);
 }
 .event-dialog fieldset {
   border: 1px solid #d8e0d1;
@@ -1413,7 +1413,7 @@ td {
 th {
   position: sticky;
   top: 0;
-  background: #f1f4e9;
+  background: var(--surface-raised);
 }
 .upcoming-events {
   display: grid;
@@ -1672,10 +1672,10 @@ th {
   padding: 15px;
   border: 1px solid #cdd9c6;
   border-radius: 9px;
-  background: #fffefa;
+  background: var(--surface);
 }
 .code-registration input[type='radio'] {
-  accent-color: #204f46;
+  accent-color: var(--accent);
   width: 16px;
   height: 16px;
 }
@@ -1716,9 +1716,9 @@ th {
   min-height: 44px;
 }
 .list-filters button[aria-pressed='true'] {
-  color: white;
-  background: #204f46;
-  border-color: #204f46;
+  color: var(--surface);
+  background: var(--accent);
+  border-color: var(--accent);
 }
 .list-row {
   display: flex;
@@ -1759,7 +1759,7 @@ th {
 .priority-tag {
   border-radius: 99px;
   padding: 3px 8px;
-  background: #f1f2ec;
+  background: var(--surface-raised);
 }
 .priority-tag.high {
   background: #fce9e2;
@@ -1771,25 +1771,25 @@ th {
   border-radius: 12px;
   width: 44px;
   height: 44px;
-  background: #fff;
+  background: var(--surface);
   display: grid;
   place-items: center;
 }
 .check-item.checked {
-  background: #204f46;
-  color: white;
-  border-color: #204f46;
+  background: var(--accent);
+  color: var(--surface);
+  border-color: var(--accent);
 }
 .is-done h3 {
   text-decoration: line-through;
-  color: #6a766e;
+  color: var(--muted);
 }
 .row-edit {
   border: 0;
   background: transparent;
   min-height: 44px;
   min-width: 44px;
-  color: #53665b;
+  color: var(--muted);
   display: grid;
   place-items: center;
 }
@@ -1815,7 +1815,7 @@ th {
   padding: 11px;
   border: 1px solid #ccd4c8;
   border-radius: 10px;
-  background: #fff;
+  background: var(--surface);
   font: inherit;
   font-size: 16px;
 }
@@ -1844,7 +1844,7 @@ th {
 .people-checks input {
   width: 20px;
   min-height: 20px;
-  accent-color: #204f46;
+  accent-color: var(--accent);
 }
 .list-editor {
   width: min(540px, calc(100% - 24px));
@@ -1930,7 +1930,7 @@ button:disabled {
   height: calc(var(--chat-viewport, 100dvh) - 190px);
   min-height: 300px;
   max-height: 1000px;
-  background: #fff;
+  background: var(--surface);
   border: 1px solid #e3e7dc;
   border-radius: 22px;
   overflow: hidden;
@@ -1970,7 +1970,7 @@ button:disabled {
   max-width: 85%;
   padding: 12px 15px 8px;
   border-radius: 17px 17px 17px 3px;
-  background: #edf4ed;
+  background: var(--surface-raised);
   min-width: 95px;
 }
 .chat-message.is-own .chat-bubble {
@@ -2008,7 +2008,7 @@ button:disabled {
   justify-content: flex-end;
   gap: 7px;
   font-size: 0.68rem;
-  color: #667363;
+  color: var(--muted);
 }
 .message-meta button {
   min-width: 38px;
@@ -2022,18 +2022,18 @@ button:disabled {
 .chat-date {
   text-align: center;
   font-size: 0.75rem;
-  color: #61735f;
+  color: var(--muted);
   margin: 18px 0;
 }
 .deleted-message {
   font-style: italic;
   font-size: 0.86rem;
-  color: #6c766a;
+  color: var(--muted);
 }
 .chat-empty {
   text-align: center;
   padding: 45px 20px;
-  color: #6b7868;
+  color: var(--muted);
 }
 .chat-composer {
   display: flex;
@@ -2041,7 +2041,7 @@ button:disabled {
   gap: 10px;
   padding: 12px 16px;
   border-top: 1px solid #e3e7dc;
-  background: #fff;
+  background: var(--surface);
 }
 .chat-composer textarea,
 .chat-edit-dialog textarea {
@@ -2083,7 +2083,7 @@ button:disabled {
 }
 .pending-message .chat-bubble {
   border: 1px dashed #aab8a2;
-  background: #f4f6ef;
+  background: var(--surface-raised);
 }
 .chat-edit-dialog {
   width: min(500px, calc(100% - 24px));
@@ -2109,7 +2109,7 @@ button:disabled {
 }
 .unread-badge {
   background: #b34332;
-  color: white;
+  color: var(--surface);
   border-radius: 99px;
   padding: 2px 6px;
   font-size: 0.66rem;
@@ -2141,5 +2141,727 @@ button:disabled {
   }
   .chat-composer {
     padding: 10px;
+  }
+}
+
+/* Phase 4.5: shared tokens, restrained color, consistent mobile shell. */
+:root {
+  color-scheme: dark;
+  --background: #111318;
+  --surface: #191c23;
+  --surface-raised: #242832;
+  --border: #343944;
+  --text: #f2f3f7;
+  --muted: #a6adbb;
+  --accent: #bfceff;
+  --accent-ink: #172447;
+  --blue: #9fc1ff;
+  --green: #a3ddba;
+  --orange: #ffc08d;
+  --blue-bg: #24344c;
+  --green-bg: #253c32;
+  --orange-bg: #443329;
+  --danger: #ffb5b1;
+  --danger-bg: #452a30;
+  --header-height: calc(66px + env(safe-area-inset-top, 0px));
+}
+:root[data-theme='light'] {
+  color-scheme: light;
+  --background: #f5f6f8;
+  --surface: #fff;
+  --surface-raised: #eceff5;
+  --border: #d7dce6;
+  --text: #1c2230;
+  --muted: #596477;
+  --accent: #344f9c;
+  --accent-ink: #fff;
+  --blue: #294e91;
+  --green: #21633c;
+  --orange: #874719;
+  --blue-bg: #e6edff;
+  --green-bg: #e3f2e8;
+  --orange-bg: #fff0e0;
+  --danger: #9e2934;
+  --danger-bg: #ffe9ec;
+}
+body {
+  color: var(--text);
+  background: var(--background);
+}
+h1 {
+  font-size: clamp(28px, 5vw, 38px);
+  letter-spacing: -1.2px;
+  font-weight: 750;
+}
+p,
+.small,
+.eyebrow {
+  color: var(--muted);
+}
+.workspace {
+  margin-left: 0;
+}
+.topbar {
+  height: var(--header-height);
+  padding: env(safe-area-inset-top, 0px)
+    max(20px, env(safe-area-inset-right, 0px)) 0
+    max(20px, env(safe-area-inset-left, 0px));
+  background: var(--background);
+  border: 0;
+}
+.mobile-brand {
+  display: block;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+.mobile-brand span {
+  color: var(--accent);
+}
+.desktop-welcome {
+  margin-left: 24px;
+  margin-right: auto;
+  color: var(--muted);
+  font-size: 12px;
+}
+.current-profile {
+  margin-left: auto;
+  min-height: 44px;
+  gap: 8px;
+}
+.current-profile > span:not(.avatar) {
+  display: inline;
+}
+.main-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: 100%;
+  padding: env(safe-area-inset-top, 0px)
+    max(12px, env(safe-area-inset-right, 0px)) 0
+    max(12px, env(safe-area-inset-left, 0px));
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
+}
+.main-tabs a {
+  position: relative;
+  min-height: 62px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 650;
+  border-bottom: 3px solid transparent;
+  transition:
+    color 0.16s,
+    border-color 0.16s;
+}
+.main-tabs a.active-tab {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.main-tabs .unread-badge {
+  position: absolute;
+  right: 8px;
+  top: 4px;
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+main {
+  max-width: 1200px;
+  margin: auto;
+  padding: 24px 32px 110px;
+}
+.page-heading {
+  margin: 22px 0;
+  align-items: center;
+}
+.page-heading .eyebrow,
+.chat-heading .eyebrow {
+  font-size: 10px;
+  letter-spacing: 1.7px;
+}
+.page-heading p {
+  margin-top: 8px;
+}
+.panel,
+dialog,
+.chat-view {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: none;
+  border-radius: 20px;
+}
+.panel {
+  padding: 24px;
+}
+dialog {
+  width: min(620px, calc(100vw - 24px));
+  max-height: calc(100dvh - 32px);
+  padding: 24px;
+}
+dialog::backdrop {
+  background: #080a10bd;
+  backdrop-filter: blur(5px);
+}
+.dialog-head {
+  margin-bottom: 20px;
+}
+.dialog-head button,
+.row-edit {
+  min-width: 44px;
+  min-height: 44px;
+}
+input,
+select,
+textarea {
+  background: var(--background);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font: inherit;
+}
+input:not([type='checkbox']):not([type='radio']),
+select,
+textarea {
+  min-height: 46px;
+  padding: 11px 12px;
+}
+input[type='checkbox'] {
+  accent-color: var(--accent);
+  width: 18px;
+  height: 18px;
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+fieldset {
+  border-color: var(--border);
+  border-radius: 12px;
+}
+legend,
+label {
+  color: var(--text);
+}
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+button {
+  transition:
+    background 0.15s,
+    transform 0.15s;
+}
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+button:disabled {
+  opacity: 0.5;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.primary-button,
+.quick-add {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-radius: 12px;
+  min-height: 46px;
+  box-shadow: none;
+}
+.secondary-button {
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  min-height: 44px;
+}
+.danger-button,
+.overdue {
+  color: var(--danger);
+}
+.danger-button {
+  background: var(--danger-bg);
+  border-radius: 12px;
+  min-height: 44px;
+}
+.notice,
+.public-warning {
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.tabs,
+.list-filters {
+  background: var(--surface-raised);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+  display: flex;
+}
+.tabs button,
+.list-filters button {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  color: var(--muted);
+  border-radius: 9px;
+  font-size: 14px;
+  padding: 8px;
+}
+.tabs button[aria-pressed='true'],
+.list-filters button[aria-pressed='true'] {
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: 0 1px 4px #0002;
+  border-color: transparent;
+}
+.list-filters button span {
+  display: inline-block;
+  font-size: 11px;
+  margin-left: 3px;
+  opacity: 0.8;
+}
+.calendar-view-tabs {
+  margin: -24px -32px 0;
+  padding: 12px 32px;
+  background: var(--background);
+}
+.calendar-view-tabs .tabs {
+  max-width: 440px;
+  margin: auto;
+}
+.calendar-controls {
+  justify-content: center;
+}
+.calendar-period {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.calendar-period h2 {
+  font-size: 18px;
+}
+.calendar-period button {
+  min-width: 44px;
+  min-height: 44px;
+}
+.calendar-filters {
+  gap: 12px;
+  align-items: end;
+}
+.calendar-filters fieldset {
+  flex-wrap: wrap;
+}
+.person-chip,
+.check-label {
+  min-height: 44px;
+  align-items: center;
+}
+.blue,
+.person-chip.blue,
+.avatar.blue {
+  color: var(--blue);
+  background: var(--blue-bg);
+}
+.green,
+.person-chip.green,
+.avatar.green {
+  color: var(--green);
+  background: var(--green-bg);
+}
+.orange,
+.person-chip.orange,
+.avatar.orange {
+  color: var(--orange);
+  background: var(--orange-bg);
+}
+.person-dot.blue {
+  background: var(--blue);
+}
+.person-dot.green {
+  background: var(--green);
+}
+.person-dot.orange {
+  background: var(--orange);
+}
+.timeline-scroll,
+.month-grid {
+  background: var(--surface);
+  border-color: var(--border);
+  border-radius: 16px;
+}
+.timeline-day-heading,
+.all-day-events,
+.all-day-label {
+  background: var(--surface-raised);
+  border-color: var(--border);
+}
+.timeline-column,
+.time-gutter,
+.time-slot,
+.month-day {
+  border-color: var(--border);
+}
+.timeline-column.is-today .timeline-day-heading,
+.month-day.is-today .day-label {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.month-day.is-today {
+  background: var(--surface-raised);
+}
+.calendar-event {
+  border-radius: 8px;
+  border-left: 3px solid currentColor;
+  box-shadow: none;
+}
+.calendar-event .event-persons span {
+  color: inherit;
+  background: transparent;
+}
+.calendar-event .event-time {
+  color: inherit;
+  opacity: 0.85;
+}
+.calendar-event .event-location {
+  color: inherit;
+}
+.quick-add {
+  position: fixed;
+  bottom: max(22px, env(safe-area-inset-bottom, 0px));
+  right: max(22px, env(safe-area-inset-right, 0px));
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border-radius: 19px;
+  z-index: 35;
+  box-shadow: 0 6px 24px #0003;
+}
+.quick-add span {
+  display: none;
+}
+.list-panel {
+  margin-top: 18px;
+}
+.list-row {
+  border-color: var(--border);
+  padding: 18px 0;
+  gap: 14px;
+}
+.task-row {
+  background: transparent;
+}
+.check-item {
+  background: var(--background);
+  border: 2px solid var(--border);
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+}
+.check-item.checked {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+}
+.list-meta {
+  gap: 8px;
+  margin-top: 8px;
+  color: var(--muted);
+}
+.priority-tag {
+  color: var(--muted);
+  background: var(--surface-raised);
+  border-radius: 6px;
+}
+.priority-tag.high {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.self-assign {
+  color: var(--accent);
+  min-height: 44px;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 650;
+}
+.shopping-quick {
+  background: var(--surface-raised);
+  border-color: var(--border);
+  border-radius: 14px;
+}
+.locked-profile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.chat-view {
+  height: calc(
+    var(--chat-viewport, 100dvh) - var(--header-height) - 100px -
+      env(safe-area-inset-top, 0px)
+  );
+  min-height: 280px;
+  margin-top: 0;
+}
+.chat-heading {
+  border-color: var(--border);
+  padding: 18px 20px;
+}
+.chat-heading h1 {
+  font-size: 24px;
+}
+.chat-heading p {
+  margin-top: 4px;
+}
+.chat-bubble {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 18px 18px 18px 5px;
+}
+.chat-message.is-own .chat-bubble {
+  border-radius: 18px 18px 5px 18px;
+}
+.chat-message.green .chat-bubble {
+  background: var(--green-bg);
+}
+.chat-message.blue .chat-bubble {
+  background: var(--blue-bg);
+}
+.chat-message.orange .chat-bubble {
+  background: var(--orange-bg);
+}
+.chat-message {
+  background: transparent;
+}
+.chat-sender {
+  color: var(--text);
+}
+.chat-message.green .chat-sender {
+  color: var(--green);
+}
+.chat-message.blue .chat-sender {
+  color: var(--blue);
+}
+.chat-message.orange .chat-sender {
+  color: var(--orange);
+}
+.message-body {
+  color: var(--text);
+}
+.message-body a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+.message-meta,
+.chat-date {
+  color: var(--muted);
+}
+.message-meta button {
+  min-width: 36px;
+  min-height: 36px;
+}
+.chat-composer {
+  background: var(--surface);
+  border-color: var(--border);
+  padding: 12px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+}
+.chat-composer textarea {
+  background: var(--background);
+  border-radius: 14px;
+}
+.chat-composer button {
+  border-radius: 14px;
+}
+body:has(.chat-view) .quick-add {
+  display: none;
+}
+@media (max-width: 760px) {
+  .topbar {
+    position: static;
+    height: var(--header-height);
+  }
+  .desktop-welcome {
+    display: none;
+  }
+  main {
+    padding: 16px 16px 100px;
+  }
+  .main-tabs a {
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    min-height: 62px;
+  }
+  .calendar-view-tabs {
+    margin: -16px -16px 0;
+    padding: 12px 16px;
+  }
+  .page-heading {
+    gap: 12px;
+    margin: 16px 0 22px;
+  }
+  .calendar-page-heading {
+    flex-direction: row;
+    align-items: center;
+  }
+  .calendar-page-heading > button {
+    font-size: 11px;
+    padding: 8px;
+  }
+  .page-heading .tag {
+    display: none;
+  }
+  .panel {
+    padding: 16px;
+    border-radius: 16px;
+  }
+  .calendar-period h2 {
+    font-size: 15px;
+  }
+  .calendar-filters fieldset {
+    gap: 6px;
+  }
+  .person-chip {
+    font-size: 12px;
+    padding: 6px 9px;
+  }
+  .calendar-meta {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .chat-view {
+    height: calc(
+      var(--chat-viewport, 100dvh) - var(--header-height) - 94px -
+        env(safe-area-inset-top, 0px)
+    );
+    margin: 0 -8px;
+  }
+  body:has(.chat-view) main {
+    padding-bottom: 0;
+  }
+  .chat-heading {
+    padding: 12px;
+  }
+  .chat-heading > span {
+    max-width: 105px;
+    text-align: right;
+    font-size: 11px;
+  }
+  .chat-heading .eyebrow {
+    display: none;
+  }
+  .chat-timeline {
+    padding: 12px;
+  }
+  .list-row {
+    gap: 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+.overview-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.overview-strip > a {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 13px;
+}
+.overview-strip span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.overview-strip strong {
+  color: var(--text);
+}
+.overview-strip small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  margin-top: 4px;
+}
+.calendar-view-tabs {
+  position: sticky;
+  top: calc(65px + env(safe-area-inset-top, 0px));
+  z-index: 29;
+  border-bottom: 1px solid var(--border);
+}
+@media (max-width: 760px) {
+  .overview-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+  .overview-strip > a:last-child {
+    grid-column: 1 / -1;
+  }
+}
+.tabs button,
+.list-filters button {
+  border: 0;
+}
+.calendar-page-heading p {
+  display: none;
+}
+.calendar-meta > span {
+  font-size: 11px;
+}
+@media (max-width: 760px) {
+  .calendar-meta {
+    flex-wrap: nowrap;
+  }
+  .calendar-meta .primary-button {
+    margin-left: auto;
+    padding: 10px;
+    font-size: 12px;
+  }
+  .overview-strip {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+  }
+  .overview-strip > a {
+    padding: 10px;
+    gap: 6px;
+    font-size: 11px;
+  }
+  .overview-strip > a:last-child {
+    grid-column: auto;
+  }
+  .overview-strip > a svg {
+    width: 16px;
+  }
+  .overview-strip small {
+    font-size: 10px;
   }
 }

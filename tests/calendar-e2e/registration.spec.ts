@@ -82,17 +82,23 @@ test('register by selected profile and code, then restore session and preserve i
   await page.getByRole('radio', { name: 'Neo', exact: true }).check()
   await page.getByLabel('Personlig engångskod').fill('0123-4567-89AB-CDEF')
   await page.getByRole('button', { name: 'Registrera med engångskod' }).click()
-  await expect(page.getByRole('heading', { name: /Hej Neo/ })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Kalender', exact: true }),
+  ).toBeVisible()
   const before = await page.evaluate(
     () =>
       JSON.parse(localStorage.getItem('familjen.supabase.session')!)
         .refresh_token,
   )
   await page.reload()
-  await expect(page.getByRole('heading', { name: /Hej Neo/ })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Kalender', exact: true }),
+  ).toBeVisible()
   await page.goto('./recover/')
   await page.getByRole('button', { name: 'Återställ appens cache' }).click()
-  await expect(page.getByRole('heading', { name: /Hej Neo/ })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Kalender', exact: true }),
+  ).toBeVisible()
   expect(
     await page.evaluate(
       () =>
