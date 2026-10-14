@@ -125,8 +125,13 @@ export function startChat(injected?: ChatRepository) {
   void refreshChat()
   unsubscribe = repository.subscribe(
     (message) => {
-      if (message && loaded)
+      if (message && loaded) {
         messages.value = mergeMessages(messages.value, [message])
+        // Realtime may confirm delivery before the RPC response reaches this device.
+        pendingMessages.value = pendingMessages.value.filter(
+          (p) => p.request !== message.client_request_id,
+        )
+      }
       void refreshChat()
     },
     (status) => {

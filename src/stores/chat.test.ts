@@ -97,3 +97,32 @@ it('blocks double send of the same in-flight request', async () => {
   resolve(message)
   await first
 })
+
+it('removes pending bubble when Realtime confirms before a lost RPC acknowledgement', async () => {
+  repository.page = vi.fn().mockResolvedValue([])
+  repository.summary = vi
+    .fn()
+    .mockResolvedValue({ ...summary, last_message: null, unread: 0 })
+  let incoming!: (message: ChatMessage | null) => void
+  repository.subscribe = vi.fn().mockImplementation((callback) => {
+    incoming = callback
+    return vi.fn()
+  })
+  startChat(repository)
+  await openChat()
+  let reject!: (error: Error) => void
+  repository.send = vi.fn().mockImplementation(
+    () =>
+      new Promise((_, r) => {
+        reject = r
+      }),
+  )
+  const pending = sendMessage('Hej', 'r')
+  expect(pendingMessages.value).toHaveLength(1)
+  incoming(message)
+  expect(pendingMessages.value).toEqual([])
+  expect(messages.value.filter((m) => m.id === message.id)).toHaveLength(1)
+  reject(new Error('Response lost'))
+  await pending
+  expect(pendingMessages.value).toEqual([])
+})

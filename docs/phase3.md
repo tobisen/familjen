@@ -10,7 +10,7 @@ Startsidan visar senaste kvarvarande meddelandet, avsändare och antal olästa. 
 
 Enter skickar på dator, Shift+Enter ger radbrytning och IME-komposition skickar aldrig av misstag. På pekskärm ger Enter radbrytning och skicka-knappen används. `visualViewport.resize` anpassar chatthöjden när tangentbordet påverkar den synliga ytan. Automatisk scroll sker vid öppning och när användaren redan är nära slutet. Äldre sidors scrollposition bevaras.
 
-Misslyckade meddelanden ligger separat i minnet med tydlig felstatus och återförsök. Samma request-ID används vid återförsök, även om första skrivningen lyckades men svaret försvann. Serverns unika kombination av familj, avsändare och request-ID förhindrar dubbelsändning. En pågående identisk begäran kan inte skickas två gånger lokalt. Privata utkast/felmeddelanden sparas inte i service worker eller bestående offline-lagring och försvinner vid omladdning/utloggning. Nätverk krävs för att skicka.
+Misslyckade meddelanden ligger separat i minnet med tydlig felstatus och återförsök. Samma request-ID används vid återförsök, även om första skrivningen lyckades men svaret försvann. Serverns unika kombination av familj, avsändare och request-ID förhindrar dubbelsändning. En pågående identisk begäran kan inte skickas två gånger lokalt. Om Realtime bekräftar meddelandet före RPC-svaret tas den tillfälliga skickar-raden bort direkt; ett senare förlorat RPC-svar återinför den inte. Privata utkast/felmeddelanden sparas inte i service worker eller bestående offline-lagring och försvinner vid omladdning/utloggning. Nätverk krävs för att skicka.
 
 ## Databas och RLS
 
@@ -45,7 +45,7 @@ iOS kräver installerad PWA på iOS 16.4+ och behörighet från en aktiv använd
 
 ## Verifiering och begränsningar
 
-107 enhetstester och 40 E2E (30 appfunktioner + 10 PWA/appskal) passerar, tillsammans med lint, typecheck och build. Nya SQL-tester verifierar CRUD, ägarskap, versionskonflikt, cursorpaginering, läsmarkering, familjeisolering, idempotens och privat notiskö. Domän-/storetester täcker XSS-säker text/länkar, DST, tangentbord, utloggning/sena svar, återförsök och serverns notisurval. Mobil-E2E körs i Chromium och WebKit, inklusive minskad viewport, historik, olästa, edit/delete och förlorat serversvar.
+108 enhetstester och 40 E2E (30 appfunktioner + 10 PWA/appskal) passerar, tillsammans med lint, typecheck och build. Nya SQL-tester verifierar CRUD, ägarskap, versionskonflikt, cursorpaginering, läsmarkering, familjeisolering, idempotens och privat notiskö. Domän-/storetester täcker XSS-säker text/länkar, DST, tangentbord, utloggning/sena svar, återförsök och serverns notisurval. Mobil-E2E körs i Chromium och WebKit, inklusive minskad viewport, historik, olästa, edit/delete och förlorat serversvar.
 
 Riktig Supabase-verifiering via `scripts/live-chat.mjs` omfattar tre separata sessioner för Tobias, Neo och Sally, nya meddelanden, egna/andras placering, redigering/radering, lässtatus, samtidiga sändningar, dubbelsändning, offline/återanslutning, session efter omladdning och nekad anonym åtkomst. `scripts/live-chat-rls.mjs` verifierar annan familj och oregistrerad Auth-användare. Dessa verifieringar körs sekventiellt så att syntetiska meddelanden inte stör varandras exakta olästa-räkning. Administrativ städning tar bara bort testernas exakta request-ID:n och temporära testidentiteter. Tokens lämnas via stdin och loggas inte.
 
