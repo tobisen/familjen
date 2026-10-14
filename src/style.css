@@ -3081,3 +3081,12 @@ body:has(.chat-view) .quick-add {
   font-size: 11px;
   color: var(--muted);
 }
+.family-map .leaflet-control-attribution {
+  margin: 0 max(8px, env(safe-area-inset-right, 0px))
+    max(5px, env(safe-area-inset-bottom, 0px)) 0;
+  border-radius: 4px;
+}
+.map-actions {
+  top: max(12px, env(safe-area-inset-top, 0px));
+  right: max(12px, env(safe-area-inset-right, 0px));
+}

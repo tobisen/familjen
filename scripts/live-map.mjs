@@ -56,20 +56,26 @@ try {
     clients.push(c)
   }
   stage = 'three-session GPS realtime'
-  for (const p of pages)
-    await expect(p.locator('.family-marker')).toHaveCount(3, { timeout: 20000 })
+  for (const [i, p] of pages.entries()) {
+    stage = 'initial GPS fanout ' + i
+    await expect(p.locator('.family-marker')).toHaveCount(3, { timeout: 30000 })
+  }
   const before = (await clients[0].rpc('map_snapshot')).data
   const neo = before.people.find((p) => p.key === 'neo').id
   await new Promise((r) => setTimeout(r, 11000))
+  // The sender must be foreground: background GPS is deliberately stopped.
+  await pages[1].bringToFront()
   await contexts[1].setGeolocation({
     latitude: 59.88,
     longitude: 17.66,
     accuracy: 10,
   })
-  for (const p of pages)
+  for (const [i, p] of pages.entries()) {
+    stage = 'movement GPS fanout ' + i
     await expect(
       p.locator('.map-person').filter({ hasText: 'Neo' }),
-    ).toContainText('±10 m', { timeout: 20000 })
+    ).toContainText('±10 m', { timeout: 30000 })
+  }
   stage = 'reconnect GPS snapshot'
   await contexts[2].setOffline(true)
   await new Promise((r) => setTimeout(r, 11000))

@@ -1,8 +1,13 @@
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { createMapRepository, type MapRepository } from '../data/mapRepository'
-import { startGeolocation, stopGeolocation } from '../services/geolocation'
+import {
+  startGeolocation,
+  stopGeolocation,
+  geoPermission,
+} from '../services/geolocation'
 import {
   shouldReport,
+  validSample,
   type Sample,
   type MapSnapshot,
   type HelpDelivery,
@@ -57,38 +62,103 @@ export async function reloadMap(): Promise<void> {
     if (loading === p) loading = null
   }
 }
-export async function publishPosition(s: Sample) {
-  lastSample.value = s
+let pendingSample: Sample | null = null
+let reportTimer: ReturnType<typeof setTimeout> | null = null
+watch(
+  geoPermission,
+  (permission) => {
+    if (permission !== 'granted') {
+      pendingSample = null
+      if (reportTimer) clearTimeout(reportTimer)
+      reportTimer = null
+    }
+  },
+  { flush: 'sync' },
+)
+function queueSample(s: Sample) {
+  if (!pendingSample || pendingSample.timestamp < s.timestamp) pendingSample = s
+}
+function scheduleReport(delay: number) {
+  if (
+    document.visibilityState !== 'visible' ||
+    geoPermission.value !== 'granted'
+  ) {
+    pendingSample = null
+    return
+  }
+  if (reportTimer) clearTimeout(reportTimer)
+  const token = generation
+  reportTimer = setTimeout(() => {
+    reportTimer = null
+    if (token === generation) void drainPositions()
+  }, delay)
+}
+async function drainPositions(): Promise<void> {
   if (
     !repository ||
     busy ||
+    !pendingSample ||
     !navigator.onLine ||
-    document.visibilityState !== 'visible' ||
-    !shouldReport(s, previous, lastSent)
+    geoPermission.value !== 'granted' ||
+    document.visibilityState !== 'visible'
   )
     return
+  const s = pendingSample,
+    now = Date.now()
+  if (!validSample(s, now) || (previous && s.timestamp <= previous.timestamp)) {
+    pendingSample = null
+    return
+  }
+  if (!shouldReport(s, previous, lastSent, now)) {
+    const wait = Math.max(0, lastSent + 10000 - now)
+    if (wait > 0 && shouldReport(s, previous, lastSent, now + wait + 1))
+      scheduleReport(wait + 1)
+    else pendingSample = null
+    return
+  }
   const r = repository,
-    token = generation
+    token = generation,
+    sentAt = Date.now()
+  pendingSample = null
   busy = true
   try {
     const result = await r.report(s)
     if (token !== generation) return
     if (result.accepted) {
       previous = s
-      lastSent = Date.now()
+      lastSent = sentAt
+      mapError.value = ''
       await reloadMap()
+    } else {
+      queueSample(s)
+      scheduleReport(10000)
     }
-    mapError.value = ''
   } catch {
-    if (token === generation)
+    if (token === generation) {
+      queueSample(s)
       mapError.value =
         'Positionen kunde inte skickas. Den gamla positionens tid behålls tills en ny uppdatering lyckas.'
+      scheduleReport(10000)
+    }
   } finally {
-    if (token === generation) busy = false
+    if (token === generation) {
+      busy = false
+      if (pendingSample && !reportTimer) void drainPositions()
+    }
   }
+}
+export async function publishPosition(s: Sample) {
+  if (!repository || !validSample(s)) return
+  if (!lastSample.value || s.timestamp >= lastSample.value.timestamp)
+    lastSample.value = s
+  queueSample(s)
+  await drainPositions()
 }
 export function stopMap() {
   generation++
+  if (reportTimer) clearTimeout(reportTimer)
+  reportTimer = null
+  pendingSample = null
   unsubscribe?.()
   unsubscribe = null
   repository = null
@@ -157,8 +227,16 @@ export async function refreshHelpStatus() {
 if (typeof window !== 'undefined') {
   window.addEventListener('online', () => {
     void reloadMap()
+    void drainPositions()
   })
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') void reloadMap()
+    if (document.visibilityState === 'visible') {
+      void reloadMap()
+      void drainPositions()
+    } else {
+      pendingSample = null
+      if (reportTimer) clearTimeout(reportTimer)
+      reportTimer = null
+    }
   })
 }

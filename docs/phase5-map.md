@@ -25,7 +25,10 @@ Batterival: normal bevakning använder `enableHighAccuracy: false`, högst
 En ny rapport skickas vid minst 75 meters rörelse, begränsad av avläsningarnas
 noggrannhet, eller efter 60 sekunder med en ny aktuell avläsning. Klienten väntar
 minst tio sekunder mellan rapporter; servern tillåter högst en var femte sekund.
-En färsk avläsning hämtas också efter återanslutning. Hjälp använder separat
+En färsk avläsning hämtas också efter återanslutning. Senaste avläsningen
+väntar i minnet om en sändning pågår eller tidsgränsen inte passerat, så att
+rörelse inte tappas vid långsam anslutning. Kön töms bara i förgrunden och
+rensas i bakgrunden, vid nekad behörighet och vid utloggning. Hjälp använder separat
 hög noggrannhet och timeout. Gamla koordinater återstämplas aldrig som nya.
 
 ## Aktualitet
