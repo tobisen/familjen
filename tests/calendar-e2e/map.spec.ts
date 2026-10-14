@@ -158,6 +158,12 @@ test('family map shows three ages, person markers, exact times and four unchange
     path: test.info().outputPath('family-map.png'),
     fullPage: true,
   })
+  await page.evaluate(() => {
+    const original = Date.now
+    Date.now = () => original() + 20 * 60000
+    document.dispatchEvent(new Event('visibilitychange'))
+  })
+  await expect(page.locator('.position-age.stale')).toHaveCount(3)
 })
 test('foreground GPS reports own position and help requires confirmation then links from chat', async ({
   page,

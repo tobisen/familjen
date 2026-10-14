@@ -286,8 +286,14 @@ async function confirmHelp() {
     busy.value = false
   }
 }
+function refreshClock() {
+  if (document.visibilityState !== 'visible') return
+  now.value = Date.now()
+  draw()
+}
 watch([mapData, linked], draw, { deep: true })
 onMounted(() => {
+  document.addEventListener('visibilitychange', refreshClock)
   if (!element.value) return
   map = L.map(element.value, { zoomControl: false }).setView([59.86, 17.64], 11)
   L.control.zoom({ position: 'bottomleft' }).addTo(map)
@@ -309,14 +315,15 @@ onMounted(() => {
   layer = L.layerGroup().addTo(map)
   draw()
   tick = setInterval(() => {
-    now.value = Date.now()
-    draw()
+    if (document.visibilityState !== 'visible') return
+    refreshClock()
     if (helpId.value && document.visibilityState === 'visible')
       void refreshHelpStatus().catch(() => {})
   }, 10000)
 })
 onUnmounted(() => {
   alive = false
+  document.removeEventListener('visibilitychange', refreshClock)
   if (tick) clearInterval(tick)
   map?.remove()
   map = null
