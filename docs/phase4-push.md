@@ -6,7 +6,7 @@ Serverstyrda notiser för nya chattmeddelanden, skapade/ändrade/inställda akti
 
 Schemalagda påminnelser omfattar privata aktiviteter, återkommande aktiviteter och aktiverade skolscheman, inklusive luncher. Terminer och lovundantag respekteras med samma kalenderlogik som i appen. Enskilda schemaundantag hoppas över.
 
-Inga avstängningsknappar eller val för olika notistyper finns i appen. Den gamla chattinställningen är borttagen och dess RPC kan inte längre stänga av notiser. Telefonens behörighet gäller alltid. Testnotisen är ett uttryckligt undantag från regeln om egna åtgärder och skickas till den egna profilens registrerade enheter.
+Inga avstängningsknappar eller val för olika notistyper finns i appen. Den gamla förberedelseinställningen för uppgiftspåminnelser är borttagen; legacyfältet `reminder_days` styr inte de automatiska reglerna. Den gamla chattinställningen är borttagen och dess RPC kan inte längre stänga av notiser. Telefonens behörighet gäller alltid. Testnotisen är ett uttryckligt undantag från regeln om egna åtgärder och skickas till den egna profilens registrerade enheter.
 
 ## Tidsregler och standardval
 

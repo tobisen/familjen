@@ -129,6 +129,8 @@ test('tasks: mobile plus, multiple assignees, priority, filters, edit, completio
     .getByRole('button', { name: 'Redigera Tvätta träningskläder' })
     .click()
   dialog = page.getByRole('dialog')
+  await expect(page.getByText('Förbered framtida påminnelse')).toHaveCount(0)
+  await expect(page.getByLabel('Dagar före deadline')).toHaveCount(0)
   await dialog.getByLabel('Titel', { exact: true }).fill('Tvätta kläder')
   await dialog.getByRole('button', { name: 'Spara', exact: true }).click()
   await page.goto('./')

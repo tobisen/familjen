@@ -183,21 +183,11 @@ async function remove() {
             Nästa uppgift skapas när denna slutförs. Deadline följer serien,
             även om ett tillfälle blir försenat.
           </p>
-          <details>
-            <summary>Förbered framtida påminnelse</summary>
-            <label
-              >Dagar före deadline<input
-                v-model="reminder"
-                type="number"
-                min="0"
-                max="365"
-                step="1"
-                placeholder="Ingen"
-            /></label>
-            <p class="small">
-              Valet sparas. Push och påminnelser skickas ännu inte.
-            </p>
-          </details>
+          <p class="small">
+            Uppgifter med deadline påminns automatiskt klockan 08:00 svensk tid.
+            En förfallen uppgift påminns en gång nästa dag. Telefonens
+            behörighet styr leveransen.
+          </p>
         </template>
         <div v-else class="form-pair">
           <label
