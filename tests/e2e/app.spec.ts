@@ -1,4 +1,16 @@
 import { test, expect } from '@playwright/test'
+test.beforeEach(async ({ page }) => {
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'image/png',
+      body: Buffer.from(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/B9sAAAAASUVORK5CYII=',
+        'base64',
+      ),
+    }),
+  )
+})
 test('profile persists, routes work, quick add is honest', async ({ page }) => {
   await page.goto('./')
   await page.getByRole('button', { name: 'N Neo' }).click()
@@ -13,7 +25,7 @@ test('profile persists, routes work, quick add is honest', async ({ page }) => {
     ['kalender', 'Kalender'],
     ['listor', 'Att göra'],
     ['chatt', 'Chatt'],
-    ['karta', 'Karta'],
+    ['karta', 'Familjekarta'],
     ['installningar', 'Inställningar'],
   ]) {
     await page.goto(`./#/${path}`)

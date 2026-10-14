@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import HelpDeliveryStatus from '../components/HelpDeliveryStatus.vue'
 import { computed, ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { Send, ChevronDown, Pencil, Trash2, X } from 'lucide-vue-next'
 import { identity } from '../stores/auth'
@@ -211,6 +212,23 @@ onUnmounted(() => {
                 ><template v-else>{{ part.text }}</template></template
               >
             </p>
+            <p v-if="message.kind === 'help'" class="help-priority">
+              Hjälpmeddelande · hög prioritet
+            </p>
+            <RouterLink
+              v-if="
+                message.kind === 'help' &&
+                message.map_path?.startsWith('/karta')
+              "
+              :to="message.map_path"
+              class="secondary-button"
+              >Visa hjälpposition</RouterLink
+            >
+            <HelpDeliveryStatus
+              v-if="message.kind === 'help' && own(message)"
+              :message-id="message.id"
+              :created-at="message.created_at"
+            />
             <div class="message-meta">
               <time
                 :datetime="message.created_at"

@@ -79,7 +79,7 @@ Deno.serve(async (req: Request) => {
                     },
                     TTL: ttl,
                     topic: job.job.replaceAll('-', ''),
-                    urgency: 'normal',
+                    urgency: job.payload.kind === 'help' ? 'high' : 'normal',
                   },
                 )
                 const response = await fetch(details.endpoint, {

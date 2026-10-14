@@ -2,9 +2,9 @@
 
 Mobilanpassad PWA för Tobias, Neo och Sally med privat familjekalender, att göra-lista, inköpslista och familjechatt. Listorna stöder flera ansvariga, återkomst, köphistorik och Supabase Realtime. [Phase 2: funktioner, säkerhet och verifiering](docs/phase2.md).
 
-**Phase 1.5:** kalendern är åter privat. En personlig engångskod registrerar enheten; därefter sparas sessionen utan återkommande lösenord. Lokal profil är en preferens, inte autentisering. Anonym åtkomst och de gamla publika RPC:erna är borttagna. [Aktuell setup](docs/phase1-setup.md).
+**Phase 1.5:** kalendern är åter privat. En personlig återanvändbar kod registrerar enheten; därefter sparas sessionen utan återkommande lösenord. Lokal profil är en preferens, inte autentisering. Anonym åtkomst och de gamla publika RPC:erna är borttagna. [Aktuell setup](docs/phase1-setup.md).
 
-[Installation, engångskoder och starthjälp](docs/installation.md). Registreringssida: https://tobisen.github.io/familjen/register/.
+[Installation, personliga koder och starthjälp](docs/installation.md). Registreringssida: https://tobisen.github.io/familjen/register/.
 
 ## Lokal utveckling
 
@@ -74,7 +74,7 @@ Vinskåpets arbetsmetod återanvänds: rena testbara domänfunktioner, separat r
 
 ## Verifiering av riktig synk
 
-Riktig registrering, två separata sessioner, Realtime, återanslutning och hosted RLS har verifierats. Se [Phase 1.5 verifieringsrapport](docs/phase1.5-verification.md). Personliga engångskoder utfärdas med `python3 scripts/create-device-codes.py` efter publicering; filer under `private-registration/` får aldrig delas publikt.
+Riktig registrering, två separata sessioner, Realtime, återanslutning och hosted RLS har verifierats. Se [Phase 1.5 verifieringsrapport](docs/phase1.5-verification.md). Personliga återanvändbara koder utfärdas med `python3 scripts/create-device-codes.py` efter publicering; filer under `private-registration/` får aldrig delas publikt.
 
 [Phase 3: chatt, lässtatus, säkerhet och pusharkitektur](docs/phase3.md).
 
@@ -84,6 +84,11 @@ Phase 4 är implementerad med serverstyrd köhantering, mottagarval och VAPID-he
 
 [Phase 3.1: privat schemaadministration, officiella datumkällor och aktiveringsstatus](docs/phase3.1-school-schedules.md). Sallys 24 veckoposter inklusive fem luncher är aktiverade för HT 2026 och VT 2027. Höstens slutdatum 22 december är tydligt markerat preliminärt; vårterminens gränser är verifierade för årskurs 1. Neos 18 preliminära poster finns privat i Supabase men inväntar verifierade sluttider. Datum och undantag kan uppdateras i Inställningar → Hantera skolscheman.
 
-[Phase 4: pushnotiser, påminnelser och drift](docs/phase4-push.md). Serverstyrd kö, VAPID, Edge Function och minutjobb är konfigurerade. Aktivera telefonens behörighet i appen och prova Skicka testnotis. Fysisk Android-/iPhone-leverans återstår att verifiera. Nästa uppdrag är Phase 5 – Familjekarta och GPS.
+[Phase 4: pushnotiser, påminnelser och drift](docs/phase4-push.md). Serverstyrd kö, VAPID, Edge Function och minutjobb är konfigurerade. Aktivera telefonens behörighet i appen och prova Skicka testnotis. Fysisk Android-/iPhone-leverans återstår att verifiera. Familjekarta och GPS är implementerade i Phase 5.
 
 [Phase 4.5: modern design, låst profil, deltagande och osynliga chattraderingar](docs/phase4.5-design-ux.md). Mörkt tema är standard, ljust tema finns i Inställningar. Fyra fasta toppflikar ersätter bottennavigationen. Kalendern är appens startsida.
+
+[Phase 5: familjekarta, GPS, hjälp och återanvändbara personliga koder](docs/phase5-map.md).
+Kartan nås via ikonen i överkanten. GPS rapporteras när appen är synlig och har
+telefonens tillstånd. Koder kan återanvändas utan tidsgräns tills de uttryckligen
+byts. Fysisk GPS- och pushverifiering på Android/iPhone återstår.

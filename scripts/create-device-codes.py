@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Issue high-entropy, one-use codes. Admin credentials never leave memory."""
+"""Issue high-entropy, reusable codes. Admin credentials never leave memory."""
 import base64
 import hashlib
 import html
@@ -30,7 +30,7 @@ for person in people:
     code=''.join(secrets.choice('0123456789ABCDEFGHJKMNPQRSTVWXYZ') for _ in range(16))
     digest=hashlib.sha256((person+':'+code).encode()).hexdigest()
     sql="""begin;
-    update private.device_registration_codes set used_at=now() where used_at is null and profile_id=(select id from public.profiles where profile_key='%s');
+    update private.device_registration_codes set revoked_at=now() where revoked_at is null and profile_id=(select id from public.profiles where profile_key='%s');
     insert into private.device_registration_codes(code_hash,profile_id,expires_at)
     select '%s',id,'infinity'::timestamptz from public.profiles where profile_key='%s' and auth_user_id is not null;
     commit;""" % (person,digest,person)
@@ -39,7 +39,7 @@ for person in people:
         response.read()
     formatted='-'.join(code[i:i+4] for i in range(0,16,4))
     output=folder/(person+'-code.html')
-    document='<!doctype html><html lang="sv"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>Personlig engångskod</title><style>body{font:18px system-ui;max-width:500px;margin:10vh auto;padding:24px;line-height:1.6}code{font-size:22px;overflow-wrap:anywhere}</style><h1>'+person.capitalize()+'</h1><p>Din personliga engångskod:</p><p><code>'+html.escape(formatted)+'</code></p><p>Ingen tidsgräns. Gäller tills den används eller ersätts med en ny kod. Engångsbruk; dela endast med rätt person. Förvara inte filen publikt.</p><a href="https://tobisen.github.io/familjen/register/" rel="noreferrer">Öppna registreringssidan</a></html>'
+    document='<!doctype html><html lang="sv"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>Personlig inloggningskod</title><style>body{font:18px system-ui;max-width:500px;margin:10vh auto;padding:24px;line-height:1.6}code{font-size:22px;overflow-wrap:anywhere}</style><h1>'+person.capitalize()+'</h1><p>Din personliga inloggningskod:</p><p><code>'+html.escape(formatted)+'</code></p><p>Ingen tidsgräns. Kan återanvändas tills den ersätts med en ny kod. Dela endast med rätt person. Förvara inte filen publikt.</p><a href="https://tobisen.github.io/familjen/register/" rel="noreferrer">Öppna registreringssidan</a></html>'
     fd=os.open(output,os.O_WRONLY|os.O_CREAT|os.O_TRUNC,0o600)
     with os.fdopen(fd,'w') as file:file.write(document)
     os.chmod(output,0o600)

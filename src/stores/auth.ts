@@ -1,3 +1,4 @@
+import { startMap, stopMap } from './map'
 import { detachPush } from '../services/push'
 import { ref } from 'vue'
 import type { Session } from '@supabase/supabase-js'
@@ -71,6 +72,7 @@ function clearIdentity() {
   stopCalendar()
   stopLists()
   stopChat()
+  stopMap()
 }
 export async function restoreIdentity(session?: Session | null) {
   if (!supabase) return
@@ -127,6 +129,7 @@ export async function restoreIdentity(session?: Session | null) {
     startCalendar()
     startLists()
     startChat()
+    startMap()
   } catch (e) {
     if (attempt !== generation) return
     clearIdentity()

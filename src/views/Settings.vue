@@ -47,7 +47,7 @@ const capabilities = deviceCapabilities()
       </button>
     </div>
   </section>
-  <RouterLink class="secondary-button" to="/karta">Karta · kommande</RouterLink>
+  <RouterLink class="secondary-button" to="/karta">Familjekarta</RouterLink>
   <p v-if="configurationError" role="alert" class="notice">
     {{ configurationError }}
   </p>
@@ -87,7 +87,7 @@ const capabilities = deviceCapabilities()
         <dd>
           {{
             capabilities.geolocation
-              ? 'Se enhetens behörighetsstatus nedan'
+              ? 'GPS används när appen är aktiv och tillstånd finns'
               : 'Stöd saknas'
           }}
         </dd>

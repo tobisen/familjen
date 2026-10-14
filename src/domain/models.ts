@@ -65,6 +65,7 @@ export interface Position {
   longitude: number
   accuracy: number
   reported_at: string
+  received_at: string
 }
 export type AsyncState<T> =
   | { status: 'loading' }

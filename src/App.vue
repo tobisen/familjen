@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { geoWatching } from './services/geolocation'
 import { canApplyAppUpdate } from './services/appUpdate'
 import { restorePush } from './services/push'
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
@@ -12,6 +13,7 @@ import {
   ShoppingBasket,
   MessageCircle,
   Settings,
+  MapPin,
   Plus,
   X,
 } from 'lucide-vue-next'
@@ -158,6 +160,18 @@ onMounted(() => {
         <RouterLink to="/" class="mobile-brand"
           >Familjen<span>.</span></RouterLink
         ><span class="desktop-welcome">Vår plats. Våra planer.</span
+        ><RouterLink
+          to="/karta"
+          class="map-shortcut"
+          aria-label="Familjekarta"
+          :title="
+            geoWatching
+              ? 'GPS används när appen är synlig'
+              : 'Öppna familjekartan'
+          "
+          ><MapPin :size="22" /><small v-if="geoWatching" class="gps-active"
+            >GPS</small
+          ></RouterLink
         ><RouterLink
           to="/installningar"
           class="current-profile"

@@ -75,7 +75,7 @@ Deno.test(
                     body: 'Private encrypted fixture',
                     recipient: 'p',
                     id: 'job',
-                    kind: 'chat',
+                    kind: status === 201 ? 'help' : 'chat',
                   },
                   expires: new Date(Date.now() + 60000).toISOString(),
                 },
@@ -91,6 +91,9 @@ Deno.test(
           const headers = new Headers(init?.headers)
           assert(headers.get('authorization')?.startsWith('vapid '))
           assert(headers.get('content-encoding') === 'aes128gcm')
+          assert(
+            headers.get('urgency') === (status === 201 ? 'high' : 'normal'),
+          )
           assert(init?.body instanceof Uint8Array)
           assert(
             !new TextDecoder()

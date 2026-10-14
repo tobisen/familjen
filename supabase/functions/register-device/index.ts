@@ -69,7 +69,7 @@ Deno.serve(async (req: Request) => {
       /^[0-9A-HJKMNP-TV-Z]{16}$/.test(code)
     if (!['tobias', 'neo', 'sally'].includes(profile))
       return reply(400, {
-        error: 'Välj profil och ange din personliga engångskod.',
+        error: 'Välj profil och ange din personliga kod.',
       })
     const ip =
       req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
@@ -85,7 +85,7 @@ Deno.serve(async (req: Request) => {
     if (decision.status !== 'accepted')
       return reply(400, {
         error:
-          'Koden är felaktig, förbrukad eller har gått ut. Be om en ny personlig kod.',
+          'Koden är felaktig eller har ersatts med en ny kod. Be om en ny personlig kod.',
       })
     const userResponse = await fetch(
       url + '/auth/v1/admin/users/' + decision.user_id,
@@ -111,7 +111,7 @@ Deno.serve(async (req: Request) => {
       refresh_token: session.refresh_token,
     })
   } catch {
-    // A code already redeemed stays consumed if upstream Auth fails (fail closed).
+    // The reusable code remains valid on upstream failure; no session is issued.
     return reply(503, {
       error:
         'Registreringen kunde inte slutföras. Försök senare eller be om en ny kod.',

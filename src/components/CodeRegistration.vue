@@ -13,7 +13,7 @@ async function submit() {
 <template>
   <form class="code-registration" @submit.prevent="submit">
     <fieldset>
-      <legend>Vem registrerar enheten?</legend>
+      <legend>Vem loggar in?</legend>
       <label
         v-for="p in profiles"
         :key="p.id"
@@ -28,9 +28,9 @@ async function submit() {
       >
     </fieldset>
     <label
-      >Personlig engångskod<input
+      >Personlig kod<input
         v-model="code"
-        autocomplete="one-time-code"
+        autocomplete="current-password"
         autocapitalize="characters"
         spellcheck="false"
         placeholder="XXXX-XXXX-XXXX-XXXX"
@@ -39,11 +39,11 @@ async function submit() {
         required
     /></label>
     <p class="small">
-      Koden gäller bara din profil och kan användas en gång. Be Tobias om en ny
-      kod om den har gått ut.
+      Koden gäller din profil och kan återanvändas. Den har ingen tidsgräns och
+      gäller tills Tobias uttryckligen byter den.
     </p>
     <button class="primary-button" :disabled="authBusy">
-      {{ authBusy ? 'Registrerar…' : 'Registrera med engångskod' }}
+      {{ authBusy ? 'Registrerar…' : 'Logga in med personlig kod' }}
     </button>
   </form>
 </template>

@@ -46,14 +46,14 @@ it('does not expose code records or redeem RPC to browser roles', async () => {
     ).rejects.toThrow(/permission denied/)
   }
 })
-it('binds code to profile and consumes it once', async () => {
+it('binds a reusable code to the correct profile', async () => {
   await issue('0123456789ABCDEF')
   expect((await redeem('0123456789ABCDEF', 'sally')).status).toBe('invalid')
   expect(await redeem('0123456789ABCDEF')).toMatchObject({
     status: 'accepted',
     user_id: testUser,
   })
-  expect((await redeem('0123456789ABCDEF')).status).toBe('invalid')
+  expect((await redeem('0123456789ABCDEF')).status).toBe('accepted')
 })
 it('rejects expired and wrong codes identically', async () => {
   await issue('EXPIRED-CODE', true)
@@ -74,11 +74,21 @@ it('allows a retry once the lockout window has elapsed', async () => {
   expect((await redeem('NEW-VALID-CODE')).status).toBe('accepted')
 })
 
-it('accepts a nonexpiring code long after issuance, only once', async () => {
+it('accepts a nonexpiring code long after issuance and on repeated login', async () => {
   await db.query(
     `insert into private.device_registration_codes(code_hash,profile_id,created_at,expires_at) select $1,id,now()-interval '10 years','infinity'::timestamptz from public.profiles where auth_user_id=$2`,
     [digest('neo:PERMANENT-CODE'), testUser],
   )
   expect((await redeem('PERMANENT-CODE')).status).toBe('accepted')
-  expect((await redeem('PERMANENT-CODE')).status).toBe('invalid')
+  expect((await redeem('PERMANENT-CODE')).status).toBe('accepted')
+})
+
+it('revokes a code only when explicitly replaced', async () => {
+  await db.exec('delete from private.device_registration_attempts')
+  await issue('REVOKED-CODE')
+  await db.query(
+    'update private.device_registration_codes set revoked_at=now() where code_hash=$1',
+    [digest('neo:REVOKED-CODE')],
+  )
+  expect((await redeem('REVOKED-CODE')).status).toBe('invalid')
 })

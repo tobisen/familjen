@@ -22,6 +22,10 @@ export async function calendarDatabase(enabled = true, withUx = true) {
     '202610140011_push_retry_recovery.sql',
     '202610140012_design_ux.sql',
     '202610140013_series_overrides.sql',
+    '202610140014_reusable_codes.sql',
+    '202610140015_family_positions.sql',
+    '202610140016_help_delivery_expiry.sql',
+    '202610140017_private_help_links.sql',
   ])
     if (withUx || (!f.includes('0012_') && !f.includes('0013_')))
       await db.exec(readFileSync(`supabase/migrations/${f}`, 'utf8'))
@@ -93,6 +97,32 @@ export async function calendarRpc(
       args.occurrence_date,
       args.expected_version,
     ],
+  }
+  specs.map_snapshot = {
+    sql: 'select public.map_snapshot() as result',
+    values: [],
+  }
+  specs.map_report = {
+    sql: 'select public.map_report($1::double precision,$2::double precision,$3::double precision,$4::timestamptz) as result',
+    values: [args.latitude, args.longitude, args.accuracy, args.recorded_at],
+  }
+  specs.map_help = {
+    sql: 'select public.map_help($1::uuid,$2::double precision,$3::double precision,$4::double precision,$5::timestamptz) as result',
+    values: [
+      args.request_id,
+      args.latitude ?? null,
+      args.longitude ?? null,
+      args.accuracy ?? null,
+      args.recorded_at ?? null,
+    ],
+  }
+  specs.map_help_position = {
+    sql: 'select public.map_help_position($1::uuid) as result',
+    values: [args.message_id],
+  }
+  specs.map_help_status = {
+    sql: 'select public.map_help_status($1::uuid) as result',
+    values: [args.message_id],
   }
   specs.push_register = {
     sql: 'select public.push_register($1::jsonb) as result',

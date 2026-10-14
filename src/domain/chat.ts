@@ -1,6 +1,8 @@
 import type { ListPerson } from './lists'
 export interface ChatMessage {
   id: string
+  kind?: 'message' | 'help'
+  map_path?: string | null
   seq: number
   sender_id: string
   body: string

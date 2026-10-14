@@ -2865,3 +2865,219 @@ body:has(.chat-view) .quick-add {
     font-size: 10px;
   }
 }
+.map-shortcut {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  color: var(--accent);
+  margin-left: auto;
+}
+.topbar .map-shortcut + .current-profile {
+  margin-left: 8px;
+}
+.map-live-status {
+  margin-bottom: 16px;
+}
+.family-map-container {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  margin: 18px 0;
+  isolation: isolate;
+  background: var(--surface);
+}
+.family-map {
+  height: min(60dvh, 600px);
+  min-height: 330px;
+  background: var(--surface);
+}
+.family-map .leaflet-tile-pane {
+  filter: brightness(0.8) saturate(0.65);
+}
+:root[data-theme='light'] .family-map .leaflet-tile-pane {
+  filter: none;
+}
+.family-map .leaflet-control-attribution {
+  background: #fff;
+  color: #222;
+  font-size: 10px;
+}
+.family-map .leaflet-control-attribution a {
+  color: #214987;
+}
+.family-map .leaflet-popup-content-wrapper,
+.family-map .leaflet-popup-tip {
+  background: var(--surface);
+  color: var(--text);
+}
+.family-map .leaflet-popup-content p {
+  color: var(--muted);
+  margin: 6px 0;
+  font: 12px system-ui;
+}
+.family-map .leaflet-control-zoom a {
+  width: 44px;
+  height: 44px;
+  line-height: 44px;
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+.family-marker {
+  display: flex;
+  width: 42px;
+  height: 42px;
+  border: 3px solid currentColor;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  font: 700 18px system-ui;
+  box-shadow: 0 3px 12px #0005;
+}
+.family-marker.older {
+  border-style: dashed;
+}
+.family-marker.stale {
+  opacity: 0.65;
+  border-style: dotted;
+}
+.map-actions {
+  position: absolute;
+  z-index: 1000;
+  right: 12px;
+  top: 12px;
+  display: flex;
+  gap: 6px;
+}
+.map-actions button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.map-empty {
+  position: absolute;
+  z-index: 800;
+  top: 90px;
+  left: 20px;
+  right: 20px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  text-align: center;
+  font-size: 13px;
+  pointer-events: none;
+}
+.map-person-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0;
+}
+.map-person {
+  display: flex;
+  gap: 12px;
+  text-align: left;
+  padding: 16px;
+  min-width: 0;
+}
+.map-person:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.map-person-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.map-person-info small {
+  color: var(--muted);
+  font-size: 11px;
+}
+.position-age {
+  font-size: 12px;
+  color: var(--muted);
+}
+.position-age.fresh {
+  color: var(--green);
+}
+.position-age.stale {
+  color: var(--orange);
+}
+.help-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 12px 18px;
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: 14px;
+  font-weight: 650;
+  margin-bottom: 12px;
+}
+.help-priority {
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 650;
+  margin: 10px 0;
+}
+.help-result {
+  margin-top: 18px;
+}
+.help-result p {
+  margin: 10px 0;
+}
+.family-map-container:fullscreen,
+.family-map-container.map-expanded {
+  border-radius: 0;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  width: 100vw;
+  height: 100dvh;
+}
+.family-map-container:fullscreen .family-map,
+.family-map-container.map-expanded .family-map {
+  height: 100dvh;
+}
+@media (max-width: 760px) {
+  .map-person-list {
+    grid-template-columns: 1fr;
+  }
+  .family-map {
+    height: 50dvh;
+  }
+  .map-person {
+    padding: 14px;
+  }
+  .map-person-info small {
+    font-size: 12px;
+  }
+}
+.map-shortcut {
+  position: relative;
+}
+.gps-active {
+  position: absolute;
+  bottom: -1px;
+  font: 700 8px system-ui;
+  color: var(--green);
+  letter-spacing: 0.4px;
+}
+.help-delivery-status p {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--muted);
+}

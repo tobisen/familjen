@@ -44,13 +44,11 @@ test.beforeEach(async ({ context }) => {
       }
     },
   )
-  let used = false
   await context.route(
     'https://familjen.test.invalid/functions/v1/register-device',
     async (route) => {
       const { profile, code } = route.request().postDataJSON()
-      if (profile === 'neo' && code === '0123-4567-89AB-CDEF' && !used) {
-        used = true
+      if (profile === 'neo' && code === '0123-4567-89AB-CDEF') {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -65,7 +63,7 @@ test.beforeEach(async ({ context }) => {
           contentType: 'application/json',
           body: JSON.stringify({
             error:
-              'Koden är felaktig, förbrukad eller har gått ut. Be om en ny personlig kod.',
+              'Koden är felaktig eller har ersatts med en ny kod. Be om en ny personlig kod.',
           }),
         })
     },
@@ -80,8 +78,8 @@ test('register by selected profile and code, then restore session and preserve i
     page.getByRole('heading', { name: 'Välkommen hem.' }),
   ).toBeVisible()
   await page.getByRole('radio', { name: 'Neo', exact: true }).check()
-  await page.getByLabel('Personlig engångskod').fill('0123-4567-89AB-CDEF')
-  await page.getByRole('button', { name: 'Registrera med engångskod' }).click()
+  await page.getByLabel('Personlig kod').fill('0123-4567-89AB-CDEF')
+  await page.getByRole('button', { name: 'Logga in med personlig kod' }).click()
   await expect(
     page.getByRole('heading', { name: 'Kalender', exact: true }),
   ).toBeVisible()
@@ -107,18 +105,18 @@ test('register by selected profile and code, then restore session and preserve i
     ),
   ).toBe(before)
 })
-test('wrong and expired codes fail without creating a session', async ({
+test('wrong and replaced codes fail without creating a session', async ({
   page,
 }) => {
   await page.goto('./register/')
   await page.getByRole('radio', { name: 'Neo', exact: true }).check()
   for (const code of ['WRON-GCOD-E000-0000', 'EXPI-REDC-ODE0-0000']) {
-    await page.getByLabel('Personlig engångskod').fill(code)
+    await page.getByLabel('Personlig kod').fill(code)
     await page
-      .getByRole('button', { name: 'Registrera med engångskod' })
+      .getByRole('button', { name: 'Logga in med personlig kod' })
       .click()
     await expect(page.getByRole('alert')).toContainText(
-      'felaktig, förbrukad eller har gått ut',
+      'felaktig eller har ersatts med en ny kod',
     )
     expect(
       await page.evaluate(() =>
@@ -155,6 +153,26 @@ test('startup with an expired invalid stored session stays recoverable', async (
     page.getByRole('heading', { name: 'Välkommen hem.' }),
   ).toBeVisible()
   await expect(
-    page.getByRole('button', { name: 'Registrera med engångskod' }),
+    page.getByRole('button', { name: 'Logga in med personlig kod' }),
   ).toBeVisible({ timeout: 20000 })
+})
+
+test('the same personal code logs in again after local session storage is lost', async ({
+  page,
+}) => {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    await page.goto('./register/')
+    await page.getByRole('radio', { name: 'Neo', exact: true }).check()
+    await page.getByLabel('Personlig kod').fill('0123-4567-89AB-CDEF')
+    await page
+      .getByRole('button', { name: 'Logga in med personlig kod' })
+      .click()
+    await expect(
+      page.getByRole('heading', { name: 'Kalender', exact: true }),
+    ).toBeVisible()
+    if (attempt === 0)
+      await page.evaluate(() =>
+        localStorage.removeItem('familjen.supabase.session'),
+      )
+  }
 })

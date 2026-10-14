@@ -38,8 +38,8 @@ async function send() {
     </p>
     <template v-else
       ><p>
-        Välj ditt namn och registrera enheten en gång med din personliga kod.
-        Sedan öppnas appen med din egen profil, utan återkommande lösenord.
+        Välj ditt namn och logga in med din personliga kod. Sessionen sparas,
+        och samma kod kan användas igen om du behöver logga in på nytt.
       </p>
       <p v-if="authError" role="alert" class="notice">{{ authError }}</p>
       <template v-if="registration"
@@ -65,7 +65,7 @@ async function send() {
         </button></template
       ><template v-else
         ><p class="notice">
-          Ange engångskoden som utfärdats för just din profil.
+          Ange den personliga koden som utfärdats för just din profil.
         </p>
         <CodeRegistration />
         <details>

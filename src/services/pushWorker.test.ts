@@ -119,3 +119,24 @@ it('ignores malformed push data and sanitizes unexpected notification paths', as
     { options: { data: { url: scope + '#/chatt' } } },
   ])
 })
+
+it('keeps a help notification deep link inside Familjen map', async () => {
+  await fire('message', {
+    source: { url: scope },
+    data: { type: 'FAMILJEN_PUSH_OWNER', profileId: 'p' },
+    ports: [],
+  })
+  await fire('push', {
+    data: {
+      json: () => ({
+        id: 'help-job',
+        kind: 'help',
+        recipient: 'p',
+        path: '/karta?help=fixture',
+      }),
+    },
+  })
+  expect(notifications).toMatchObject([
+    { options: { data: { url: scope + '#/karta?help=fixture' } } },
+  ])
+})

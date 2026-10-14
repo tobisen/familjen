@@ -88,7 +88,7 @@ self.addEventListener('push', (event) =>
       if (!(await first(data.id))) return
       const path =
         typeof data.path === 'string' &&
-        /^\/(chatt|kalender|listor|installningar)(\?|$)/.test(data.path)
+        /^\/(chatt|kalender|listor|installningar|karta)(\?|$)/.test(data.path)
           ? data.path
           : '/chatt'
       try {
