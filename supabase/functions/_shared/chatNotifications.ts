@@ -12,10 +12,7 @@ export function chatRecipients(
   if (event.deleted) return []
   return members.filter(
     (member) =>
-      member.registered &&
-      member.profileId !== event.senderId &&
-      member.chatEnabled &&
-      member.lastReadSeq < event.seq,
+      member.registered && member.profileId !== event.senderId && true,
   )
 }
 export function chatNotificationLink(

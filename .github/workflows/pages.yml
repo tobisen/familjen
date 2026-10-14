@@ -20,6 +20,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.6
+      - run: deno check --config supabase/functions/push-worker/deno.json supabase/functions/push-worker/index.ts
+      - run: deno test --allow-env --config supabase/functions/push-worker/deno.json supabase/functions/push-worker/worker_test.ts
       - run: npm run typecheck
       - run: npm run test
       - run: npx playwright install --with-deps chromium webkit

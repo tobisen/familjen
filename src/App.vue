@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import PushStatus from './components/PushStatus.vue'
+import { restorePush } from './services/push'
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import ListEditor from './components/ListEditor.vue'
@@ -37,6 +39,9 @@ import EventDetails from './components/EventDetails.vue'
 import ProfilePicker from './components/ProfilePicker.vue'
 import { backendConfigured } from './services/supabase'
 onMounted(() => initializeAuth())
+watch(identity, (p) => {
+  if (p) void restorePush(p.profile_id).catch(() => {})
+})
 const nav = [
   { to: '/', label: 'Hem', icon: House },
   { to: '/kalender', label: 'Kalender', icon: CalendarDays },
@@ -50,6 +55,15 @@ const profile = computed(() =>
   ),
 )
 const route = useRoute()
+watch(
+  () => route.path,
+  () => {
+    detail.value = null
+    editor.value = null
+    listEditor.value = null
+  },
+  { flush: 'sync' },
+)
 function add() {
   if (route.path === '/listor' && listsWritable.value)
     openListEditor(route.query.tab === 'inkop' ? 'shopping' : 'task')
@@ -163,6 +177,7 @@ const { needRefresh, updateServiceWorker } = useRegisterSW({
           Profilen kunde inte sparas. Tillåt lokal lagring för att behålla
           valet.
         </p>
+        <PushStatus v-if="route.path === '/' && authStatus === 'ready'" />
         <RouterView />
         <div class="setup-notice">
           <span class="status-dot"></span>

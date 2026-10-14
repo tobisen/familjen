@@ -7,6 +7,7 @@ export default ts.config(
   {
     ignores: [
       'dist/**',
+      'supabase/functions/push-worker/**',
       'private-registration/**',
       'private-imports/**',
       'dist-e2e/**',

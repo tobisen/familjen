@@ -1,3 +1,5 @@
 project_id = "familjen"
 [functions.register-device]
 verify_jwt = false
+[functions.push-worker]
+verify_jwt = false

@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useRoute, useRouter } from 'vue-router'
+import { isDate } from '../domain/publicSchoolImport'
+import { detail } from '../stores/calendar'
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { Temporal } from '@js-temporal/polyfill'
 import {
@@ -31,12 +34,15 @@ import {
 } from '../stores/calendar'
 import CalendarEvent from '../components/CalendarEvent.vue'
 import SchoolImport from '../components/SchoolImport.vue'
+const route = useRoute(),
+  router = useRouter()
 const view = ref<'day' | 'week' | 'month'>('week')
 const date = ref(today())
 const selectedPeople = ref<string[]>([])
 const category = ref('all')
 const showLunch = ref(true)
 const showImport = ref(false)
+const pushLinkError = ref('')
 const days = computed(() =>
   view.value === 'day'
     ? [date.value]
@@ -131,6 +137,48 @@ function openDay(day: string) {
 const off = ref(!navigator.onLine)
 window.addEventListener('offline', () => (off.value = true))
 window.addEventListener('online', () => (off.value = false))
+let openingPush = false
+watch(
+  [
+    () => route.query.activity,
+    () => route.query.date,
+    calendarStatus,
+    activities,
+    schoolLessons,
+  ],
+  async () => {
+    const id = route.query.activity
+    if (
+      typeof id !== 'string' ||
+      calendarStatus.value !== 'ready' ||
+      openingPush
+    )
+      return
+    openingPush = true
+    pushLinkError.value = ''
+    await reloadCalendar()
+    const activity = activities.value.find((a) => a.id === id)
+    const target = isDate(route.query.date)
+      ? route.query.date
+      : activity
+        ? localParts(activity.starts_at).date
+        : today()
+    date.value = target
+    const event = occurrences(
+      activities.value,
+      schoolLessons.value,
+      target,
+      addDays(target, 1),
+    ).find((o) => o.activity.id === id)
+    if (event) detail.value = event
+    else
+      pushLinkError.value =
+        'Aktiviteten finns inte längre eller har ställts in.'
+    await router.replace({ path: '/kalender', query: {} })
+    openingPush = false
+  },
+  { immediate: true },
+)
 </script>
 <template>
   <div class="page-heading calendar-page-heading">
@@ -146,6 +194,7 @@ window.addEventListener('online', () => (off.value = false))
   <p class="public-warning">
     Privat kalender · delas endast med registrerade familjemedlemmar.
   </p>
+  <p v-if="pushLinkError" role="alert" class="notice">{{ pushLinkError }}</p>
   <div class="calendar-controls">
     <div class="tabs" aria-label="Kalendervy">
       <button

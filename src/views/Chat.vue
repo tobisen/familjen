@@ -28,7 +28,6 @@ import {
   markChatRead,
   sendMessage,
   changeMessage,
-  setChatNotifications,
 } from '../stores/chat'
 const scroller = ref<HTMLElement | null>(null),
   composer = ref<HTMLTextAreaElement | null>(null),
@@ -123,13 +122,6 @@ async function saveEdit() {
     error.value = e instanceof Error ? e.message : 'Kunde inte ändra.'
   } finally {
     busy.value = false
-  }
-}
-async function preference(event: Event) {
-  try {
-    await setChatNotifications((event.target as HTMLInputElement).checked)
-  } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Kunde inte spara notisval.'
   }
 }
 onMounted(async () => {
@@ -294,21 +286,6 @@ onUnmounted(() => {
         <Send :size="21" />
       </button>
     </form>
-    <details class="chat-preferences">
-      <summary>Notisinställningar</summary>
-      <label
-        ><input
-          type="checkbox"
-          :checked="chatSummary.chat_enabled"
-          :disabled="!chatWritable"
-          @change="preference"
-        />Notiser för nya chattmeddelanden</label
-      >
-      <p class="small">
-        Valet sparas för din profil. Notiser är ännu inte aktiverade. Egna
-        meddelanden ska inte ge notiser.
-      </p>
-    </details>
   </section>
   <dialog
     v-if="editing"

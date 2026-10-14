@@ -5,6 +5,7 @@ export async function calendarDatabase(enabled = true) {
   const db = new PGlite()
   await db.exec(`create role anon;create role authenticated;create role service_role;create schema auth;
  create table auth.users(id uuid primary key);
+ create table auth.sessions(id uuid primary key,user_id uuid references auth.users(id) on delete cascade);
  create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('test.uid',true),'')::uuid $$;
  grant usage on schema auth to anon,authenticated;grant execute on function auth.uid() to anon,authenticated;`)
   for (const f of [
@@ -17,11 +18,13 @@ export async function calendarDatabase(enabled = true) {
     '202610140007_family_chat.sql',
     '202610140008_school_administration.sql',
     '202610140009_school_validation.sql',
+    '202610140010_push.sql',
+    '202610140011_push_retry_recovery.sql',
   ])
     await db.exec(readFileSync(`supabase/migrations/${f}`, 'utf8'))
   if (enabled) {
     await db.exec(
-      `insert into auth.users values ('${testUser}'); update public.profiles set auth_user_id='${testUser}' where profile_key='neo'`,
+      `insert into auth.users values ('${testUser}'); insert into auth.sessions values ('${testUser}','${testUser}'); update public.profiles set auth_user_id='${testUser}' where profile_key='neo'`,
     )
   }
   return db
@@ -34,6 +37,9 @@ export async function asCalendarRole<T>(
 ) {
   await db.exec(`set role ${role}`)
   await db.query("select set_config('test.uid',$1,false)", [user])
+  await db.query("select set_config('request.jwt.claims',$1,false)", [
+    JSON.stringify({ sub: user, session_id: user }),
+  ])
   try {
     return await fn()
   } finally {
@@ -67,6 +73,15 @@ export async function calendarRpc(
       sql: 'select public.calendar_import($1::jsonb) as result',
       values: [JSON.stringify(args.lessons)],
     },
+  }
+  specs.push_register = {
+    sql: 'select public.push_register($1::jsonb) as result',
+    values: [JSON.stringify(args.payload)],
+  }
+  specs.push_test = { sql: 'select public.push_test() as result', values: [] }
+  specs.push_forget = {
+    sql: 'select public.push_forget($1) as result',
+    values: [args.push_endpoint],
   }
   specs.school_snapshot = {
     sql: 'select public.school_snapshot() as result',

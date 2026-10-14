@@ -1,3 +1,4 @@
+import { detachPush } from '../services/push'
 import { ref } from 'vue'
 import type { Session } from '@supabase/supabase-js'
 import {
@@ -189,10 +190,12 @@ export async function requestEmailLink(email: string) {
     )
 }
 export async function signOut() {
+  const cleanupPush = detachPush()
   clearIdentity()
   authStatus.value = supabase ? 'signedOut' : 'unconfigured'
   authError.value = ''
   if (!supabase) return
+  await cleanupPush
   // Local scope removes this device session. Admin revocation handles a lost device.
   const { error } = await supabase.auth.signOut({ scope: 'local' })
   if (error) {

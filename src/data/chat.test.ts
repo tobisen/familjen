@@ -153,8 +153,10 @@ it('unread excludes own/deleted messages; read cursor is monotonic and cannot ju
   expect(current.last_message?.id).toBe(incoming.id)
 })
 it('notification preference is private and per profile', async () => {
-  await rpc('chat_preferences', { enabled: false })
-  expect((await summary()).chat_enabled).toBe(false)
+  await expect(rpc('chat_preferences', { enabled: false })).rejects.toThrow(
+    /behörighet/,
+  )
+  expect((await summary()).chat_enabled).toBe(true)
   expect((await summary(sally)).chat_enabled).toBe(true)
   const foreign = await asCalendarRole(
     db,

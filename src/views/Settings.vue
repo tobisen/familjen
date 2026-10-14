@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PushStatus from '../components/PushStatus.vue'
 import { ref } from 'vue'
 import SchoolImport from '../components/SchoolImport.vue'
 const showSchool = ref(false)
@@ -48,7 +49,7 @@ const capabilities = deviceCapabilities()
         <dd>
           {{
             capabilities.push
-              ? 'Webbläsarstöd finns · inte aktiverat'
+              ? 'Se enhetens behörighetsstatus nedan'
               : 'Stöd saknas i den här webbläsaren'
           }}
         </dd>
@@ -58,7 +59,7 @@ const capabilities = deviceCapabilities()
         <dd>
           {{
             capabilities.geolocation
-              ? 'Webbläsarstöd finns · inte aktiverat'
+              ? 'Se enhetens behörighetsstatus nedan'
               : 'Stöd saknas'
           }}
         </dd>
@@ -91,6 +92,7 @@ const capabilities = deviceCapabilities()
     </button>
   </section>
   <SchoolImport v-if="showSchool" @close="showSchool = false" />
+  <PushStatus />
   <PwaTools />
   <section class="panel settings-panel">
     <h2>Installera Familjen</h2>
@@ -101,7 +103,8 @@ const capabilities = deviceCapabilities()
     </p>
     <p class="small">
       Push på iPhone kräver iOS 16.4 eller senare, installerad PWA och ett
-      aktivt val att tillåta notiser. Funktionen är ännu inte implementerad.
+      aktivt val att tillåta notiser. Behörighet begärs när du väljer Aktivera
+      notiser.
     </p>
     <p class="small">
       Appens statiska resurser sparas för offlinebruk efter första laddningen.

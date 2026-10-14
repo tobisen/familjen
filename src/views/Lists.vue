@@ -114,6 +114,23 @@ async function addShopping() {
     adding.value = false
   }
 }
+let openingPush = false
+watch(
+  [() => route.query.task, tasks, listsStatus],
+  async () => {
+    const id = route.query.task
+    if (typeof id !== 'string' || listsStatus.value !== 'ready' || openingPush)
+      return
+    openingPush = true
+    await reloadLists()
+    const task = tasks.value.find((t) => t.id === id)
+    if (task) editListItem('task', task)
+    else error.value = 'Uppgiften finns inte längre.'
+    await router.replace({ path: '/listor', query: { tab: 'todo' } })
+    openingPush = false
+  },
+  { immediate: true },
+)
 </script>
 <template>
   <div class="page-heading">

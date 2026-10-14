@@ -32,7 +32,7 @@ npm run test:e2e:calendar
 
 ## Supabase-installation
 
-Följ [Phase 1 setup](docs/phase1-setup.md). De nio migrationerna är körda i det separata projektet; vid ny miljö körs alla i ordning. Den gamla offentliga kalendern är avvecklad av migration 003. Den publika konfigurationsfilen används redan av Pages; `.env` och repository variables är valfria overrides. Ingen `service_role`, `sb_secret_*`, databaslösenord eller administrativ nyckel får finnas i frontend eller `VITE_*`.
+Följ [Phase 1 setup](docs/phase1-setup.md). De elva migrationerna är körda i det separata projektet; vid ny miljö körs alla i ordning. Den gamla offentliga kalendern är avvecklad av migration 003. Den publika konfigurationsfilen används redan av Pages; `.env` och repository variables är valfria overrides. Ingen `service_role`, `sb_secret_*`, databaslösenord eller administrativ nyckel får finnas i frontend eller `VITE_*`.
 
 ## Kalendern
 
@@ -80,6 +80,8 @@ Riktig registrering, två separata sessioner, Realtime, återanslutning och host
 
 ## Fortsättning
 
-Phase 3 är implementerad. Nästa uppdrag är Phase 4 – pushnotiser och påminnelser, med serverstyrd köhantering, mottagarval och VAPID-hemligheter i Edge Functions. Frivillig GPS-delning följer senare. [Tidigare arkitektur för push/GPS](docs/architecture.md) gäller fortsatt för dessa funktioner.
+Phase 4 är implementerad med serverstyrd köhantering, mottagarval och VAPID-hemligheter i Edge Functions. Frivillig GPS-delning följer senare. [Tidigare arkitektur för push/GPS](docs/architecture.md) gäller fortsatt för dessa funktioner.
 
 [Phase 3.1: privat schemaadministration, officiella datumkällor och aktiveringsstatus](docs/phase3.1-school-schedules.md). Sallys 24 veckoposter inklusive fem luncher är aktiverade för HT 2026 och VT 2027. Höstens slutdatum 22 december är tydligt markerat preliminärt; vårterminens gränser är verifierade för årskurs 1. Neos 18 preliminära poster finns privat i Supabase men inväntar verifierade sluttider. Datum och undantag kan uppdateras i Inställningar → Hantera skolscheman.
+
+[Phase 4: pushnotiser, påminnelser och drift](docs/phase4-push.md). Serverstyrd kö, VAPID, Edge Function och minutjobb är konfigurerade. Aktivera telefonens behörighet i appen och prova Skicka testnotis. Fysisk Android-/iPhone-leverans återstår att verifiera. Nästa uppdrag är Phase 5 – Familjekarta och GPS.

@@ -1,6 +1,6 @@
 # Scheman, påminnelser, push och positioner
 
-> Skolimport och kalender i Phase 1 beskrivs i [school-import.md](school-import.md) och [phase1-setup.md](phase1-setup.md). Nedanstående skolformat gäller den äldre privata Phase 0-modellen; push/GPS är fortsatt förberedelser.
+> Skolimport och kalender i Phase 1 beskrivs i [school-import.md](school-import.md) och [phase1-setup.md](phase1-setup.md). Nedanstående skolformat gäller den äldre privata Phase 0-modellen; aktuella pushfunktioner beskrivs i [Phase 4](phase4-push.md). GPS är fortsatt förberett.
 
 ## Skolimport
 
@@ -21,11 +21,7 @@ Klienten ska inte välja familj från otillförlitlig JSON. Importeraren tilldel
 
 ## Web Push och påminnelser
 
-Phase 0 levererar PWA service worker för statiska resurser, funktionsdetektion, tjänstekontrakt och subscription-tabell. Den registrerar inga pushprenumerationer och begär inga behörigheter. Nästa implementation behöver en egen push-handler i service worker (byt till injectManifest), en autentiserad registreringsendpoint, VAPID-nycklar och serverkod, exempelvis Supabase Edge Functions. VAPID privatnyckel förvaras i serverns hemlighetshantering. Pushendpoint/nyckelmaterial hanteras som känsliga uppgifter.
-
-Serverstyrd scheduler med idempotent leveranslogg (aktivitet, mottagare, påminnelsetid), retries och hantering av utgångna prenumerationer krävs. Webbläsartimers fungerar inte som pålitliga påminnelser när appen är stängd. Uppdatering/radering av aktivitet måste ändra planerade jobb. Databasmodellen innehåller `reminder_minutes`; jobbkön byggs i senare migration. Ingen garanti om exakt leveranstid eller mottagning ges.
-
-iOS/iPadOS 16.4 eller senare stöder push för appar installerade på hemskärmen. Begär notifieringsbehörighet efter aktiv knapptryckning i den installerade appen, aldrig automatiskt vid start. Förklara nekad behörighet och ge instruktioner för inställningar. Även Android kräver användarens godkännande och feature detection. Källa: [WebKit: Web Push on iOS/iPadOS](https://webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/).
+Phase 4 är implementerad med den befintliga Workbox-workern och en importerad push-handler; inget byte av PWA-identitet eller cachemodell behövdes. Se [Phase 4: notifieringsregler, drift, säkerhet och verifiering](phase4-push.md).
 
 ## GPS
 
@@ -33,4 +29,4 @@ iOS/iPadOS 16.4 eller senare stöder push för appar installerade på hemskärme
 
 ## Fel och offline
 
-`AsyncState<T>` beskriver loading, ready, error och unconfigured för kommande datalager. Alla nuvarande datavyer visar tydligt att de inte är aktiverade. Statiskt appskal precachas; API-anrop och privat data finns inte i cache. Framtida offline-skrivningar kräver separat konflikt-, sekretess- och utloggningsmodell innan de aktiveras.
+`AsyncState<T>` beskriver loading, ready, error och unconfigured för kommande datalager. Implementerade datavyer använder tydliga laddnings- och fellägen. Statiskt appskal precachas; API-anrop och privat data finns inte i cache. Framtida offline-skrivningar kräver separat konflikt-, sekretess- och utloggningsmodell innan de aktiveras.

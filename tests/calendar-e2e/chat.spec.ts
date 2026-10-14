@@ -169,18 +169,9 @@ test('home preview, unread badge, own read state and notification preference', a
       .getByRole('navigation', { name: 'Mobilnavigation' })
       .getByLabel('1 olästa meddelanden'),
   ).not.toBeVisible()
-  await page.getByText('Notisinställningar', { exact: true }).click()
-  await page.getByLabel('Notiser för nya chattmeddelanden').uncheck()
-  await expect
-    .poll(
-      async () =>
-        (
-          (await calendarRpc(db, 'chat_summary', {})) as {
-            chat_enabled: boolean
-          }
-        ).chat_enabled,
-    )
-    .toBe(false)
+  await expect(page.getByLabel('Notiser för nya chattmeddelanden')).toHaveCount(
+    0,
+  )
 })
 test('pagination loads older history without duplicates and mobile Enter inserts a newline', async ({
   page,

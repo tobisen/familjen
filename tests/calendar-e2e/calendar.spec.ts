@@ -449,3 +449,163 @@ test('school draft correction preserves unknown times and rejects concurrent ove
   await expect(dialog).toContainText('New source from another device')
   await expect(dialog.getByLabel('Sluttid 1', { exact: true })).toHaveValue('')
 })
+
+async function mockPush(
+  context: BrowserContext,
+  permission: 'default' | 'denied' = 'default',
+) {
+  await context.addInitScript((initial) => {
+    let value: NotificationPermission = initial
+    class FakeNotification {
+      static get permission() {
+        return value
+      }
+      static async requestPermission() {
+        value = 'granted'
+        return value
+      }
+    }
+    Object.defineProperty(window, 'Notification', {
+      configurable: true,
+      value: FakeNotification,
+    })
+    Object.defineProperty(window, 'PushManager', {
+      configurable: true,
+      value: class {},
+    })
+    const original = window.matchMedia.bind(window)
+    window.matchMedia = (query: string) =>
+      query === '(display-mode: standalone)'
+        ? { ...original(query), matches: true }
+        : original(query)
+    let subscription: unknown = null
+    const registration = {
+      active: {
+        postMessage: (_data: unknown, ports: MessagePort[]) =>
+          ports[0]!.postMessage({ ready: true }),
+      },
+      pushManager: {
+        getSubscription: async () => subscription,
+        subscribe: async (options: PushSubscriptionOptions) => {
+          const endpoint =
+            'https://fcm.googleapis.com/fcm/send/' + crypto.randomUUID()
+          subscription = {
+            endpoint,
+            options,
+            unsubscribe: async () => true,
+            toJSON: () => ({
+              endpoint,
+              keys: { p256dh: 'A'.repeat(87), auth: 'A'.repeat(22) },
+            }),
+          }
+          return subscription
+        },
+      },
+    }
+    Object.defineProperty(navigator.serviceWorker, 'ready', {
+      configurable: true,
+      value: Promise.resolve(registration),
+    })
+    Object.defineProperty(navigator.serviceWorker, 'getRegistration', {
+      configurable: true,
+      value: async () => registration,
+    })
+    Object.defineProperty(window, 'revokeFixturePermission', {
+      value: () => {
+        value = 'denied'
+        window.dispatchEvent(new Event('focus'))
+      },
+    })
+  }, permission)
+}
+test('push registration is explicit, test notification is queued securely, revoked permission is respected', async ({
+  page,
+  context,
+}) => {
+  await mockPush(context)
+  await page.goto('./#/installningar')
+  await expect(
+    page.getByRole('button', { name: 'Aktivera notiser', exact: true }),
+  ).toBeVisible()
+  expect(
+    (await db.query('select * from public.push_subscriptions')).rows,
+  ).toHaveLength(0)
+  await page
+    .getByRole('button', { name: 'Aktivera notiser', exact: true })
+    .click()
+  await expect(
+    page.getByRole('button', { name: 'Skicka testnotis' }),
+  ).toBeVisible()
+  expect(
+    (await db.query('select * from public.push_subscriptions')).rows,
+  ).toHaveLength(1)
+  await page.getByRole('button', { name: 'Skicka testnotis' }).click()
+  await expect(page.getByRole('status')).toContainText('Testnotisen är köad')
+  expect(
+    (await db.query("select * from private.push_jobs where kind='test'")).rows,
+  ).toHaveLength(1)
+  await page.evaluate(() =>
+    (
+      window as unknown as { revokeFixturePermission: () => void }
+    ).revokeFixturePermission(),
+  )
+  await expect(
+    page.getByRole('button', { name: 'Skicka testnotis' }),
+  ).toHaveCount(0)
+  await expect(page.getByText('Nekad', { exact: true })).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: /Stäng av notiser/ }),
+  ).toHaveCount(0)
+})
+test('denied push permission gives OS instructions and does not subscribe', async ({
+  page,
+  context,
+}) => {
+  await mockPush(context, 'denied')
+  await page.goto('./#/installningar')
+  await expect(page.getByText('Nekad', { exact: true })).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Aktivera notiser', exact: true }),
+  ).toHaveCount(0)
+  await expect(page.getByText(/Ändra behörigheten|Aviseringar/)).toBeVisible()
+  expect(
+    (await db.query('select * from public.push_subscriptions')).rows,
+  ).toHaveLength(0)
+})
+test('notification deep links open the right activity and task on a cold start', async ({
+  page,
+}) => {
+  const id = await calendarRpc(db, 'calendar_save', {
+    payload: {
+      title: 'E2E linked activity',
+      description: '',
+      location: '',
+      starts_at: '2027-01-18T09:00:00Z',
+      ends_at: '2027-01-18T10:00:00Z',
+      all_day: false,
+      participant_ids: ['neo'],
+      category: 'family',
+      recurrence: null,
+      exception_dates: [],
+    },
+  })
+  await page.goto('./#/kalender?activity=' + id)
+  await expect(page.getByRole('dialog')).toContainText('E2E linked activity')
+  const task = await calendarRpc(db, 'lists_save', {
+    kind: 'task',
+    payload: {
+      title: 'E2E linked task',
+      description: '',
+      deadline: null,
+      priority: 'normal',
+      recurrence: null,
+      assigned_ids: ['neo'],
+      reminder_days: null,
+    },
+    request_id: crypto.randomUUID(),
+  })
+  await page.goto('./#/listor?tab=todo&task=' + task)
+  await expect(
+    page.getByRole('dialog').getByLabel('Titel', { exact: true }),
+  ).toHaveValue('E2E linked task')
+})

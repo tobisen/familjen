@@ -4,7 +4,7 @@ import {
   chatNotificationLink,
   chatDeliveryKey,
 } from '../../supabase/functions/_shared/chatNotifications'
-it('server notification planning excludes own, read, muted and unregistered recipients', () => {
+it('server notification planning excludes own and unregistered; OS permission governs delivery recipients', () => {
   const base = { lastReadSeq: 0, chatEnabled: true, registered: true }
   expect(
     chatRecipients({ senderId: 'a', seq: 5, deleted: false }, [
@@ -14,7 +14,7 @@ it('server notification planning excludes own, read, muted and unregistered reci
       { ...base, profileId: 'd', chatEnabled: false },
       { ...base, profileId: 'e', registered: false },
     ]).map((p) => p.profileId),
-  ).toEqual(['b'])
+  ).toEqual(['b', 'c', 'd'])
   expect(
     chatRecipients({ senderId: 'a', seq: 5, deleted: true }, [
       { ...base, profileId: 'b' },
