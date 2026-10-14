@@ -1,6 +1,6 @@
 # Familjen
 
-Mobilanpassad PWA för Tobias, Neo och Sally med privat familjekalender, att göra-lista och inköpslista. Listorna stöder flera ansvariga, återkomst, köphistorik och Supabase Realtime. [Phase 2: funktioner, säkerhet och verifiering](docs/phase2.md).
+Mobilanpassad PWA för Tobias, Neo och Sally med privat familjekalender, att göra-lista, inköpslista och familjechatt. Listorna stöder flera ansvariga, återkomst, köphistorik och Supabase Realtime. [Phase 2: funktioner, säkerhet och verifiering](docs/phase2.md).
 
 **Phase 1.5:** kalendern är åter privat. En personlig engångskod registrerar enheten; därefter sparas sessionen utan återkommande lösenord. Lokal profil är en preferens, inte autentisering. Anonym åtkomst och de gamla publika RPC:erna är borttagna. [Aktuell setup](docs/phase1-setup.md).
 
@@ -32,7 +32,7 @@ npm run test:e2e:calendar
 
 ## Supabase-installation
 
-Följ [Phase 1 setup](docs/phase1-setup.md). De sex migrationerna är körda i det separata projektet; vid ny miljö körs alla i ordning. Den gamla offentliga kalendern är avvecklad av migration 003. Den publika konfigurationsfilen används redan av Pages; `.env` och repository variables är valfria overrides. Ingen `service_role`, `sb_secret_*`, databaslösenord eller administrativ nyckel får finnas i frontend eller `VITE_*`.
+Följ [Phase 1 setup](docs/phase1-setup.md). De sju migrationerna är körda i det separata projektet; vid ny miljö körs alla i ordning. Den gamla offentliga kalendern är avvecklad av migration 003. Den publika konfigurationsfilen används redan av Pages; `.env` och repository variables är valfria overrides. Ingen `service_role`, `sb_secret_*`, databaslösenord eller administrativ nyckel får finnas i frontend eller `VITE_*`.
 
 ## Kalendern
 
@@ -74,6 +74,8 @@ Vinskåpets arbetsmetod återanvänds: rena testbara domänfunktioner, separat r
 
 Riktig registrering, två separata sessioner, Realtime, återanslutning och hosted RLS har verifierats. Se [Phase 1.5 verifieringsrapport](docs/phase1.5-verification.md). Personliga engångskoder utfärdas med `python3 scripts/create-device-codes.py` efter publicering; filer under `private-registration/` får aldrig delas publikt.
 
+[Phase 3: chatt, lässtatus, säkerhet och pusharkitektur](docs/phase3.md).
+
 ## Fortsättning
 
-Phase 2 är implementerad. Nästa uppdrag kan vara Phase 3 – familjechatt, med samma privata familjeidentitet och RLS-modell. Push/påminnelser och frivillig GPS-delning följer senare. [Tidigare arkitektur för push/GPS](docs/architecture.md) gäller fortsatt för dessa funktioner.
+Phase 3 är implementerad. Nästa uppdrag är Phase 4 – pushnotiser och påminnelser, med serverstyrd köhantering, mottagarval och VAPID-hemligheter i Edge Functions. Frivillig GPS-delning följer senare. [Tidigare arkitektur för push/GPS](docs/architecture.md) gäller fortsatt för dessa funktioner.

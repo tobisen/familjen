@@ -2,6 +2,7 @@
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import ListEditor from './components/ListEditor.vue'
+import { chatSummary } from './stores/chat'
 import { listEditor, openListEditor, listsWritable } from './stores/lists'
 import {
   House,
@@ -112,7 +113,13 @@ const { needRefresh, updateServiceWorker } = useRegisterSW({
       ><span class="eyebrow sidebar-label">VÅR VARDAG, TILLSAMMANS</span>
       <nav aria-label="Huvudnavigation">
         <RouterLink v-for="item in nav" :key="item.to" :to="item.to"
-          ><component :is="item.icon" :size="21" />{{ item.label }}</RouterLink
+          ><component :is="item.icon" :size="21" />{{ item.label
+          }}<span
+            v-if="item.to === '/chatt' && chatSummary.unread"
+            class="unread-badge"
+            :aria-label="`${chatSummary.unread} olästa meddelanden`"
+            >{{ chatSummary.unread > 99 ? '99+' : chatSummary.unread }}</span
+          ></RouterLink
         >
       </nav>
       <div class="sidebar-bottom">
@@ -170,7 +177,7 @@ const { needRefresh, updateServiceWorker } = useRegisterSW({
             <p>
               {{
                 backendConfigured
-                  ? 'Familjedata är tillgänglig endast för registrerade familjemedlemmar. Chatt, GPS och push är ännu inte aktiverade.'
+                  ? 'Familjedata är tillgänglig endast för registrerade familjemedlemmar. GPS och push är ännu inte aktiverade.'
                   : 'Supabase är inte konfigurerat. Familjedata och synkning aktiveras efter säker installation.'
               }}
             </p>
@@ -179,7 +186,7 @@ const { needRefresh, updateServiceWorker } = useRegisterSW({
             ><ArrowUpRight :size="22"
           /></RouterLink>
         </div>
-        <footer>FAMILJEN <span>Byggd för vår vardag · Phase 2</span></footer>
+        <footer>FAMILJEN <span>Byggd för vår vardag · Phase 3</span></footer>
       </main>
     </div>
     <button ref="plus" class="quick-add" aria-label="Lägg till" @click="add">
@@ -187,9 +194,13 @@ const { needRefresh, updateServiceWorker } = useRegisterSW({
     </button>
     <nav class="bottom-nav" aria-label="Mobilnavigation">
       <RouterLink v-for="item in nav" :key="item.to" :to="item.to"
-        ><component :is="item.icon" :size="22" /><span>{{
-          item.label
-        }}</span></RouterLink
+        ><component :is="item.icon" :size="22" /><span>{{ item.label }}</span
+        ><span
+          v-if="item.to === '/chatt' && chatSummary.unread"
+          class="unread-badge"
+          :aria-label="`${chatSummary.unread} olästa meddelanden`"
+          >{{ chatSummary.unread > 99 ? '99+' : chatSummary.unread }}</span
+        ></RouterLink
       >
     </nav>
     <dialog

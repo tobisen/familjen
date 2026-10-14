@@ -7,6 +7,7 @@ import {
 } from '../services/supabase'
 import { stopCalendar, startCalendar } from './calendar'
 import { stopLists, startLists } from './lists'
+import { stopChat, startChat } from './chat'
 import { selectProfile, type ProfileId } from '../domain/profiles'
 export interface FamilyIdentity {
   profile_id: string
@@ -68,6 +69,7 @@ function clearIdentity() {
   identity.value = null
   stopCalendar()
   stopLists()
+  stopChat()
 }
 export async function restoreIdentity(session?: Session | null) {
   if (!supabase) return
@@ -123,6 +125,7 @@ export async function restoreIdentity(session?: Session | null) {
       history.replaceState(null, '', import.meta.env.BASE_URL + '#/')
     startCalendar()
     startLists()
+    startChat()
   } catch (e) {
     if (attempt !== generation) return
     clearIdentity()

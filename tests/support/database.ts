@@ -14,6 +14,7 @@ export async function calendarDatabase(enabled = true) {
     '202610130004_registration_codes.sql',
     '202610130005_nonexpiring_codes.sql',
     '202610130006_family_lists.sql',
+    '202610140007_family_chat.sql',
   ])
     await db.exec(readFileSync(`supabase/migrations/${f}`, 'utf8'))
   if (enabled) {
@@ -90,6 +91,39 @@ export async function calendarRpc(
   specs.calendar_identity = {
     sql: 'select public.calendar_identity() as result',
     values: [],
+  }
+  specs.chat_page = {
+    sql: 'select public.chat_page($1::bigint,$2::bigint,$3::integer) as result',
+    values: [
+      args.before_seq ?? null,
+      args.after_seq ?? null,
+      args.page_limit ?? 40,
+    ],
+  }
+  specs.chat_summary = {
+    sql: 'select public.chat_summary() as result',
+    values: [],
+  }
+  specs.chat_send = {
+    sql: 'select to_jsonb(public.chat_send($1,$2::uuid)) as result',
+    values: [args.message_body, args.request_id],
+  }
+  specs.chat_change = {
+    sql: 'select to_jsonb(public.chat_change($1::uuid,$2,$3::integer,$4::boolean)) as result',
+    values: [
+      args.message_id,
+      args.message_body,
+      args.expected_version,
+      args.remove_message ?? false,
+    ],
+  }
+  specs.chat_mark_read = {
+    sql: 'select public.chat_mark_read($1::bigint) as result',
+    values: [args.through_seq],
+  }
+  specs.chat_preferences = {
+    sql: 'select public.chat_preferences($1::boolean) as result',
+    values: [args.enabled],
   }
   const spec = specs[name]
   if (!spec) throw new Error('Unknown RPC')

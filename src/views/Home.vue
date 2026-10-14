@@ -14,6 +14,8 @@ import CalendarEvent from '../components/CalendarEvent.vue'
 import { occurrences, today, addDays } from '../domain/calendar'
 import { activities, schoolLessons, calendarStatus } from '../stores/calendar'
 import EmptyState from '../components/EmptyState.vue'
+import { chatSummary } from '../stores/chat'
+import { chatTime } from '../domain/chat'
 import {
   tasks,
   remainingShopping,
@@ -202,10 +204,25 @@ const date = new Intl.DateTimeFormat('sv-SE', {
           >{{ p.name[0] }}</span
         >
       </div>
-      <h3>En tråd för oss tre.</h3>
-      <p>
-        Snabba frågor, små påminnelser och ett hej. Familjechatten kommer i en
-        senare fas.
+      <template v-if="chatSummary.last_message"
+        ><h3>
+          Senast från
+          {{
+            chatSummary.people.find(
+              (p) => p.id === chatSummary.last_message!.sender_id,
+            )?.name ?? 'Familjen'
+          }}
+        </h3>
+        <p class="home-chat-preview">{{ chatSummary.last_message.body }}</p>
+        <p class="small">
+          {{ chatTime(chatSummary.last_message.created_at) }} ·
+          {{ chatSummary.unread }} olästa
+        </p></template
+      >
+      <h3 v-else>En tråd för oss tre.</h3>
+      <p v-if="!chatSummary.last_message">
+        Snabba frågor, små påminnelser och ett hej. Skriv första meddelandet i
+        chatten.
       </p>
       <RouterLink to="/chatt" class="text-link"
         >Till chatten <ArrowRight :size="17"
