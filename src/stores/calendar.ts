@@ -10,7 +10,7 @@ import type {
   PublicSchoolLesson,
   Occurrence,
 } from '../domain/calendar'
-export const calendarView = ref<'day' | 'week' | 'month'>('week')
+export const calendarView = ref<'day' | 'week' | 'month' | 'overview'>('week')
 export const people = ref<CalendarPerson[]>([])
 export const activities = ref<CalendarActivity[]>([])
 export const schoolLessons = ref<PublicSchoolLesson[]>([])

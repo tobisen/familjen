@@ -49,7 +49,7 @@ const pushLinkError = ref('')
 const days = computed(() =>
   view.value === 'day'
     ? [date.value]
-    : view.value === 'week'
+    : view.value === 'week' || view.value === 'overview'
       ? Array.from({ length: 7 }, (_, i) => addDays(weekStart(date.value), i))
       : monthGrid(date.value),
 )
@@ -91,7 +91,11 @@ function move(direction: number) {
       ? Temporal.PlainDate.from(date.value)
           .add({ months: direction })
           .toString()
-      : addDays(date.value, direction * (view.value === 'week' ? 7 : 1))
+      : addDays(
+          date.value,
+          direction *
+            (view.value === 'week' || view.value === 'overview' ? 7 : 1),
+        )
 }
 function items(day: string) {
   return visible.value.filter((o) => onDay(o, day))
@@ -191,6 +195,7 @@ watch(
           ['day', 'Dag'],
           ['week', 'Vecka'],
           ['month', 'Månad'],
+          ['overview', 'Veckoöversikt'],
         ]"
         :key="value"
         :aria-pressed="view === value"
@@ -284,7 +289,50 @@ watch(
       <Plus :size="17" />Ny aktivitet
     </button>
   </div>
-  <div v-if="view === 'month'" class="month-grid">
+  <div v-if="view === 'overview'" class="weekly-overview">
+    <p class="small">
+      Stående uppgifter för veckan. Tryck på en uppgift för detaljer eller
+      ändringar.
+    </p>
+    <section v-for="day in days" :key="day" class="weekly-day">
+      <h2>
+        {{ dateLabel(day, { weekday: 'long', day: 'numeric', month: 'long' }) }}
+      </h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Vad som ska göras</th>
+            <th scope="col">Av vem</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="o in items(day).filter((o) => o.activity.standing_task)"
+            :key="o.key"
+          >
+            <td>
+              <button class="text-link" @click="detail = o">
+                {{ o.activity.title }}
+              </button>
+            </td>
+            <td>
+              {{
+                o.activity.participant_ids
+                  .map(
+                    (id) => people.find((p) => p.id === id)?.display_name ?? id,
+                  )
+                  .join(', ')
+              }}
+            </td>
+          </tr>
+          <tr v-if="!items(day).some((o) => o.activity.standing_task)">
+            <td colspan="2" class="small">Inga stående uppgifter.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+  <div v-else-if="view === 'month'" class="month-grid">
     <div
       v-for="day in days"
       :key="day"
@@ -382,7 +430,7 @@ watch(
   >
     Inga aktiviteter under den här perioden med valda filter.
   </p>
-  <p class="small">
+  <p v-if="view !== 'overview'" class="small">
     Veckovyn går att svepa i sidled på mobilen. Tryck på en tom timme för att
     skapa eller på en aktivitet för detaljer.
   </p>

@@ -26,6 +26,7 @@ export async function calendarDatabase(enabled = true, withUx = true) {
     '202610140015_family_positions.sql',
     '202610140016_help_delivery_expiry.sql',
     '202610140017_private_help_links.sql',
+    '202610150001_standing_tasks.sql',
   ])
     if (withUx || (!f.includes('0012_') && !f.includes('0013_')))
       await db.exec(readFileSync(`supabase/migrations/${f}`, 'utf8'))

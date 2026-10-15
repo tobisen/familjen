@@ -47,6 +47,7 @@ const participants = ref(
     ? [...original.participant_ids]
     : [identity.value?.profile_key ?? selectedProfile.value ?? 'tobias'],
 )
+const standingTask = ref(!state.single && (original?.standing_task ?? false))
 const frequency = ref(
   state.single ? 'none' : (original?.recurrence?.frequency ?? 'none'),
 )
@@ -70,6 +71,7 @@ async function submit() {
   error.value = ''
   try {
     const input: ActivityInput = {
+      standing_task: standingTask.value,
       title: title.value.trim(),
       description: description.value,
       location: location.value,
@@ -86,8 +88,9 @@ async function submit() {
       ),
       participant_ids: participants.value,
       category: category.value,
-      recurrence:
-        frequency.value === 'none'
+      recurrence: standingTask.value
+        ? { frequency: 'weekly', interval: 1, until: until.value || null }
+        : frequency.value === 'none'
           ? null
           : {
               frequency: frequency.value as 'daily' | 'weekly' | 'monthly',
@@ -188,7 +191,14 @@ async function submit() {
           <option value="school">Skola</option>
         </select></label
       >
-      <div class="form-row">
+      <label v-if="!state.single" class="check-label">
+        <input v-model="standingTask" type="checkbox" />Stående uppgift
+      </label>
+      <p v-if="standingTask" class="small">
+        Upprepas varje vecka på startdatumets veckodag. Valda deltagare är
+        ansvariga och visas i veckoöversikten.
+      </p>
+      <div v-if="!standingTask" class="form-row">
         <label v-if="!state.single"
           >Upprepning<select v-model="frequency">
             <option value="none">Ingen</option>
@@ -207,7 +217,7 @@ async function submit() {
             required
         /></label>
       </div>
-      <label v-if="frequency !== 'none'"
+      <label v-if="standingTask || frequency !== 'none'"
         >Upprepa till och med<input v-model="until" type="date" /><span
           class="small"
           >Tomt = tills serien ändras manuellt.</span

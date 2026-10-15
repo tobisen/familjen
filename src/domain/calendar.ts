@@ -18,6 +18,7 @@ export interface CalendarActivity {
   starts_at: string
   ends_at: string
   all_day: boolean
+  standing_task?: boolean
   participant_ids: string[]
   recurrence: Recurrence | null
   exception_dates: string[]
@@ -120,6 +121,11 @@ export function validateActivity(a: ActivityInput) {
   if (!['family', 'school'].includes(a.category))
     throw new Error('Ogiltig kategori.')
   for (const d of a.exception_dates) Temporal.PlainDate.from(d)
+  if (
+    a.standing_task &&
+    (a.recurrence?.frequency !== 'weekly' || a.recurrence.interval !== 1)
+  )
+    throw new Error('Stående uppgifter ska upprepas varje vecka.')
   if (a.recurrence) {
     const r = a.recurrence
     if (

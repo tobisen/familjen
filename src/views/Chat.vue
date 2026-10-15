@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import HelpDeliveryStatus from '../components/HelpDeliveryStatus.vue'
 import { computed, ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
-import { Send, ChevronDown, Pencil, Trash2, X } from 'lucide-vue-next'
+import { Send, ChevronDown, Pencil, Trash2, X, Smile } from 'lucide-vue-next'
 import { identity } from '../stores/auth'
 import { profiles } from '../domain/profiles'
 import {
@@ -40,6 +40,35 @@ const editing = ref<ChatMessage | null>(null),
   remove = ref(false),
   busy = ref(false),
   editDialog = ref<HTMLDialogElement | null>(null)
+const showEmojis = ref(false)
+const emojis = [
+  '😀',
+  '😊',
+  '😂',
+  '🥰',
+  '😍',
+  '😎',
+  '😉',
+  '😢',
+  '😮',
+  '😴',
+  '👍',
+  '👎',
+  '❤️',
+  '🎉',
+  '🙏',
+  '👋',
+]
+async function insertEmoji(emoji: string) {
+  const field = composer.value
+  const start = field?.selectionStart ?? draft.value.length
+  const end = field?.selectionEnd ?? start
+  if (draft.value.length - (end - start) + emoji.length > 10000) return
+  draft.value = draft.value.slice(0, start) + emoji + draft.value.slice(end)
+  await nextTick()
+  field?.focus()
+  field?.setSelectionRange(start + emoji.length, start + emoji.length)
+}
 const viewportHeight = ref('100dvh')
 const visibleMessages = computed(() =>
   messages.value.filter((message) => !message.deleted_at),
@@ -284,7 +313,36 @@ onUnmounted(() => {
     >
       <ChevronDown :size="17" />Till senaste meddelandet
     </button>
+    <div
+      v-if="showEmojis"
+      id="chat-emojis"
+      class="emoji-picker"
+      role="group"
+      aria-label="Välj smiley"
+    >
+      <button
+        v-for="emoji in emojis"
+        :key="emoji"
+        type="button"
+        :aria-label="`Infoga ${emoji}`"
+        :disabled="!chatWritable"
+        @mousedown.prevent
+        @click="insertEmoji(emoji)"
+      >
+        {{ emoji }}
+      </button>
+    </div>
     <form class="chat-composer" @submit.prevent="send">
+      <button
+        type="button"
+        aria-label="Välj smiley"
+        aria-controls="chat-emojis"
+        :aria-expanded="showEmojis"
+        :disabled="!chatWritable"
+        @click="showEmojis = !showEmojis"
+      >
+        <Smile :size="22" />
+      </button>
       <label class="sr-only" for="chat-body">Meddelande</label
       ><textarea
         id="chat-body"

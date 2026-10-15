@@ -3090,3 +3090,52 @@ body:has(.chat-view) .quick-add {
   top: max(12px, env(safe-area-inset-top, 0px));
   right: max(12px, env(safe-area-inset-right, 0px));
 }
+
+.emoji-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+}
+.emoji-picker button {
+  font-size: 1.5rem;
+  min-width: 44px;
+  min-height: 44px;
+}
+.weekly-overview {
+  display: grid;
+  gap: 18px;
+}
+.weekly-day {
+  padding: 16px;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 16px;
+}
+.weekly-day h2 {
+  text-transform: capitalize;
+  margin-bottom: 12px;
+}
+.weekly-day table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.weekly-day th,
+.weekly-day td {
+  text-align: left;
+  padding: 10px 6px;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+.weekly-day th:first-child {
+  width: 65%;
+}
+.weekly-day td {
+  border-top: 1px solid var(--border, #ddd);
+}
+.calendar-view-tabs .tabs button:last-child {
+  flex-grow: 1.8;
+}
+.emoji-picker {
+  flex-shrink: 0;
+}
