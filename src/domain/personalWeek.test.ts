@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import nestedExample from '../../tests/fixtures/personal-week-nested.json'
 import {
   parsePersonalWeek,
   validatePersonalPlan,
@@ -82,11 +83,101 @@ describe('personal JSON import', () => {
     [{ weeklySummary: { economy: 42 } }, 'economy'],
     [{ focus: ['x'.repeat(81)] }, 'focus[0]'],
     [{ tasks: [{ task: 'x', done: 'false' }] }, 'done'],
-    [{ days: [{ date: '2026-11-23', food: 'Lunch' }] }, 'food'],
+    [{ days: [{ date: '2026-11-23', food: 42 }] }, 'food'],
     [{ week_type: 'barnfri' }, 'week_type'],
     [{ year: 2026.5 }, 'year'],
   ])('rejects invalid known fields with a field path (%j)', (change, field) => {
     expect(() => validatePersonalPlan({ ...base, ...change })).toThrow(field)
+  })
+  it('imports the nested ChatGPT format without dropping focus, scalar categories, nulls or weekTasks', () => {
+    for (const raw of [
+      JSON.stringify(nestedExample),
+      `--- FAMILJEN WEEK IMPORT ---\n${JSON.stringify(nestedExample)}\n--- END ---`,
+    ]) {
+      const plan = parsePersonalWeek(raw)
+      expect(plan).toMatchObject({
+        year: 2026,
+        week_number: 48,
+        week_type: 'barnvecka',
+        focus: nestedExample.week.focus,
+        weekly_summary: nestedExample.weeklySummary,
+      })
+      expect(plan.days).toHaveLength(7)
+      expect(plan.days[0]!.items).toEqual([
+        { category: 'work', content: 'Arbetsdag', done: false },
+        { category: 'training', content: 'Promenad', done: false },
+        { category: 'home', content: 'Tvätt', done: false },
+        { category: 'home', content: 'Städning', done: false },
+        { category: 'family', content: 'Lugn kväll', done: false },
+        { category: 'meal', content: 'Middag', done: false },
+      ])
+      expect(plan.days[5]!.items.some((i) => i.category === 'work')).toBe(false)
+      expect(plan.tasks).toEqual(nestedExample.weekTasks)
+    }
+  })
+  it('accepts empty scalar/null categories and validates scalar text lengths', () => {
+    expect(
+      validatePersonalPlan({
+        ...base,
+        days: [
+          {
+            date: '2026-11-23',
+            work: null,
+            food: '',
+            training: '  ',
+            categories: { home: null },
+          },
+        ],
+      }).days[0]!.items,
+    ).toEqual([])
+    expect(() =>
+      validatePersonalPlan({
+        ...base,
+        days: [{ date: '2026-11-23', work: 'x'.repeat(2001) }],
+      }),
+    ).toThrow('days[0].work[0]')
+  })
+  it.each([
+    [
+      { ...nestedExample, week: { ...nestedExample.week, year: '2026' } },
+      'week.year',
+    ],
+    [
+      { ...nestedExample, week: { ...nestedExample.week, weekNumber: 54 } },
+      'week.weekNumber',
+    ],
+    [
+      { ...nestedExample, week: { ...nestedExample.week, type: 'invalid' } },
+      'week.type',
+    ],
+    [{ ...nestedExample, year: 2026 }, 'week'],
+    [{ ...nestedExample, focus: ['Ambiguous'] }, 'week'],
+    [{ ...nestedExample, weeklyTasks: [] }, 'tasks'],
+    [
+      { ...nestedExample, days: [{ date: '2026-11-23', day: 'tisdag' }] },
+      'days[0].day',
+    ],
+    [
+      {
+        ...nestedExample,
+        days: [{ date: '2026-11-23', day: 'måndag', weekday: 1 }],
+      },
+      'days[0].day',
+    ],
+    [
+      {
+        ...nestedExample,
+        days: [
+          {
+            date: '2026-11-23',
+            items: [{ category: 'economy', content: 'Budget' }],
+          },
+        ],
+      },
+      'category',
+    ],
+  ])('keeps nested import validation strict (%j)', (value, path) => {
+    expect(() => validatePersonalPlan(value)).toThrow(path)
   })
   it('bounds payload size and rejects malformed JSON and markers', () => {
     expect(() => parsePersonalWeek('x'.repeat(200001))).toThrow('200 000')

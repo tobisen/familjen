@@ -1,0 +1,46 @@
+{
+  "week": {
+    "year": 2026,
+    "weekNumber": 48,
+    "type": "barnvecka",
+    "focus": ["Balans", "Återhämtning"]
+  },
+  "days": [
+    {
+      "date": "2026-11-23",
+      "day": "måndag",
+      "work": "Arbetsdag",
+      "training": "Promenad",
+      "food": "Middag",
+      "home": ["Tvätt", "Städning"],
+      "family": ["Lugn kväll"],
+      "social": [],
+      "other": [],
+      "priority": "low"
+    },
+    {
+      "date": "2026-11-28",
+      "day": "lördag",
+      "work": null,
+      "training": "Lugn aktivitet",
+      "food": "Rester",
+      "home": [],
+      "family": [],
+      "social": [],
+      "other": [],
+      "priority": "normal"
+    }
+  ],
+  "weekTasks": [
+    { "category": "selfCare", "task": "Läs en bok", "done": false },
+    { "category": "economy", "task": "Stäm av budget", "done": false }
+  ],
+  "weeklySummary": {
+    "trainingGoal": "Två pass",
+    "foodPlan": "Planera middagar",
+    "socialPlan": "Träffa en vän",
+    "recovery": "Tidig kväll",
+    "economy": "Följ veckobudgeten",
+    "reflection": "Vad gav energi?"
+  }
+}

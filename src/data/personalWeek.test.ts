@@ -223,3 +223,22 @@ it('validates ISO boundaries, duplicates, relational ownership and cross-week it
   }
   expect(shared.tasks).toHaveLength(0)
 })
+
+it('persists nested ChatGPT imports with scalar categories and editable economy tasks', async () => {
+  const { default: fixture } =
+    await import('../../tests/fixtures/personal-week-nested.json')
+  const before = await snapshot()
+  let saved = await save(validatePersonalPlan(fixture), before.version)
+  expect(saved.focus).toEqual(fixture.week.focus)
+  expect(saved.tasks).toHaveLength(2)
+  expect(saved.tasks[1]!.category).toBe('economy')
+  expect(saved.days[0]!.items).toHaveLength(6)
+  saved.tasks[1]!.done = true
+  saved = await save(saved, saved.version)
+  expect(saved.tasks[1]).toMatchObject({
+    category: 'economy',
+    task: 'Stäm av budget',
+    done: true,
+  })
+  expect((await snapshot()).weekly_summary).toEqual(fixture.weeklySummary)
+})

@@ -18,6 +18,8 @@ import {
   weekTypes,
   categories,
   categoryLabels,
+  taskCategories,
+  taskCategoryLabels,
   summaryLabels,
   priorityLabels,
   type PersonalPlan,
@@ -505,8 +507,8 @@ onBeforeRouteLeave(() => !saving.value)
           <template v-if="kind === 'task' && editedTask"
             ><label
               >Kategori<select v-model="editedTask.category">
-                <option v-for="cat in categories" :key="cat" :value="cat">
-                  {{ categoryLabels[cat] }}
+                <option v-for="cat in taskCategories" :key="cat" :value="cat">
+                  {{ taskCategoryLabels[cat] }}
                 </option>
               </select></label
             ><label

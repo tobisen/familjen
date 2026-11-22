@@ -1,3 +1,7 @@
+import { readFileSync } from 'node:fs'
+const nestedExample = JSON.parse(
+  readFileSync('tests/fixtures/personal-week-nested.json', 'utf8'),
+)
 import { test, expect } from '@playwright/test'
 import type { PGlite } from '@electric-sql/pglite'
 import { calendarDatabase, calendarRpc, testUser } from '../support/database'
@@ -295,4 +299,54 @@ test('failed checkbox update restores the previous state and allows retry', asyn
   await expect(page.getByText('Ändringen sparades.')).toBeVisible()
   await page.reload()
   await expect(checkbox).toBeChecked()
+})
+
+test('imports nested ChatGPT JSON with scalar categories, day names and economy tasks', async ({
+  page,
+}) => {
+  await page.goto('./#/min-vecka?year=2026&week=48')
+  await page
+    .getByRole('button', { name: 'Importera vecka', exact: true })
+    .first()
+    .click()
+  const dialog = page.getByRole('dialog')
+  await dialog
+    .getByLabel('Veckoplan som JSON')
+    .fill(
+      `--- FAMILJEN WEEK IMPORT ---\n${JSON.stringify(nestedExample)}\n--- END ---`,
+    )
+  await dialog
+    .getByRole('button', { name: 'Validera och förhandsgranska' })
+    .click()
+  await expect(
+    dialog.getByRole('heading', { name: 'Vecka 48 · 2026 · Barnvecka' }),
+  ).toBeVisible()
+  await expect(dialog.locator('.focus-tags')).toContainText('Balans')
+  await expect(dialog.locator('.personal-day').first()).toContainText(
+    'Arbetsdag',
+  )
+  await expect(
+    dialog.getByRole('region', { name: 'Veckouppgifter' }),
+  ).toContainText('Ekonomi')
+  await dialog.getByRole('button', { name: 'Bekräfta import' }).click()
+  await expect(dialog).not.toBeVisible()
+  await page.getByLabel('Redigera Stäm av budget', { exact: true }).click()
+  await expect(page.getByRole('dialog').getByLabel('Kategori')).toHaveValue(
+    'economy',
+  )
+  await page
+    .getByRole('dialog')
+    .getByLabel('Uppgift', { exact: true })
+    .fill('Kontrollera budget')
+  await page.getByRole('button', { name: 'Spara ändring' }).click()
+  await expect(page.getByRole('dialog')).not.toBeVisible()
+  await page.getByLabel('Klar: Kontrollera budget', { exact: true }).check()
+  await expect(page.getByText('Ändringen sparades.')).toBeVisible()
+  await page.reload()
+  await expect(
+    page.getByLabel('Klar: Kontrollera budget', { exact: true }),
+  ).toBeChecked()
+  await expect(
+    page.getByRole('region', { name: 'Veckouppgifter' }),
+  ).toContainText('Ekonomi')
 })

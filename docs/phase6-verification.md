@@ -61,3 +61,18 @@ Fysiska telefoner har inte använts för denna fas. Offline-redigering och en
 särskild Realtime-kanal för privata veckor ingår inte. Supabase är sanningskälla;
 veckan hämtas vid navigation, omladdning och återgång till fönstret när ingen
 dialog är öppen. Samtidig redigering skyddas med versionskontroll.
+
+## Kompatibilitet med nästlat ChatGPT-format
+
+Importören accepterar även `week: { year, weekNumber, type, focus }`,
+`day` som alias för veckodag, text eller `null` i dagskategorier samt `weekTasks`.
+Veckouppgifter kan ha kategorin `economy`, som visas och redigeras som Ekonomi.
+Migration `202611220002_personal_week_import_compatibility.sql` kördes och
+registrerades i Supabase; den utökar endast veckouppgifternas kategoriconstraint.
+
+221 enhets-/SQL-tester och samtliga 16 Min vecka-tester i Chromium/WebKit
+passerar efter ändringen. De nya fallen verifierar förhandsgranskning, sparning,
+redigering, avbockning och omladdning med det nästlade formatet, samt strikt
+validering av motstridiga alias och felaktiga typer. Lint, typkontroll och
+produktionsbygge är godkända. Fixturen är syntetisk och innehåller ingen personlig
+veckoplan.

@@ -17,6 +17,7 @@ import {
 } from 'lucide-vue-next'
 import {
   categoryLabels,
+  taskCategoryLabels,
   categories,
   priorityLabels,
   summaryLabels,
@@ -224,7 +225,7 @@ const completed = computed(() => props.plan.tasks.filter((t) => t.done).length)
         <span :class="{ 'personal-done': task.done }"
           >{{ task.task
           }}<small class="personal-task-category">{{
-            categoryLabels[task.category]
+            taskCategoryLabels[task.category]
           }}</small></span
         >
         <button

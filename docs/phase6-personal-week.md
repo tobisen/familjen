@@ -21,15 +21,41 @@ Obligatoriskt: `year` (heltal 2000–2100), `week` (giltig ISO-vecka 1–53),
 `weekType` (`barnvecka`, `barnfri`, `specialvecka`). ISO-veckoåret kan skilja sig
 från kalenderåret: 1 januari 2027 hör till 2026 vecka 53.
 
+Även ChatGPT-format med ett samlat `week`-objekt fungerar:
+
+```json
+{
+  "week": {
+    "year": 2026,
+    "weekNumber": 48,
+    "type": "barnvecka",
+    "focus": ["Balans"]
+  },
+  "days": [
+    {
+      "date": "2026-11-23",
+      "day": "måndag",
+      "work": "Arbetsdag",
+      "food": "Middag"
+    }
+  ],
+  "weekTasks": [{ "category": "economy", "task": "Stäm av budget" }]
+}
+```
+
+Använd antingen veckofält på översta nivån eller `week`-objektet. Dubblerade
+alias avvisas så att ingen version av informationen väljs bort tyst.
+
 Valfria fält:
 
 - `focus`: högst tio texter, vardera 1–80 tecken.
 - `days`: högst sju unika datum i veckan. Utelämnade dagar skapas tomma.
-  `date` anges som YYYY-MM-DD. Valfri `weekday` är ISO-tal 1–7 eller svensk
+  `date` anges som YYYY-MM-DD. Valfri `weekday` (eller `day`) är ISO-tal 1–7 eller svensk
   veckodag, och måste stämma med datumet. `priority`: `low`, `normal` (standard),
   `high`.
 - Varje dag kan ha `work`, `training`, `food`, `home`, `family`, `social`, `other`,
-  `selfCare`, `recovery`, som listor med 0–20 texter (1–2000 tecken).
+  `selfCare`, `recovery`, som listor med 0–20 texter (1–2000 tecken), en enskild text eller `null`.
+  Tom text, `null` och tom lista betyder ingen post.
   `food` mappas till databasens `meal`. Samma listor kan ligga under `categories`.
 - `items`: lista med `{ "category": "training", "content": "Promenad", "done": false }`.
   Tillåtna kategorier är `work`, `training`, `meal`, `home`, `family`, `social`,
@@ -37,9 +63,10 @@ Valfria fält:
   Högst 90 poster sammanlagt per dag. `done` är valfri boolean, standard false.
 - `weeklySummary`: objekt med valfria texter `trainingGoal`, `foodPlan`,
   `socialPlan`, `recovery`, `economy`, `reflection`, högst 3000 tecken per fält.
-- `weeklyTasks`: högst 100 uppgifter som texter eller objekt
+- `weeklyTasks` (eller `weekTasks`): högst 100 uppgifter som texter eller objekt
   `{ "category": "home", "task": "Boka tid", "done": false }`.
   Texten är 1–1000 tecken. Standardkategori `other`, standard `done: false`.
+  Veckouppgifter stöder dessutom kategorin `economy` (Ekonomi).
   Identiska uppgifter i samma kategori avvisas.
 
 Även normaliserade fältnamn `week_number`, `week_type`, `weekly_summary`, `tasks`
@@ -100,3 +127,8 @@ frontend eller testskriptet. Det ska endast köras mot Familjens projekt. Dess
 fiktiva framtidsvecka tas bort av operatören efter körningen.
 
 [Resultat från lokal och riktig Supabase-verifiering](phase6-verification.md).
+
+Kompatibilitetsmigration `202611220002_personal_week_import_compatibility.sql`
+tillåter `economy` för veckouppgifter. Dagarnas kategorier, RLS och ägarverifiering
+behåller samma regler. Regressionstester använder ett syntetiskt ChatGPT-exempel;
+personliga veckoplaner läggs inte i det publika repot.

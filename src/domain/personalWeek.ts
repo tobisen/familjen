@@ -13,6 +13,8 @@ export const categories = [
   'recovery',
 ] as const
 export type PersonalCategory = (typeof categories)[number]
+export const taskCategories = [...categories, 'economy'] as const
+export type PersonalTaskCategory = (typeof taskCategories)[number]
 export const categoryLabels: Record<PersonalCategory, string> = {
   work: 'Jobb',
   training: 'Träning',
@@ -23,6 +25,10 @@ export const categoryLabels: Record<PersonalCategory, string> = {
   other: 'Övrigt',
   selfCare: 'Egenomsorg',
   recovery: 'Återhämtning',
+}
+export const taskCategoryLabels: Record<PersonalTaskCategory, string> = {
+  ...categoryLabels,
+  economy: 'Ekonomi',
 }
 export const summaryLabels = {
   trainingGoal: 'Veckans träning',
@@ -51,7 +57,7 @@ export interface PersonalItem {
 }
 export interface PersonalTask {
   id?: string
-  category: PersonalCategory
+  category: PersonalTaskCategory
   task: string
   done: boolean
 }
@@ -146,9 +152,17 @@ function alias(
   b: string,
   path: string,
 ) {
-  if (row[a] !== undefined && row[b] !== undefined)
-    fail(path, `använd endast ett av ${a} och ${b}.`)
-  return row[a] ?? row[b]
+  return aliases(row, [a, b], path)
+}
+function aliases(row: Record<string, unknown>, keys: string[], path: string) {
+  const present = keys.filter((key) => row[key] !== undefined)
+  if (present.length > 1) fail(path, `använd endast ett av ${keys.join(', ')}.`)
+  return present.length ? row[present[0]!] : undefined
+}
+function categoryEntries(value: unknown, path: string): unknown[] {
+  if (value === undefined || value === null) return []
+  if (typeof value === 'string') return value.trim() ? [value] : []
+  return list(value, path, 20)
 }
 function category(value: unknown, path: string): PersonalCategory {
   return choice(value === 'food' ? 'meal' : value, categories, path)
@@ -156,30 +170,53 @@ function category(value: unknown, path: string): PersonalCategory {
 /** Strict known fields, unknown metadata is ignored. IDs/ownership never come from import. */
 export function validatePersonalPlan(value: unknown): PersonalPlan {
   const root = object(value, 'vecka')
-  const year = root.year
-  const week = alias(root, 'week_number', 'week', 'week_number')
+  const nested =
+    root.week !== null && typeof root.week === 'object'
+      ? object(root.week, 'week')
+      : null
+  if (
+    nested &&
+    ['year', 'week_number', 'week_type', 'weekType', 'focus'].some(
+      (key) => root[key] !== undefined,
+    )
+  )
+    fail(
+      'week',
+      'använd antingen ett week-objekt eller veckofält på översta nivån, inte båda.',
+    )
+  const metadata = nested ?? root
+  const yearPath = nested ? 'week.year' : 'year'
+  const weekPath = nested ? 'week.weekNumber' : 'week_number'
+  const typePath = nested ? 'week.type' : 'week_type'
+  const focusPath = nested ? 'week.focus' : 'focus'
+  const year = metadata.year
+  const week = nested
+    ? aliases(nested, ['weekNumber', 'week_number'], weekPath)
+    : alias(root, 'week_number', 'week', weekPath)
   if (
     typeof year !== 'number' ||
     !Number.isInteger(year) ||
     year < 2000 ||
     year > 2100
   )
-    fail('year', 'ange ett heltal 2000–2100.')
+    fail(yearPath, 'ange ett heltal 2000–2100.')
   if (
     typeof week !== 'number' ||
     !Number.isInteger(week) ||
     week < 1 ||
     week > 53
   )
-    fail('week_number', 'ange ett heltal 1–53.')
+    fail(weekPath, 'ange ett heltal 1–53.')
   const dates = weekDates(year, week)
   const weekType = choice(
-    alias(root, 'week_type', 'weekType', 'week_type'),
+    nested
+      ? aliases(nested, ['type', 'week_type', 'weekType'], typePath)
+      : alias(root, 'week_type', 'weekType', typePath),
     Object.keys(weekTypes) as (keyof typeof weekTypes)[],
-    'week_type',
+    typePath,
   )
-  const focus = list(root.focus ?? [], 'focus', 10).map((f, i) =>
-    text(f, `focus[${i}]`, 80),
+  const focus = list(metadata.focus ?? [], focusPath, 10).map((f, i) =>
+    text(f, `${focusPath}[${i}]`, 80),
   )
   const summary = object(
     alias(root, 'weekly_summary', 'weeklySummary', 'weekly_summary') ?? {},
@@ -210,13 +247,15 @@ export function validatePersonalPlan(value: unknown): PersonalPlan {
       if (seen.has(date)) fail(`${path}.date`, 'datumet förekommer redan.')
       seen.add(date)
       const dayIndex = dates.indexOf(date)
+      const weekdayPath = `${path}.${row.day !== undefined ? 'day' : 'weekday'}`
+      const weekday = alias(row, 'weekday', 'day', weekdayPath)
       if (
-        row.weekday !== undefined &&
-        row.weekday !== dayIndex + 1 &&
-        (typeof row.weekday !== 'string' ||
-          row.weekday.toLocaleLowerCase('sv') !== weekdays[dayIndex])
+        weekday !== undefined &&
+        weekday !== dayIndex + 1 &&
+        (typeof weekday !== 'string' ||
+          weekday.toLocaleLowerCase('sv') !== weekdays[dayIndex])
       )
-        fail(`${path}.weekday`, 'veckodagen stämmer inte med datumet.')
+        fail(weekdayPath, 'veckodagen stämmer inte med datumet.')
       const priority = choice(
         row.priority ?? 'normal',
         ['low', 'normal', 'high'],
@@ -240,7 +279,10 @@ export function validatePersonalPlan(value: unknown): PersonalPlan {
           fail(`${path}.${key}`, 'kategorin finns på två ställen.')
         const entries = row[key] ?? grouped[key]
         if (entries === undefined) continue
-        for (const [i, entry] of list(entries, `${path}.${key}`, 20).entries())
+        for (const [i, entry] of categoryEntries(
+          entries,
+          `${path}.${key}`,
+        ).entries())
           items.push({
             category: category(key, path),
             content: text(entry, `${path}.${key}[${i}]`),
@@ -260,12 +302,17 @@ export function validatePersonalPlan(value: unknown): PersonalPlan {
         items: [],
       },
   )
-  const taskList = alias(root, 'tasks', 'weeklyTasks', 'tasks') ?? []
+  const taskList =
+    aliases(root, ['tasks', 'weeklyTasks', 'weekTasks'], 'tasks') ?? []
   const taskKeys = new Set<string>()
   const tasks = list(taskList, 'tasks', 100).map((v, i): PersonalTask => {
     const row = typeof v === 'string' ? { task: v } : object(v, `tasks[${i}]`)
     const entry = {
-      category: category(row.category ?? 'other', `tasks[${i}].category`),
+      category: choice(
+        row.category === 'food' ? 'meal' : (row.category ?? 'other'),
+        taskCategories,
+        `tasks[${i}].category`,
+      ),
       task: text(row.task, `tasks[${i}].task`, 1000),
       done: done(row.done, `tasks[${i}].done`),
     }
