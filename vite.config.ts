@@ -116,6 +116,12 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
-    test: { environment: 'jsdom', include: ['src/**/*.test.ts'] },
+    // SQL suites each boot PostgreSQL/WASM. Bound concurrency to avoid CPU
+    // contention and false timeouts on developer machines and CI runners.
+    test: {
+      environment: 'jsdom',
+      include: ['src/**/*.test.ts'],
+      maxWorkers: 2,
+    },
   }
 })

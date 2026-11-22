@@ -92,3 +92,5 @@ Phase 4 är implementerad med serverstyrd köhantering, mottagarval och VAPID-he
 Kartan nås via ikonen i överkanten. GPS rapporteras när appen är synlig och har
 telefonens tillstånd. Koder kan återanvändas utan tidsgräns tills de uttryckligen
 byts. Fysisk GPS- och pushverifiering på Android/iPhone återstår.
+
+[Phase 6: Min vecka](docs/phase6-personal-week.md) – privat veckoplanering för Tobias med JSON-import, förhandsgranskning, redigering och veckouppgifter. [JSON-mall](docs/personal-week.template.json).

@@ -11,3 +11,10 @@ Kalenderns security definer-RPC:er kontrollerar familj explicit, binder varje ä
 Service worker cachar endast statiska resurser, inte Auth/API/data. Registreringsfragmentet rensas före navigation, och token används först efter aktiv registreringsknapp. Utloggning stänger kanaler och rensar all laddad kalenderdata; generationskontroll avvisar sena svar. En annan lokal profil kan aldrig byta registrerad identitet.
 
 Se [aktuell setup, registrering och återkallning](phase1-setup.md). Testbevis och faktisk live-status redovisas i Phase 1.5-verifieringen.
+
+## Privat veckoplanering
+
+Phase 6 använder en adminstyrd koppling till Tobias befintliga stabila profil-ID.
+RLS isolerar alla privata veckotabeller från övriga familjemedlemmar. Skrivning
+sker genom en serververifierad, versionskontrollerad transaktion; direkta
+tabellskrivningar är nekade. [Schema, hotmodell och verifiering](phase6-personal-week.md).

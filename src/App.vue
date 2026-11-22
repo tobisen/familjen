@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getPersonalOwner, personalOwner } from './data/personalWeekRepository'
 import { geoWatching } from './services/geolocation'
 import { canApplyAppUpdate } from './services/appUpdate'
 import { restorePush } from './services/push'
@@ -9,6 +10,7 @@ import { chatSummary, pendingMessages } from './stores/chat'
 import { listEditor, openListEditor, listsWritable } from './stores/lists'
 import {
   CalendarDays,
+  NotebookPen,
   ListChecks,
   ShoppingBasket,
   MessageCircle,
@@ -33,8 +35,17 @@ import EventDetails from './components/EventDetails.vue'
 import ProfilePicker from './components/ProfilePicker.vue'
 import { backendConfigured } from './services/supabase'
 onMounted(() => initializeAuth())
-watch(identity, (p) => {
+watch(identity, async (p) => {
   if (p) void restorePush(p.profile_id).catch(() => {})
+  personalOwner.value = null
+  if (p) {
+    try {
+      const owner = await getPersonalOwner()
+      if (identity.value === p) personalOwner.value = owner
+    } catch {
+      /* Private access fails closed. */
+    }
+  }
 })
 const nav = [
   { to: '/kalender', label: 'Kalender', icon: CalendarDays },
@@ -173,6 +184,13 @@ onMounted(() => {
             >GPS</small
           ></RouterLink
         ><RouterLink
+          v-if="identity && personalOwner === identity.profile_id"
+          to="/min-vecka"
+          class="map-shortcut"
+          aria-label="Min vecka"
+          title="Min vecka · privat"
+          ><NotebookPen :size="22" /></RouterLink
+        ><RouterLink
           to="/installningar"
           class="current-profile"
           aria-label="Inställningar och profil"
@@ -215,7 +233,13 @@ onMounted(() => {
         <RouterView />
       </main>
     </div>
-    <button ref="plus" class="quick-add" aria-label="Lägg till" @click="add">
+    <button
+      v-if="route.path !== '/min-vecka'"
+      ref="plus"
+      class="quick-add"
+      aria-label="Lägg till"
+      @click="add"
+    >
       <Plus :size="24" /><span>Lägg till</span>
     </button>
     <dialog

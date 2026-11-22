@@ -1,0 +1,37 @@
+{
+  "year": 2026,
+  "week": 53,
+  "weekType": "barnfri",
+  "focus": ["Balans", "Hälsa"],
+  "days": [
+    {
+      "date": "2026-12-28",
+      "weekday": "måndag",
+      "priority": "normal",
+      "work": ["Planera arbetsveckan"],
+      "training": ["Promenad 30 minuter"],
+      "food": ["Soppa till middag"],
+      "home": [],
+      "family": [],
+      "social": [],
+      "other": [],
+      "selfCare": ["Läsa"],
+      "recovery": [],
+      "items": [
+        { "category": "training", "content": "Rörlighet", "done": false }
+      ]
+    }
+  ],
+  "weeklySummary": {
+    "trainingGoal": "Två pass och dagliga promenader",
+    "foodPlan": "Laga två större middagar",
+    "socialPlan": "Ring en vän",
+    "recovery": "Lugn söndag",
+    "economy": "Stäm av veckans utgifter",
+    "reflection": "Vad gav energi?"
+  },
+  "weeklyTasks": [
+    { "category": "home", "task": "Boka tid", "done": false },
+    "Planera nästa vecka"
+  ]
+}

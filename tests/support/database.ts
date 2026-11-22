@@ -27,6 +27,7 @@ export async function calendarDatabase(enabled = true, withUx = true) {
     '202610140016_help_delivery_expiry.sql',
     '202610140017_private_help_links.sql',
     '202610150001_standing_tasks.sql',
+    '202611220001_personal_weeks.sql',
   ])
     if (withUx || (!f.includes('0012_') && !f.includes('0013_')))
       await db.exec(readFileSync(`supabase/migrations/${f}`, 'utf8'))
@@ -205,6 +206,22 @@ export async function calendarRpc(
   specs.chat_preferences = {
     sql: 'select public.chat_preferences($1::boolean) as result',
     values: [args.enabled],
+  }
+  specs.personal_week_owner = {
+    sql: 'select public.personal_week_owner() as result',
+    values: [],
+  }
+  specs.personal_week_snapshot = {
+    sql: 'select public.personal_week_snapshot($1::integer,$2::integer) as result',
+    values: [args.target_year, args.target_week],
+  }
+  specs.personal_week_save = {
+    sql: 'select public.personal_week_save($1::jsonb,$2::integer,$3::uuid) as result',
+    values: [
+      JSON.stringify(args.payload),
+      args.expected_version ?? null,
+      args.request_id,
+    ],
   }
   const spec = specs[name]
   if (!spec) throw new Error('Unknown RPC')

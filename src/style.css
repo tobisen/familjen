@@ -3139,3 +3139,232 @@ body:has(.chat-view) .quick-add {
 .emoji-picker {
   flex-shrink: 0;
 }
+
+/* Private weekly planning uses the shared theme and compact mobile cards. */
+.personal-week {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.personal-heading,
+.personal-week-nav,
+.personal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.personal-heading .eyebrow,
+.personal-plan .text-link,
+.personal-category h3 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.personal-week .primary-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.personal-week-nav {
+  flex-wrap: nowrap;
+  text-align: center;
+  margin: 24px 0 16px;
+}
+.personal-week-nav button,
+.personal-item-actions button {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 6px;
+}
+.personal-week-type {
+  display: inline-block;
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text);
+}
+.focus-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+}
+.focus-tag {
+  padding: 3px 10px;
+  border-radius: 9px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.personal-days {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+.personal-day,
+.personal-section,
+.personal-empty {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  min-width: 0;
+}
+.personal-day summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  text-transform: capitalize;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+}
+.personal-day summary small {
+  color: var(--muted);
+  font-weight: 400;
+}
+.priority-tag {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: none;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.priority-tag.high {
+  color: var(--text);
+  border-bottom: 2px solid #d49166;
+}
+.personal-day-body {
+  padding-top: 12px;
+}
+.personal-category {
+  margin-bottom: 14px;
+}
+.personal-category h3 {
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+.personal-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 14px;
+}
+.personal-item > span {
+  flex: 1;
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.personal-item input[type='checkbox'] {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  margin-top: 3px;
+  accent-color: #d49166;
+}
+.personal-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  width: 108px;
+  flex: 0 0 108px;
+}
+.personal-item-actions button:first-child {
+  width: 36px;
+}
+.personal-done {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+.personal-section {
+  margin-top: 16px;
+}
+.personal-section > summary {
+  font-weight: 600;
+  cursor: pointer;
+}
+.personal-summary {
+  display: grid;
+  grid-template-columns: minmax(100px, 1fr) 2fr;
+  gap: 12px;
+  font-size: 14px;
+}
+.personal-summary dt {
+  color: var(--muted);
+}
+.personal-summary dd {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.personal-section progress {
+  width: 100%;
+  height: 6px;
+  accent-color: #d49166;
+  margin: 12px 0;
+}
+.personal-task-category {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+}
+.personal-empty {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+}
+.personal-dialog {
+  width: min(720px, calc(100% - 24px));
+}
+.personal-dialog fieldset {
+  border: 0;
+  padding: 0;
+  min-width: 0;
+}
+.personal-dialog .personal-actions {
+  margin: 16px 0;
+}
+.personal-dialog .notice {
+  margin: 12px 0;
+}
+.personal-plan button:disabled {
+  opacity: 0.4;
+}
+@media (max-width: 700px) {
+  .personal-days {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .personal-heading h1 {
+    font-size: 28px;
+  }
+  .personal-heading > .primary-button {
+    font-size: 12px;
+    padding: 10px;
+  }
+  .personal-week-nav p {
+    font-size: 11px;
+  }
+  .personal-summary {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 5px;
+  }
+  .personal-summary dd {
+    margin-bottom: 10px;
+  }
+  .personal-week .personal-item-actions button {
+    min-height: 40px;
+  }
+}
+@media (max-width: 380px) {
+  .topbar .current-profile > span:not(.avatar) {
+    display: none;
+  }
+}
