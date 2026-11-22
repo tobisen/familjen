@@ -3228,14 +3228,14 @@ body:has(.chat-view) .quick-add {
   color: var(--muted);
   font-weight: 400;
 }
-.priority-tag {
+.personal-day .priority-tag {
   font-size: 10px;
   font-weight: 500;
   text-transform: none;
   color: var(--muted);
   white-space: nowrap;
 }
-.priority-tag.high {
+.personal-day .priority-tag.high {
   color: var(--text);
   border-bottom: 2px solid #d49166;
 }
